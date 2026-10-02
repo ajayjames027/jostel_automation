@@ -10,7 +10,7 @@
     <!-- Vue.js for reactivity -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- docx.js for Word document generation -->
-    <script src="https://unpkg.com/docx@8.2.3/build/index.js"></script>
+    <script src="https://unpkg.com/docx@7.3.0/build/index.js"></script>
     <!-- FileSaver.js for downloading the file -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     
@@ -170,136 +170,141 @@
                     this.questions.splice(index, 1);
                 },
                 async generateDocx() {
-                    const docz = window.docx;
-                    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, HeadingLevel, AlignmentType } = docz;
+                    try {
+                        const docz = window.docx;
+                        const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, HeadingLevel, AlignmentType } = docz;
 
-                    const children = [];
-                    
-                    // Template Title
-                    children.push(
-                        new Paragraph({
-                            text: this.templateName || "Component 1 – QUIZ Template",
-                            heading: HeadingLevel.HEADING_1,
-                            alignment: AlignmentType.CENTER,
-                            spacing: { after: 200 }
-                        })
-                    );
-                    
-                    if (this.courseCode) {
+                        const children = [];
+                        
+                        // Template Title
                         children.push(
                             new Paragraph({
-                                children: [
-                                    new TextRun({ text: `[Enter the Course Code: ${this.courseCode}]`, bold: true, color: "000000" })
-                                ],
+                                text: this.templateName || "Component 1 – QUIZ Template",
+                                heading: HeadingLevel.HEADING_1,
+                                alignment: AlignmentType.CENTER,
                                 spacing: { after: 200 }
                             })
                         );
-                    }
-
-                    // Group questions by Level (K1, K2, etc.)
-                    const levels = [...new Set(this.questions.map(q => q.level))];
-                    
-                    for (const level of Object.keys({K1:1, K2:2, K3:3})) {
-                        const levelQs = this.questions.filter(q => q.level === level);
-                        if (levelQs.length === 0) continue;
                         
-                        children.push(new Paragraph({
-                            children: [new TextRun({ text: `[${level} – ${this.courseCode || 'Enter course code'}]`, bold: true })],
-                            spacing: { before: 200, after: 200 }
-                        }));
-
-                        levelQs.forEach((q, index) => {
-                            const qNumber = index + 1;
-                            // Q-01 - K1 (MC)
+                        if (this.courseCode) {
                             children.push(
                                 new Paragraph({
-                                    children: [new TextRun({ text: `Q-${String(qNumber).padStart(2, '0')} – ${level} (MC)`, bold: true })],
-                                    spacing: { before: 100, after: 100 }
+                                    children: [
+                                        new TextRun({ text: `[Enter the Course Code: ${this.courseCode}]`, bold: true, color: "000000" })
+                                    ],
+                                    spacing: { after: 200 }
                                 })
                             );
+                        }
 
-                            // The Moodle Format Table
-                            const tableBorder = { style: docz.BorderStyle.SINGLE, size: 1, color: "000000" };
-                            const tableBorders = {
-                                top: tableBorder, bottom: tableBorder, left: tableBorder, right: tableBorder,
-                                insideHorizontal: tableBorder, insideVertical: tableBorder
-                            };
-
-                            const rows = [];
+                        // Group questions by Level (K1, K2, etc.)
+                        const levels = [...new Set(this.questions.map(q => q.level))];
+                        
+                        for (const level of Object.keys({K1:1, K2:2, K3:3})) {
+                            const levelQs = this.questions.filter(q => q.level === level);
+                            if (levelQs.length === 0) continue;
                             
-                            // Row 1: Question Text & MC type
-                            rows.push(new docz.TableRow({
-                                children: [
-                                    new docz.TableCell({
-                                        children: [new docz.Paragraph({text: q.text || "[Empty Question]"})],
-                                        columnSpan: 3, borders: tableBorders
-                                    }),
-                                    new docz.TableCell({
-                                        children: [new docz.Paragraph({text: "MC"})],
-                                        borders: tableBorders
+                            children.push(new Paragraph({
+                                children: [new TextRun({ text: `[${level} – ${this.courseCode || 'Enter course code'}]`, bold: true })],
+                                spacing: { before: 200, after: 200 }
+                            }));
+
+                            levelQs.forEach((q, index) => {
+                                const qNumber = index + 1;
+                                // Q-01 - K1 (MC)
+                                children.push(
+                                    new Paragraph({
+                                        children: [new TextRun({ text: `Q-${String(qNumber).padStart(2, '0')} – ${level} (MC)`, bold: true })],
+                                        spacing: { before: 100, after: 100 }
                                     })
-                                ]
-                            }));
-                            
-                            // Row 2: Default Mark
-                            rows.push(new docz.TableRow({
-                                children: [
-                                    new docz.TableCell({
-                                        children: [new docz.Paragraph({text: "Default mark:"})],
-                                        columnSpan: 3, borders: tableBorders
-                                    }),
-                                    new docz.TableCell({
-                                        children: [new docz.Paragraph({text: String(q.marks)})],
-                                        borders: tableBorders
-                                    })
-                                ]
-                            }));
-                            
-                            // Row 3: Headers
-                            rows.push(new docz.TableRow({
-                                children: [
-                                    new docz.TableCell({ children: [new docz.Paragraph({text: "#"})], borders: tableBorders }),
-                                    new docz.TableCell({ children: [new docz.Paragraph({text: "Answers"})], borders: tableBorders }),
-                                    new docz.TableCell({ children: [new docz.Paragraph({text: "Feedback"})], borders: tableBorders }),
-                                    new docz.TableCell({ children: [new docz.Paragraph({text: "Grade"})], borders: tableBorders })
-                                ]
-                            }));
+                                );
 
-                            // Option Rows
-                            q.options.forEach((opt, optIdx) => {
-                                const isCorrect = q.correctIndex === optIdx;
-                                const grade = isCorrect ? "100" : "0";
+                                // The Moodle Format Table
+                                const tableBorder = { style: docz.BorderStyle.SINGLE, size: 1, color: "000000" };
+                                const tableBorders = {
+                                    top: tableBorder, bottom: tableBorder, left: tableBorder, right: tableBorder,
+                                    insideHorizontal: tableBorder, insideVertical: tableBorder
+                                };
+
+                                const rows = [];
+                                
+                                // Row 1: Question Text & MC type
                                 rows.push(new docz.TableRow({
                                     children: [
-                                        new docz.TableCell({ children: [new docz.Paragraph({text: " "})], borders: tableBorders }), // Empty # col
-                                        new docz.TableCell({ children: [new docz.Paragraph({text: opt.text || ""})], borders: tableBorders }),
-                                        new docz.TableCell({ children: [new docz.Paragraph({text: opt.feedback || ""})], borders: tableBorders }),
-                                        new docz.TableCell({ children: [new docz.Paragraph({text: grade})], borders: tableBorders })
+                                        new docz.TableCell({
+                                            children: [new docz.Paragraph({text: q.text || "[Empty Question]"})],
+                                            columnSpan: 3, borders: tableBorders
+                                        }),
+                                        new docz.TableCell({
+                                            children: [new docz.Paragraph({text: "MC"})],
+                                            borders: tableBorders
+                                        })
                                     ]
                                 }));
-                            });
+                                
+                                // Row 2: Default Mark
+                                rows.push(new docz.TableRow({
+                                    children: [
+                                        new docz.TableCell({
+                                            children: [new docz.Paragraph({text: "Default mark:"})],
+                                            columnSpan: 3, borders: tableBorders
+                                        }),
+                                        new docz.TableCell({
+                                            children: [new docz.Paragraph({text: String(q.marks)})],
+                                            borders: tableBorders
+                                        })
+                                    ]
+                                }));
+                                
+                                // Row 3: Headers
+                                rows.push(new docz.TableRow({
+                                    children: [
+                                        new docz.TableCell({ children: [new docz.Paragraph({text: "#"})], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({text: "Answers"})], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({text: "Feedback"})], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({text: "Grade"})], borders: tableBorders })
+                                    ]
+                                }));
 
-                            const table = new docz.Table({
-                                rows: rows,
-                                width: { size: 100, type: docz.WidthType.PERCENTAGE },
-                                borders: tableBorders
+                                // Option Rows
+                                q.options.forEach((opt, optIdx) => {
+                                    const isCorrect = q.correctIndex === optIdx;
+                                    const grade = isCorrect ? "100" : "0";
+                                    rows.push(new docz.TableRow({
+                                        children: [
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: " "})], borders: tableBorders }), // Empty # col
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: opt.text || ""})], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: opt.feedback || ""})], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: grade})], borders: tableBorders })
+                                        ]
+                                    }));
+                                });
+
+                                const table = new docz.Table({
+                                    rows: rows,
+                                    width: { size: 100, type: docz.WidthType.PERCENTAGE },
+                                    borders: tableBorders
+                                });
+                                
+                                children.push(table);
+                                children.push(new docz.Paragraph({ text: "" })); // Spacing block
                             });
-                            
-                            children.push(table);
-                            children.push(new docz.Paragraph({ text: "" })); // Spacing block
+                        }
+
+                        const doc = new Document({
+                            sections: [{
+                                properties: {},
+                                children: children
+                            }]
                         });
+
+                        Packer.toBlob(doc).then(blob => {
+                            window.saveAs(blob, `${this.courseCode || 'Quiz'}_${this.templateName || 'Template'}.docx`);
+                        });
+                    } catch (e) {
+                        alert("Error generating Document: " + e.message);
+                        console.error(e);
                     }
-
-                    const doc = new Document({
-                        sections: [{
-                            properties: {},
-                            children: children
-                        }]
-                    });
-
-                    Packer.toBlob(doc).then(blob => {
-                        saveAs(blob, `${this.courseCode || 'Quiz'}_${this.templateName || 'Template'}.docx`);
-                    });
                 }
             }
         }).mount('#app');
