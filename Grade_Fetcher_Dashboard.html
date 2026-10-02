@@ -7,9 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #10b981; /* Emerald green theme for grades */
+            --primary: #10b981;
             --primary-hover: #059669; 
-            --logo-dark: rgb(104, 46, 1);
             --bg-color: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --text-main: #f8fafc;
@@ -44,10 +43,11 @@
             border-radius: 24px;
             padding: 3rem;
             box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s;
         }
 
-        .header { text-align: center; margin-bottom: 3rem; }
-        .header img { height: 80px; margin-bottom: 1.5rem; object-fit: contain; }
+        .header { text-align: center; margin-bottom: 2rem; }
+        .header img { height: 80px; margin-bottom: 1rem; object-fit: contain; }
         .header h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; background: linear-gradient(to right, #34d399, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .header p { color: var(--text-muted); font-size: 1.1rem; }
 
@@ -56,7 +56,7 @@
         
         label { font-weight: 600; font-size: 0.9rem; color: #f8fafc; }
         
-        input[type="text"], input[type="password"] {
+        input[type="text"], input[type="password"], select {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--border-color);
             color: white;
@@ -68,7 +68,9 @@
             width: 100%;
         }
         
-        input[type="text"]:focus, input[type="password"]:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+
+        select option { background: #0f172a; color: white; padding: 10px; }
 
         .btn-generate {
             display: block;
@@ -83,11 +85,9 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             font-family: inherit;
-            margin-top: 1rem;
         }
         .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.6); }
-        .btn-generate:active { transform: translateY(0); }
-
+        
         .btn-export {
             display: none;
             width: 100%;
@@ -102,7 +102,7 @@
             margin-top: 1rem;
         }
 
-        .status { margin-top: 2rem; padding: 1.5rem; border-radius: 12px; display: none; text-align: center; }
+        .status { margin-top: 1.5rem; padding: 1.5rem; border-radius: 12px; display: none; text-align: center; }
         .status.error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; display: block;}
         .status.success { background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); color: #34d399; display: block;}
         .status.loading { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); color: #818cf8; display: block;}
@@ -120,6 +120,9 @@
         th, td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
         th { background: rgba(16, 185, 129, 0.1); color: #34d399; position: sticky; top: 0; }
         tr:hover { background: rgba(255,255,255,0.02); }
+
+        /* Multi-step logic */
+        #step2 { display: none; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem; }
     </style>
 </head>
 <body>
@@ -127,129 +130,166 @@
     <div class="dashboard">
         <div class="header">
             <img src="./jostel_logo.png" alt="Jostel Logo" onerror="this.style.display='none'">
-            <h1>API Grade Fetcher</h1>
-            <p>Instantly pull live Quiz grades directly from the Intranet API.</p>
+            <h1>Live Grade Fetcher</h1>
+            <p>Connect securely using your token to explore all quizzes.</p>
         </div>
 
-        <div class="form-grid">
-            <div class="input-group">
-                <label>Moodle API Token</label>
-                <input type="password" id="apiToken" value="20346d2c25c71285ffc0f147a3f9eab8" placeholder="Paste your 32-character token here">
+        <!-- Step 1: Connect -->
+        <div id="step1">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Moodle API Token</label>
+                    <input type="password" id="apiToken" value="20346d2c25c71285ffc0f147a3f9eab8">
+                </div>
+                <div class="input-group">
+                    <label>Moodle Base URL</label>
+                    <input type="text" id="moodleUrl" value="https://service.sjctni.edu/jostel/moodle">
+                </div>
             </div>
-            <div class="input-group">
-                <label>Full Quiz URL (from your browser)</label>
-                <input type="text" id="quizUrl" value="https://service.sjctni.edu/jostel/moodle/mod/quiz/report.php?id=13199" placeholder="e.g. .../mod/quiz/report.php?id=13199">
-            </div>
+            <button class="btn-generate" id="connectBtn">Connect to Moodle & Load Quizzes</button>
         </div>
-
-        <button class="btn-generate" id="fetchBtn">Fetch Live Grades!</button>
 
         <div class="status" id="statusMessage"></div>
 
-        <div class="table-container" id="tableContainer">
-            <table id="gradesTable">
-                <thead>
-                    <tr>
-                        <th>User ID</th>
-                        <th>Grade</th>
-                    </tr>
-                </thead>
-                <tbody id="gradesBody"></tbody>
-            </table>
+        <!-- Step 2: Select Quiz and Fetch -->
+        <div id="step2">
+            <div class="input-group" style="margin-bottom: 1.5rem;">
+                <label>Select a Quiz</label>
+                <select id="quizSelect">
+                    <option value="" disabled selected>-- Select a Quiz --</option>
+                </select>
+            </div>
+            
+            <button class="btn-generate" id="fetchBtn">Fetch Grades for Selected Quiz</button>
+
+            <div class="table-container" id="tableContainer">
+                <table id="gradesTable">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gradesBody"></tbody>
+                </table>
+            </div>
+            
+            <button class="btn-export" id="exportBtn">Export as CSV</button>
         </div>
-        
-        <button class="btn-export" id="exportBtn">Export as CSV</button>
     </div>
 
     <script>
         let currentGradesData = [];
+        let apiToken = "";
+        let apiUrl = "";
 
-        document.getElementById('fetchBtn').addEventListener('click', async () => {
-            const token = document.getElementById('apiToken').value.trim();
-            const urlInput = document.getElementById('quizUrl').value.trim();
+        // UI Helpers
+        function showStatus(type, message) {
             const statusBox = document.getElementById('statusMessage');
+            statusBox.className = `status ${type}`;
+            statusBox.innerHTML = message;
+        }
+
+        // STEP 1: LOAD QUIZZES
+        document.getElementById('connectBtn').addEventListener('click', async () => {
+            apiToken = document.getElementById('apiToken').value.trim();
+            const baseUrl = document.getElementById('moodleUrl').value.trim().replace(/\/$/, "");
+            apiUrl = `${baseUrl}/webservice/rest/server.php`;
+
+            if (!apiToken || !baseUrl) {
+                showStatus('error', 'Token and URL are required.'); return;
+            }
+
+            showStatus('loading', 'Connecting to Moodle & gathering quizzes...');
+            
+            try {
+                // mod_quiz_get_quizzes_by_courses fetches all quizzes if courseids array isn't provided (usually)
+                const res = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_quizzes_by_courses&moodlewsrestformat=json`);
+                const data = await res.json();
+
+                if (data.exception) throw new Error(data.message || "Failed to load quizzes");
+
+                const quizzes = data.quizzes || [];
+                if (quizzes.length === 0) {
+                    showStatus('error', "Connected successfully, but 0 quizzes were found for your account.");
+                    return;
+                }
+
+                // Populate Dropdown
+                const sel = document.getElementById('quizSelect');
+                sel.innerHTML = '<option value="" disabled selected>-- Choose a Quiz --</option>';
+                
+                // Sort quizzes by ID or name
+                quizzes.sort((a,b) => b.id - a.id); 
+
+                quizzes.forEach(q => {
+                    const opt = document.createElement('option');
+                    opt.value = q.id;
+                    opt.textContent = `[ID: ${q.id}] ${q.name}`;
+                    sel.appendChild(opt);
+                });
+
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+                showStatus('success', `Successfully loaded ${quizzes.length} Quizzes! Select one below.`);
+
+            } catch (err) {
+                // Determine if it was a CORS block or standard API block
+                if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    showStatus('error', `<b>CORS Block / Network Error:</b><br>The college firewall blocked the browser API request.<br><i>Wait for maintenance to end or run the alternative Python script inside the intranet!</i>`);
+                } else {
+                    showStatus('error', `Error: ${err.message}`);
+                }
+            }
+        });
+
+        // STEP 2: FETCH GRADES
+        document.getElementById('fetchBtn').addEventListener('click', async () => {
+            const quizId = document.getElementById('quizSelect').value;
             const tableCont = document.getElementById('tableContainer');
             const tbody = document.getElementById('gradesBody');
             const exportBtn = document.getElementById('exportBtn');
             
-            // UI Reset
-            statusBox.className = 'status loading';
-            statusBox.innerHTML = 'Connecting to Moodle API... Please wait.';
+            // Reset UI
             tableCont.style.display = 'none';
             exportBtn.style.display = 'none';
             tbody.innerHTML = '';
             currentGradesData = [];
 
-            if (!token || !urlInput) {
-                showStatus('error', 'Please provide both the API token and the Quiz URL.');
-                return;
+            if (!quizId) {
+                showStatus('error', 'Please select a quiz from the dropdown first!'); return;
             }
 
-            // Extract the domain and CMID
-            let domain = "";
-            let cmid = "";
             try {
-                const urlObj = new URL(urlInput);
-                domain = urlObj.origin + urlObj.pathname.substring(0, urlObj.pathname.indexOf('/mod/'));
-                cmid = urlObj.searchParams.get('id');
-                
-                if (!domain.includes('http') || !cmid) throw new Error("Invalid URL format");
-            } catch (e) {
-                showStatus('error', 'Could not parse URL. Please ensure it looks like: https://[site]/mod/quiz/report.php?id=123');
-                return;
-            }
-
-            const apiUrl = `${domain}/webservice/rest/server.php`;
-
-            try {
-                // Step 1: Look up the Quiz Instance ID using the CMID
-                showStatus('loading', `Looking up database ID for course module ${cmid}...`);
-                const cmRes = await fetch(`${apiUrl}?wstoken=${token}&wsfunction=core_course_get_course_module&moodlewsrestformat=json&cmid=${cmid}`);
-                const cmData = await cmRes.json();
-
-                if (cmData.exception) {
-                    throw new Error(cmData.message || "Failed to resolve Quiz ID from module ID.");
-                }
-
-                const quizId = cmData.cm.instance;
-
-                // Step 2: Fetch the grades using the Quiz ID
-                showStatus('loading', `Found Quiz ID: ${quizId}. Downloading grades...`);
-                const gradesRes = await fetch(`${apiUrl}?wstoken=${token}&wsfunction=mod_quiz_get_user_grades&moodlewsrestformat=json&quizid=${quizId}`);
+                showStatus('loading', `Downloading live grades for Quiz ID ${quizId}...`);
+                const gradesRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_grades&moodlewsrestformat=json&quizid=${quizId}`);
                 const gradesData = await gradesRes.json();
 
-                if (gradesData.exception) {
-                    throw new Error(gradesData.message);
-                }
+                if (gradesData.exception) throw new Error(gradesData.message);
 
                 currentGradesData = gradesData.grades || [];
 
                 if (currentGradesData.length === 0) {
-                    showStatus('error', `No grades found! The quiz might be empty, or students haven't completed it yet.`);
+                    showStatus('error', `No grades found! Either nothing is graded yet, or no one has completed the test.`);
                     return;
                 }
 
-                // Render Table
                 currentGradesData.forEach(g => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `<td>${g.userid}</td><td><b>${g.grade}</b></td>`;
                     tbody.appendChild(tr);
                 });
 
-                showStatus('success', `Successfully pulled ${currentGradesData.length} student grades!`);
+                showStatus('success', `Pulled ${currentGradesData.length} grades successfully!`);
                 tableCont.style.display = 'block';
                 exportBtn.style.display = 'block';
 
             } catch (error) {
-                // Handle CORS errors which are extremely common with browser APIs hitting Moodle
-                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    showStatus('error', `<b>CORS Block / Network Error:</b><br><br>Your Moodle server security blocks external dashboards from downloading data directly. <br><br><i>Fix: Use this dashboard on the college Intranet, or use the Python script "fetch_grades.py" which bypasses browser security!</i>`);
-                } else {
-                    showStatus('error', `API Error: ${error.message}`);
-                }
+                showStatus('error', `Failed to fetch grades: ${error.message}`);
             }
         });
 
+        // CSV EXPORT LOGIC
         document.getElementById('exportBtn').addEventListener('click', () => {
             if (!currentGradesData.length) return;
             let csvContent = "data:text/csv;charset=utf-8,User ID,Grade\n";
@@ -259,17 +299,11 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "quiz_grades_export.csv");
+            link.setAttribute("download", "exported_quiz_grades.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         });
-
-        function showStatus(type, message) {
-            const statusBox = document.getElementById('statusMessage');
-            statusBox.className = `status ${type}`;
-            statusBox.innerHTML = message;
-        }
     </script>
 </body>
 </html>
