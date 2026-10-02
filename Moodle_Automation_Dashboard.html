@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moodle Automation Dashboard</title>
+    <title>Jostel Automation Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
+            --primary: #d97706; /* Golden/Amber */
+            --primary-hover: #b45309; 
+            --logo-dark: rgb(104, 46, 1);
             --bg-color: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: rgba(255,255,255,0.1);
+            --text-muted: #cbd5e1;
+            --border-color: rgba(217, 119, 6, 0.2);
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,8 +24,8 @@
             font-family: 'Outfit', sans-serif;
             background-color: var(--bg-color);
             background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(217, 119, 6, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(104, 46, 1, 0.3) 0px, transparent 50%);
             background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
@@ -43,17 +44,18 @@
             border: 1px solid var(--border-color);
             border-radius: 24px;
             padding: 3rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(104, 46, 1, 0.4);
         }
 
         .header { text-align: center; margin-bottom: 3rem; }
-        .header h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header img { height: 80px; margin-bottom: 1.5rem; object-fit: contain; }
+        .header h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; background: linear-gradient(to right, #fcd34d, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .header p { color: var(--text-muted); font-size: 1.1rem; }
 
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
         .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
         
-        label { font-weight: 600; font-size: 0.9rem; color: #cbd5e1; }
+        label { font-weight: 600; font-size: 0.9rem; color: #f8fafc; }
         
         input[type="text"], input[type="file"] {
             background: rgba(15, 23, 42, 0.6);
@@ -66,7 +68,7 @@
             transition: all 0.3s ease;
         }
         
-        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2); }
         
         .file-upload-wrapper { position: relative; }
         input[type="file"] { cursor: pointer; width: 100%; }
@@ -87,7 +89,7 @@
             display: block;
             width: 100%;
             padding: 1.2rem;
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            background: linear-gradient(135deg, #d97706 0%, rgb(104, 46, 1) 100%);
             color: white;
             border: none;
             border-radius: 12px;
@@ -98,7 +100,7 @@
             font-family: inherit;
             margin-top: 2rem;
         }
-        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.6); }
+        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(217, 119, 6, 0.6); }
         .btn-generate:active { transform: translateY(0); }
 
         .status {
@@ -120,14 +122,15 @@
             font-size: 0.9rem;
             line-height: 1.6;
         }
-        .instructions h3 { color: #e2e8f0; margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .instructions h3 { color: #f8fafc; margin-bottom: 0.5rem; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
     <div class="dashboard">
         <div class="header">
-            <h1>Moodle Automation Hub</h1>
+            <img src="./jostel_logo.png" alt="Jostel Logo">
+            <h1>Jostel Automation Hub</h1>
             <p>Generate bulk CSVs for Courses, Quizzes, and Student Enrollments.</p>
         </div>
 
@@ -156,11 +159,11 @@
         <div class="instructions">
             <h3>How to use this dashboard:</h3>
             <p>1. Ensure your Excel file has headers matching your standard format (e.g. <b>Course Code</b>, <b>Course Title</b>, <b>Staff Incharge</b>, <b>Shift</b>, <b>Reg. Nol</b>, <b>Name</b>).</p>
-            <p>2. Set your Moodle Category ID (where the courses will be built) and your Template Course shortname (the master shell containing your quiz).</p>
+            <p>2. Set your Category ID (where the courses will be built) and your Template Course shortname (the master shell containing your quiz).</p>
             <p>3. Click Generate. Two files will automatically download:</p>
             <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
-                <li><b>Upload Courses</b>: Upload this in Moodle > Courses > Upload courses.</li>
-                <li><b>Upload Users</b>: Upload this in Moodle > Users > Upload users (Update existing users only).</li>
+                <li><b>Upload Courses</b>: Upload this in your LMS > Courses > Upload courses.</li>
+                <li><b>Upload Users</b>: Upload this in your LMS > Users > Upload users (Update existing users only).</li>
             </ul>
         </div>
     </div>
@@ -183,7 +186,6 @@
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, {type: 'array'});
                 
-                // Assuming data is in the second sheet if it exists, otherwise first
                 const sheetName = workbook.SheetNames.length > 1 ? workbook.SheetNames[1] : workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
@@ -208,7 +210,6 @@
                 const shiftRaw = row['Shift'] || '';
                 const courseTitle = row['Course Title'] || row['CourseTitle'] || 'Untitled Course';
                 
-                // Course Logic
                 const staffSlug = slugify(staffRaw);
                 const shiftSlug = slugify(shiftRaw);
                 const shortname = `${courseCode}_${shiftSlug}_${staffSlug}`;
@@ -223,7 +224,6 @@
                     };
                 }
 
-                // Student Logic
                 const regNo = row['Reg. Nol'] || row['RegNo'] || row['Username'] || '';
                 const name = row['Name'] || '.';
                 
@@ -238,15 +238,12 @@
                 }
             });
 
-            // Convert back to CSV text
             const coursesCsv = convertToCsv(Object.values(uniqueCourses));
             const studentsCsv = convertToCsv(studentEnrols);
 
-            // Download Triggers
             downloadFile('automated_courses_upload.csv', coursesCsv);
             setTimeout(() => downloadFile('automated_students_upload.csv', studentsCsv), 500);
 
-            // Show Status
             const status = document.getElementById('statusMessage');
             status.style.display = 'block';
             setTimeout(() => status.style.display = 'none', 5000);
