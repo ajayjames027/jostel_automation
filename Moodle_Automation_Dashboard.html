@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moodle Automation Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255,255,255,0.1);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .header { text-align: center; margin-bottom: 3rem; }
+        .header h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: var(--text-muted); font-size: 1.1rem; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        
+        label { font-weight: 600; font-size: 0.9rem; color: #cbd5e1; }
+        
+        input[type="text"], input[type="file"] {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        
+        .file-upload-wrapper { position: relative; }
+        input[type="file"] { cursor: pointer; width: 100%; }
+        input[type="file"]::file-selector-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: inherit;
+        }
+        input[type="file"]::file-selector-button:hover { background: var(--primary-hover); }
+
+        .btn-generate {
+            display: block;
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+            margin-top: 2rem;
+        }
+        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.6); }
+        .btn-generate:active { transform: translateY(0); }
+
+        .status {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            color: #34d399;
+            display: none;
+            text-align: center;
+        }
+
+        .instructions {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .instructions h3 { color: #e2e8f0; margin-bottom: 0.5rem; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="header">
+            <h1>Moodle Automation Hub</h1>
+            <p>Generate bulk CSVs for Courses, Quizzes, and Student Enrollments.</p>
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group">
+                <label>Target Category ID</label>
+                <input type="text" id="categoryId" value="956" placeholder="e.g. 956">
+            </div>
+            <div class="input-group">
+                <label>Template Course Shortname</label>
+                <input type="text" id="templateCourse" value="SL_TEMPLATE" placeholder="Course containing Quiz">
+            </div>
+            
+            <div class="input-group" style="grid-column: span 2;">
+                <label>Upload Main Excel Roster (Courses & Students)</label>
+                <input type="file" id="excelFile" accept=".xlsx, .xls">
+            </div>
+        </div>
+
+        <button class="btn-generate" id="generateBtn">Process & Download CSVs</button>
+
+        <div class="status" id="statusMessage">
+            Success! Your files have been downloaded automatically.
+        </div>
+
+        <div class="instructions">
+            <h3>How to use this dashboard:</h3>
+            <p>1. Ensure your Excel file has headers matching your standard format (e.g. <b>Course Code</b>, <b>Course Title</b>, <b>Staff Incharge</b>, <b>Shift</b>, <b>Reg. Nol</b>, <b>Name</b>).</p>
+            <p>2. Set your Moodle Category ID (where the courses will be built) and your Template Course shortname (the master shell containing your quiz).</p>
+            <p>3. Click Generate. Two files will automatically download:</p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><b>Upload Courses</b>: Upload this in Moodle > Courses > Upload courses.</li>
+                <li><b>Upload Users</b>: Upload this in Moodle > Users > Upload users (Update existing users only).</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const fileInput = document.getElementById('excelFile');
+            const categoryId = document.getElementById('categoryId').value || '956';
+            const templateCourse = document.getElementById('templateCourse').value || 'SL_TEMPLATE';
+
+            if (!fileInput.files.length) {
+                alert('Please upload an Excel file first!');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // Assuming data is in the second sheet if it exists, otherwise first
+                const sheetName = workbook.SheetNames.length > 1 ? workbook.SheetNames[1] : workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+
+                processRoster(json, categoryId, templateCourse);
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+
+        function slugify(text) {
+            return (text || 'Unknown').toString().replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+        }
+
+        function processRoster(data, categoryId, templateCourse) {
+            let uniqueCourses = {};
+            let studentEnrols = [];
+
+            data.forEach(row => {
+                const courseCode = row['Course Code'] || row['CourseCode'] || '';
+                const staffRaw = row['Staff Incharge'] || row['Staff'] || 'Unknown';
+                const shiftRaw = row['Shift'] || '';
+                const courseTitle = row['Course Title'] || row['CourseTitle'] || 'Untitled Course';
+                
+                // Course Logic
+                const staffSlug = slugify(staffRaw);
+                const shiftSlug = slugify(shiftRaw);
+                const shortname = `${courseCode}_${shiftSlug}_${staffSlug}`;
+                const fullname = `${courseTitle} (${shiftRaw} - ${staffRaw})`;
+
+                if (courseCode && !uniqueCourses[shortname]) {
+                    uniqueCourses[shortname] = {
+                        fullname: fullname,
+                        shortname: shortname,
+                        category: categoryId,
+                        templatecourse: templateCourse
+                    };
+                }
+
+                // Student Logic
+                const regNo = row['Reg. Nol'] || row['RegNo'] || row['Username'] || '';
+                const name = row['Name'] || '.';
+                
+                if (regNo && courseCode) {
+                    studentEnrols.push({
+                        username: regNo.toString().trim().toLowerCase(),
+                        firstname: name,
+                        lastname: '.',
+                        course1: shortname,
+                        role1: 'student'
+                    });
+                }
+            });
+
+            // Convert back to CSV text
+            const coursesCsv = convertToCsv(Object.values(uniqueCourses));
+            const studentsCsv = convertToCsv(studentEnrols);
+
+            // Download Triggers
+            downloadFile('automated_courses_upload.csv', coursesCsv);
+            setTimeout(() => downloadFile('automated_students_upload.csv', studentsCsv), 500);
+
+            // Show Status
+            const status = document.getElementById('statusMessage');
+            status.style.display = 'block';
+            setTimeout(() => status.style.display = 'none', 5000);
+        }
+
+        function convertToCsv(objArray) {
+            if (!objArray.length) return '';
+            const header = Object.keys(objArray[0]).join(',');
+            const rows = objArray.map(obj => 
+                Object.values(obj).map(val => 
+                    `"${String(val).replace(/"/g, '""')}"`
+                ).join(',')
+            );
+            return [header, ...rows].join('\n');
+        }
+
+        function downloadFile(filename, text) {
+            const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
