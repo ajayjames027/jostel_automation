@@ -262,12 +262,20 @@
 
             try {
                 showStatus('loading', `Downloading live grades for Quiz ID ${quizId}...`);
-                const gradesRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_grades&moodlewsrestformat=json&quizid=${quizId}`);
+                const gradesRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_attempts&moodlewsrestformat=json&quizid=${quizId}&status=finished`);
                 const gradesData = await gradesRes.json();
 
                 if (gradesData.exception) throw new Error(gradesData.message);
 
-                currentGradesData = gradesData.grades || [];
+                currentGradesData = [];
+                (gradesData.attempts || []).forEach(att => {
+                    if (att.sumgrades !== null) {
+                        currentGradesData.push({
+                            userid: att.userid,
+                            grade: att.sumgrades
+                        });
+                    }
+                });
 
                 if (currentGradesData.length === 0) {
                     showStatus('error', `No grades found! Either nothing is graded yet, or no one has completed the test.`);
