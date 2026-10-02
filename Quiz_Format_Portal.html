@@ -95,7 +95,7 @@
                     <div class="flex items-center gap-4 mb-4">
                         <span class="bg-gray-100 text-gray-700 text-sm font-bold px-3 py-1 rounded-full">Q-{{ String(index+1).padStart(2, '0') }}</span>
                         
-                        <select v-model="q.level" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-brand-500 focus:border-brand-500 outline-none bg-white">
+                        <select v-model="q.level" @change="updateMarks(q)" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-brand-500 focus:border-brand-500 outline-none bg-white">
                             <option value="K1">Level K1</option>
                             <option value="K2">Level K2</option>
                             <option value="K3">Level K3</option>
@@ -168,6 +168,11 @@
                 },
                 removeQuestion(index) {
                     this.questions.splice(index, 1);
+                },
+                updateMarks(q) {
+                    if (q.level === 'K1') q.marks = 1;
+                    else if (q.level === 'K2') q.marks = 2;
+                    else if (q.level === 'K3') q.marks = 3;
                 },
                 async generateDocx() {
                     try {
