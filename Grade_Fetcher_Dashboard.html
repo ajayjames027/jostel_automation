@@ -35,7 +35,7 @@
 
         .dashboard {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             background: var(--card-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -69,7 +69,6 @@
         }
         
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
-
         select option { background: #0f172a; color: white; padding: 10px; }
 
         .btn-generate {
@@ -89,7 +88,7 @@
         .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.6); }
         
         .btn-export {
-            display: none;
+            display: block;
             width: 100%;
             padding: 1rem;
             background: #cbd5e1;
@@ -108,21 +107,29 @@
         .status.loading { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); color: #818cf8; display: block;}
 
         .table-container {
-            margin-top: 2rem;
+            margin-top: 1rem;
             max-height: 400px;
             overflow-y: auto;
             border-radius: 12px;
-            display: none;
             border: 1px solid var(--border-color);
+        }
+        
+        .filters-bar {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
         table { width: 100%; border-collapse: collapse; text-align: left; background: rgba(15, 23, 42, 0.6); }
         th, td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
         th { background: rgba(16, 185, 129, 0.1); color: #34d399; position: sticky; top: 0; }
-        tr:hover { background: rgba(255,255,255,0.02); }
+        tr:hover { background: rgba(255,255,255,0.05); }
 
         /* Multi-step logic */
         #step2 { display: none; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem; }
+        #resultsWrapper { display: none; margin-top: 2rem; }
+        .hidden-row { display: none !important; }
     </style>
 </head>
 <body>
@@ -154,32 +161,50 @@
         <!-- Step 2: Select Quiz and Fetch -->
         <div id="step2">
             <div class="input-group" style="margin-bottom: 1.5rem;">
-                <label>Select a Quiz</label>
+                <!-- Filter Quizzes -->
+                <label>Course/Class Filter (Search Quizzes)</label>
+                <input type="text" id="quizSearchInput" placeholder="Type a course or quiz name to filter dropdown..." style="margin-bottom: 0.5rem;">
+                
                 <select id="quizSelect">
                     <option value="" disabled selected>-- Select a Quiz --</option>
                 </select>
             </div>
             
-            <button class="btn-generate" id="fetchBtn">Fetch Grades for Selected Quiz</button>
+            <button class="btn-generate" id="fetchBtn">Fetch Live Grades</button>
+        </div>
+
+        <!-- Results & Filtering Table -->
+        <div id="resultsWrapper">
+            <div class="filters-bar">
+                <div class="input-group">
+                    <label>🔍 Smart Filter</label>
+                    <input type="text" id="tableFilterInput" placeholder="Filter by Register Number, State, or Date...">
+                </div>
+                <div class="input-group">
+                    <label>Quick Export</label>
+                    <button class="btn-export" id="exportBtn" style="margin: 0; padding: 1rem;">Export CSV</button>
+                </div>
+            </div>
 
             <div class="table-container" id="tableContainer">
                 <table id="gradesTable">
                     <thead>
                         <tr>
-                            <th>User ID</th>
+                            <th>Reg. Number</th>
                             <th>Grade</th>
+                            <th>Status</th>
+                            <th>Date Finished</th>
                         </tr>
                     </thead>
                     <tbody id="gradesBody"></tbody>
                 </table>
             </div>
-            
-            <button class="btn-export" id="exportBtn">Export as CSV</button>
         </div>
     </div>
 
     <script>
         let currentGradesData = [];
+        let allQuizzes = [];
         let apiToken = "";
         let apiUrl = "";
 
@@ -188,6 +213,12 @@
             const statusBox = document.getElementById('statusMessage');
             statusBox.className = `status ${type}`;
             statusBox.innerHTML = message;
+        }
+
+        function formatUnixTime(unixStamp) {
+            if (!unixStamp || unixStamp === 0) return "Not Finished";
+            const d = new Date(unixStamp * 1000);
+            return d.toLocaleDateString() + " " + d.toLocaleTimeString();
         }
 
         // STEP 1: LOAD QUIZZES
@@ -201,60 +232,60 @@
             }
 
             showStatus('loading', 'Connecting to Moodle & gathering quizzes...');
-            
             try {
-                // mod_quiz_get_quizzes_by_courses fetches all quizzes if courseids array isn't provided (usually)
                 const res = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_quizzes_by_courses&moodlewsrestformat=json`);
                 const data = await res.json();
 
                 if (data.exception) throw new Error(data.message || "Failed to load quizzes");
 
-                const quizzes = data.quizzes || [];
-                if (quizzes.length === 0) {
-                    showStatus('error', "Connected successfully, but 0 quizzes were found for your account.");
-                    return;
+                allQuizzes = data.quizzes || [];
+                if (allQuizzes.length === 0) {
+                    showStatus('error', "Connected successfully, but 0 quizzes were found for your account."); return;
                 }
 
-                // Populate Dropdown
-                const sel = document.getElementById('quizSelect');
-                sel.innerHTML = '<option value="" disabled selected>-- Choose a Quiz --</option>';
-                
-                // Sort quizzes by ID or name
-                quizzes.sort((a,b) => b.id - a.id); 
-
-                quizzes.forEach(q => {
-                    const opt = document.createElement('option');
-                    opt.value = q.id;
-                    opt.textContent = `[ID: ${q.id}] ${q.name}`;
-                    sel.appendChild(opt);
-                });
+                allQuizzes.sort((a,b) => b.id - a.id); 
+                populateQuizDropdown(allQuizzes);
 
                 document.getElementById('step1').style.display = 'none';
                 document.getElementById('step2').style.display = 'block';
-                showStatus('success', `Successfully loaded ${quizzes.length} Quizzes! Select one below.`);
-
+                showStatus('success', `Successfully loaded ${allQuizzes.length} Quizzes! Select one below.`);
             } catch (err) {
-                // Determine if it was a CORS block or standard API block
                 if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-                    showStatus('error', `<b>CORS Block / Network Error:</b><br>The college firewall blocked the browser API request.<br><i>Wait for maintenance to end or run the alternative Python script inside the intranet!</i>`);
+                    showStatus('error', `<b>CORS Block / Network Error</b>`);
                 } else {
                     showStatus('error', `Error: ${err.message}`);
                 }
             }
         });
 
+        // Filter Quizzes Dropdown
+        document.getElementById('quizSearchInput').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            const filtered = allQuizzes.filter(quiz => quiz.name.toLowerCase().includes(q));
+            populateQuizDropdown(filtered);
+        });
+
+        function populateQuizDropdown(quizzesArray) {
+            const sel = document.getElementById('quizSelect');
+            sel.innerHTML = '<option value="" disabled selected>-- Choose a Quiz --</option>';
+            quizzesArray.forEach(q => {
+                const opt = document.createElement('option');
+                opt.value = q.id;
+                opt.textContent = `[ID: ${q.id}] ${q.name}`;
+                sel.appendChild(opt);
+            });
+        }
+
         // STEP 2: FETCH GRADES
         document.getElementById('fetchBtn').addEventListener('click', async () => {
             const quizId = document.getElementById('quizSelect').value;
-            const tableCont = document.getElementById('tableContainer');
+            const resWrap = document.getElementById('resultsWrapper');
             const tbody = document.getElementById('gradesBody');
-            const exportBtn = document.getElementById('exportBtn');
             
-            // Reset UI
-            tableCont.style.display = 'none';
-            exportBtn.style.display = 'none';
+            resWrap.style.display = 'none';
             tbody.innerHTML = '';
             currentGradesData = [];
+            document.getElementById('tableFilterInput').value = "";
 
             if (!quizId) {
                 showStatus('error', 'Please select a quiz from the dropdown first!'); return;
@@ -262,52 +293,76 @@
 
             try {
                 showStatus('loading', `Downloading live grades for Quiz ID ${quizId}...`);
-                const gradesRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_attempts&moodlewsrestformat=json&quizid=${quizId}&status=finished`);
+                const gradesRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_attempts&moodlewsrestformat=json&quizid=${quizId}&status=all`);
                 const gradesData = await gradesRes.json();
 
                 if (gradesData.exception) throw new Error(gradesData.message);
 
-                currentGradesData = [];
-                (gradesData.attempts || []).forEach(att => {
-                    if (att.sumgrades !== null) {
-                        currentGradesData.push({
-                            userid: att.userid,
-                            grade: att.sumgrades
-                        });
-                    }
-                });
-
-                if (currentGradesData.length === 0) {
-                    showStatus('error', `No grades found! Either nothing is graded yet, or no one has completed the test.`);
+                const attempts = gradesData.attempts || [];
+                if (attempts.length === 0) {
+                    showStatus('error', `No grades found! No one has attempted this test yet.`);
                     return;
                 }
 
-                currentGradesData.forEach(g => {
+                attempts.forEach(att => {
+                    // Only map if it exists
+                    const gradeVal = att.sumgrades !== null ? att.sumgrades : 'Ungraded';
+                    const dateStr = formatUnixTime(att.timefinish);
+                    const state = att.state || "unknown";
+
+                    currentGradesData.push({
+                        userid: att.userid,
+                        grade: gradeVal,
+                        state: state,
+                        date: dateStr,
+                        searchString: `${att.userid} ${gradeVal} ${state} ${dateStr}`.toLowerCase()
+                    });
+
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${g.userid}</td><td><b>${g.grade}</b></td>`;
+                    tr.innerHTML = `<td>${att.userid}</td><td><b>${gradeVal}</b></td><td>${state}</td><td>${dateStr}</td>`;
                     tbody.appendChild(tr);
                 });
 
-                showStatus('success', `Pulled ${currentGradesData.length} grades successfully!`);
-                tableCont.style.display = 'block';
-                exportBtn.style.display = 'block';
+                showStatus('success', `Pulled ${currentGradesData.length} records successfully! Use the Smart Filter to sort them.`);
+                resWrap.style.display = 'block';
 
             } catch (error) {
                 showStatus('error', `Failed to fetch grades: ${error.message}`);
             }
         });
 
+        // SMART TABLE FILTER LOGIC
+        document.getElementById('tableFilterInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const rows = document.getElementById('gradesBody').getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                // If we match the stored search string, show the row, else hide
+                if (currentGradesData[i].searchString.includes(query)) {
+                    rows[i].classList.remove('hidden-row');
+                } else {
+                    rows[i].classList.add('hidden-row');
+                }
+            }
+        });
+
         // CSV EXPORT LOGIC
         document.getElementById('exportBtn').addEventListener('click', () => {
             if (!currentGradesData.length) return;
-            let csvContent = "data:text/csv;charset=utf-8,User ID,Grade\n";
+            
+            // Only export currently VISIBLE rows based on filter
+            const query = document.getElementById('tableFilterInput').value.toLowerCase();
+            
+            let csvContent = "data:text/csv;charset=utf-8,Reg Number,Grade,Status,Date Finished\n";
             currentGradesData.forEach(row => {
-                csvContent += `${row.userid},${row.grade}\n`;
+                if (row.searchString.includes(query)) {
+                    csvContent += `${row.userid},${row.grade},${row.state},"${row.date}"\n`;
+                }
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "exported_quiz_grades.csv");
+            link.setAttribute("download", "filtered_quiz_grades.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
