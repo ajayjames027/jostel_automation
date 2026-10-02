@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moodle Quiz DOCX Generator</title>
+    <!-- Tailwind CSS for sleek, modern UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Vue.js for reactivity -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- docx.js for Word document generation -->
+    <script src="https://unpkg.com/docx@8.2.3/build/index.js"></script>
+    <!-- FileSaver.js for downloading the file -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
+        .slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-20px); }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen p-4 md:p-8">
+        <div class="max-w-5xl mx-auto">
+            <!-- Header -->
+            <header class="mb-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Moodle DOCX Portal</h1>
+                    <p class="text-gray-500 mt-1">Easily feed questions and export properly formatted Moodle Word files.</p>
+                </div>
+                <div class="mt-4 md:mt-0 flex gap-3">
+                    <button @click="addQuestion" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-brand-100">
+                        + Add Question
+                    </button>
+                    <button @click="generateDocx" v-if="questions.length > 0" class="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-green-100 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Export DOCX
+                    </button>
+                </div>
+            </header>
+
+            <!-- Course Meta -->
+            <div class="glass-panel p-6 rounded-2xl mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Course Code & Title</label>
+                        <input v-model="courseCode" type="text" placeholder="e.g. 25UBU501 - Principles of Management" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Template Type (Naming)</label>
+                        <input v-model="templateName" type="text" placeholder="e.g. Component-I_K1_K2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions List -->
+            <transition-group name="slide" tag="div" class="space-y-6">
+                <div v-for="(q, index) in questions" :key="q.id" class="glass-panel p-6 rounded-2xl relative group">
+                    <button @click="removeQuestion(index)" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Remove Question">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                    
+                    <div class="flex items-center gap-4 mb-4">
+                        <span class="bg-gray-100 text-gray-700 text-sm font-bold px-3 py-1 rounded-full">Q-{{ String(index+1).padStart(2, '0') }}</span>
+                        
+                        <select v-model="q.level" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-brand-500 focus:border-brand-500 outline-none bg-white">
+                            <option value="K1">Level K1</option>
+                            <option value="K2">Level K2</option>
+                            <option value="K3">Level K3</option>
+                        </select>
+                        <div class="text-sm text-gray-500">Marks: <input v-model.number="q.marks" type="number" min="1" class="w-16 px-2 py-1 border border-gray-300 rounded-md text-center outline-none"></div>
+                    </div>
+
+                    <div class="mb-5">
+                        <textarea v-model="q.text" rows="2" placeholder="Write your question here..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all resize-none font-medium text-gray-800"></textarea>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Options (Select the correct one)</label>
+                        <div v-for="(opt, optIndex) in q.options" :key="optIndex" class="flex flex-col md:flex-row items-center gap-3 bg-white p-2 border border-gray-100 rounded-lg shadow-sm">
+                            <div class="flex items-center justify-center pl-2">
+                                <input type="radio" :name="'correct_' + q.id" :value="optIndex" v-model="q.correctIndex" class="w-5 h-5 text-brand-600 bg-gray-100 border-gray-300 focus:ring-brand-500 cursor-pointer">
+                            </div>
+                            <input v-model="opt.text" type="text" :placeholder="'Option ' + (optIndex + 1)" class="flex-1 px-4 py-2 bg-transparent border-none outline-none focus:ring-0">
+                            <input v-model="opt.feedback" type="text" placeholder="Feedback (optional)" class="flex-1 px-4 py-2 text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-md outline-none focus:border-brand-300 hidden md:block">
+                        </div>
+                    </div>
+                </div>
+            </transition-group>
+
+            <div v-if="questions.length === 0" class="text-center py-20 bg-white rounded-2xl border border-gray-200 border-dashed">
+                <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No questions added</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by adding a new question.</p>
+                <button @click="addQuestion" class="mt-4 px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors">
+                    Add Question
+                </button>
+            </div>
+            
+            <div class="mt-8 text-center text-sm text-gray-400">
+                <p>Generates Word Document matching the Jostel College template structure.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    courseCode: '',
+                    templateName: 'Component-I_K1_K2_Template',
+                    questions: []
+                }
+            },
+            methods: {
+                addQuestion() {
+                    this.questions.push({
+                        id: Date.now() + Math.random(),
+                        text: '',
+                        level: 'K1',
+                        marks: 1,
+                        correctIndex: 0,
+                        options: [
+                            { text: '', feedback: '' },
+                            { text: '', feedback: '' },
+                            { text: '', feedback: '' },
+                            { text: '', feedback: '' }
+                        ]
+                    });
+                    // smooth scroll to bottom
+                    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
+                },
+                removeQuestion(index) {
+                    this.questions.splice(index, 1);
+                },
+                async generateDocx() {
+                    const docz = window.docx;
+                    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, HeadingLevel, AlignmentType } = docz;
+
+                    const children = [];
+                    
+                    // Template Title
+                    children.push(
+                        new Paragraph({
+                            text: this.templateName || "Component 1 – QUIZ Template",
+                            heading: HeadingLevel.HEADING_1,
+                            alignment: AlignmentType.CENTER,
+                            spacing: { after: 200 }
+                        })
+                    );
+                    
+                    if (this.courseCode) {
+                        children.push(
+                            new Paragraph({
+                                children: [
+                                    new TextRun({ text: `[Enter the Course Code: ${this.courseCode}]`, bold: true, color: "000000" })
+                                ],
+                                spacing: { after: 200 }
+                            })
+                        );
+                    }
+
+                    // Group questions by Level (K1, K2, etc.)
+                    const levels = [...new Set(this.questions.map(q => q.level))];
+                    
+                    for (const level of Object.keys({K1:1, K2:2, K3:3})) {
+                        const levelQs = this.questions.filter(q => q.level === level);
+                        if (levelQs.length === 0) continue;
+                        
+                        children.push(new Paragraph({
+                            children: [new TextRun({ text: `[${level} – ${this.courseCode || 'Enter course code'}]`, bold: true })],
+                            spacing: { before: 200, after: 200 }
+                        }));
+
+                        levelQs.forEach((q, index) => {
+                            const qNumber = index + 1;
+                            // Q-01 - K1 (MC)
+                            children.push(
+                                new Paragraph({
+                                    children: [new TextRun({ text: `Q-${String(qNumber).padStart(2, '0')} – ${level} (MC)`, bold: true })],
+                                    spacing: { before: 100, after: 100 }
+                                })
+                            );
+
+                            // The Moodle Format Table
+                            const tableBorder = { style: docz.BorderStyle.SINGLE, size: 1, color: "000000" };
+                            const tableBorders = {
+                                top: tableBorder, bottom: tableBorder, left: tableBorder, right: tableBorder,
+                                insideHorizontal: tableBorder, insideVertical: tableBorder
+                            };
+
+                            const rows = [];
+                            
+                            // Row 1: Question Text & MC type
+                            rows.push(new docz.TableRow({
+                                children: [
+                                    new docz.TableCell({
+                                        children: [new docz.Paragraph({text: q.text || "[Empty Question]"})],
+                                        columnSpan: 3, borders: tableBorders
+                                    }),
+                                    new docz.TableCell({
+                                        children: [new docz.Paragraph({text: "MC"})],
+                                        borders: tableBorders
+                                    })
+                                ]
+                            }));
+                            
+                            // Row 2: Default Mark
+                            rows.push(new docz.TableRow({
+                                children: [
+                                    new docz.TableCell({
+                                        children: [new docz.Paragraph({text: "Default mark:"})],
+                                        columnSpan: 3, borders: tableBorders
+                                    }),
+                                    new docz.TableCell({
+                                        children: [new docz.Paragraph({text: String(q.marks)})],
+                                        borders: tableBorders
+                                    })
+                                ]
+                            }));
+                            
+                            // Row 3: Headers
+                            rows.push(new docz.TableRow({
+                                children: [
+                                    new docz.TableCell({ children: [new docz.Paragraph({text: "#"})], borders: tableBorders }),
+                                    new docz.TableCell({ children: [new docz.Paragraph({text: "Answers"})], borders: tableBorders }),
+                                    new docz.TableCell({ children: [new docz.Paragraph({text: "Feedback"})], borders: tableBorders }),
+                                    new docz.TableCell({ children: [new docz.Paragraph({text: "Grade"})], borders: tableBorders })
+                                ]
+                            }));
+
+                            // Option Rows
+                            q.options.forEach((opt, optIdx) => {
+                                const isCorrect = q.correctIndex === optIdx;
+                                const grade = isCorrect ? "100" : "0";
+                                rows.push(new docz.TableRow({
+                                    children: [
+                                        new docz.TableCell({ children: [new docz.Paragraph({text: " "})], borders: tableBorders }), // Empty # col
+                                        new docz.TableCell({ children: [new docz.Paragraph({text: opt.text || ""})], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({text: opt.feedback || ""})], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({text: grade})], borders: tableBorders })
+                                    ]
+                                }));
+                            });
+
+                            const table = new docz.Table({
+                                rows: rows,
+                                width: { size: 100, type: docz.WidthType.PERCENTAGE },
+                                borders: tableBorders
+                            });
+                            
+                            children.push(table);
+                            children.push(new docz.Paragraph({ text: "" })); // Spacing block
+                        });
+                    }
+
+                    const doc = new Document({
+                        sections: [{
+                            properties: {},
+                            children: children
+                        }]
+                    });
+
+                    Packer.toBlob(doc).then(blob => {
+                        saveAs(blob, `${this.courseCode || 'Quiz'}_${this.templateName || 'Template'}.docx`);
+                    });
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
