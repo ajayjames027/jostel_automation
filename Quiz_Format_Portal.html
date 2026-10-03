@@ -266,10 +266,10 @@
                         marks: 1,
                         correctIndex: 0,
                         options: [
-                            { text: 'A) ', feedback: '' },
-                            { text: 'B) ', feedback: '' },
-                            { text: 'C) ', feedback: '' },
-                            { text: 'D) ', feedback: '' }
+                            { text: '', feedback: '' },
+                            { text: '', feedback: '' },
+                            { text: '', feedback: '' },
+                            { text: '', feedback: '' }
                         ]
                     });
                     // smooth scroll to bottom
@@ -298,10 +298,10 @@
                             marks: defaultMarks,
                             correctIndex: 0,
                             options: [
-                                { text: 'A) ', feedback: '' },
-                                { text: 'B) ', feedback: '' },
-                                { text: 'C) ', feedback: '' },
-                                { text: 'D) ', feedback: '' }
+                                { text: '', feedback: '' },
+                                { text: '', feedback: '' },
+                                { text: '', feedback: '' },
+                                { text: '', feedback: '' }
                             ]
                         });
                     }
@@ -506,10 +506,10 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                     const grade = isCorrect ? "100" : "0";
                                     rows.push(new docz.TableRow({
                                         children: [
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: String.fromCharCode(160)})], borders: tableBorders }), // Non-breaking space required by Moodle plugin
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: opt.text || ""})], borders: tableBorders }),
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: opt.feedback || ""})], borders: tableBorders }),
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: grade})], borders: tableBorders })
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: String.fromCharCode(160), style: "QFOption"})], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: opt.text || "", style: "Cell"})], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: opt.feedback || "", style: "QFFeedback"})], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: grade, style: "QFGrade"})], borders: tableBorders })
                                         ]
                                     }));
                                 });
