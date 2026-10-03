@@ -268,7 +268,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                     try {
                         let response;
                         try {
-                            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.aiKey}`;
+                            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.aiKey}`;
                             response = await fetch(url, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
