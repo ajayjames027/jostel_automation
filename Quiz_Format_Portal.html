@@ -619,6 +619,14 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                         const doc = new Document({
                             creator: "Moodle Quiz Generator",
                             language: "en-US",
+                            customProperties: [
+                                { name: "moodleLanguage", value: "en" },
+                                { name: "moodleRelease", value: "3.6" },
+                                { name: "moodleURL", value: "http://www.moodle2word.net/" },
+                                { name: "moodleCourseID", value: "1" },
+                                { name: "moodleQuestionSeqNum", value: "1" },
+                                { name: "moodleCategory", value: "Default" }
+                            ],
                             styles: {
                                 default: {
                                     document: {
