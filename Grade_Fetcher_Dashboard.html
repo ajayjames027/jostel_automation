@@ -237,16 +237,37 @@ createApp({
             return `${this.moodleUrl.replace(/\/$/, "")}/webservice/rest/server.php`;
         },
         filteredCourses() {
-            if (!this.selectedCategory) return this.courses;
-            return this.courses.filter(c => c.categoryid == this.selectedCategory);
+            // First determine what base courses we have. If API failed, derive from quizzes.
+            let baseCourses = this.courses.length > 0 ? this.courses : [...new Set(this.quizzes.map(q => q.course))].map(id => ({
+                id: id, fullname: `Course ID: ${id}`, categoryid: -1
+            }));
+            
+            if (!this.selectedCategory) return baseCourses;
+            
+            // Filter by category
+            let matching = baseCourses.filter(c => c.categoryid == this.selectedCategory);
+            // If category matches return empty (because derived courses lack categoryid), just return base to prevent locking UI
+            return matching.length > 0 ? matching : baseCourses;
         },
         filteredQuizzes() {
-            let targetCourses = this.selectedCourse ? [this.selectedCourse] : this.filteredCourses.map(c => c.id);
-            return this.quizzes.filter(q => targetCourses.includes(q.course));
+            let qs = this.quizzes;
+            
+            if (this.selectedCourse) {
+                // If a specific course is selected, strict filter.
+                qs = qs.filter(q => q.course === this.selectedCourse);
+            } else if (this.selectedCategory) {
+                // If category is selected, get valid courses for this category
+                const catCourseIds = this.filteredCourses.map(c => c.id);
+                if (catCourseIds.length > 0 && this.courses.length > 0) { 
+                    // Only restrict if we actually have linked course data
+                    qs = qs.filter(q => catCourseIds.includes(q.course));
+                }
+            }
+            
+            return qs;
         },
         displayData() {
             return this.scannedAttempts.filter(att => {
-                // Filter by local text (Student, Quiz Name)
                 if (this.studentSearch) {
                     const term = this.studentSearch.toLowerCase();
                     const match = att.username.toLowerCase().includes(term) || 
@@ -255,7 +276,6 @@ createApp({
                     if (!match) return false;
                 }
                 
-                // Filter by UI Dates if applied
                 if (this.fromDate || this.toDate) {
                     const rowDate = new Date(att.timestamp);
                     rowDate.setHours(0,0,0,0);
@@ -284,6 +304,15 @@ createApp({
         highestGrade() {
             if (this.displayData.length === 0) return 0;
             return Math.max(...this.displayData.map(d => d.total)).toFixed(1);
+        }
+    },
+    watch: {
+        selectedCategory(newVal) {
+            this.selectedCourse = '';
+            this.selectedQuiz = '';
+        },
+        selectedCourse(newVal) {
+            this.selectedQuiz = '';
         }
     },
     mounted() {
