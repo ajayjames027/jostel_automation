@@ -557,11 +557,11 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 rows.push(new docz.TableRow({
                                     children: [
                                         new docz.TableCell({
-                                            children: [new docz.Paragraph({ text: q.text || "[Empty Question]" })],
+                                            children: [new docz.Paragraph({ text: q.text || "[Empty Question]", style: "Cell" })],
                                             columnSpan: 3, borders: tableBorders
                                         }),
                                         new docz.TableCell({
-                                            children: [new docz.Paragraph({ text: "MC" })],
+                                            children: [new docz.Paragraph({ text: "MC", style: "QFType" })],
                                             borders: tableBorders
                                         })
                                     ]
@@ -571,11 +571,11 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 rows.push(new docz.TableRow({
                                     children: [
                                         new docz.TableCell({
-                                            children: [new docz.Paragraph({ text: "Default mark:" })],
+                                            children: [new docz.Paragraph({ text: "Default mark:", style: "TableRowHead" })],
                                             columnSpan: 3, borders: tableBorders
                                         }),
                                         new docz.TableCell({
-                                            children: [new docz.Paragraph({ text: String(q.marks) })],
+                                            children: [new docz.Paragraph({ text: String(q.marks), style: "Cell" })],
                                             borders: tableBorders
                                         })
                                     ]
@@ -584,22 +584,20 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 // Row 3: Headers
                                 rows.push(new docz.TableRow({
                                     children: [
-                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "#" })], borders: tableBorders }),
-                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Answers" })], borders: tableBorders }),
-                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Feedback" })], borders: tableBorders }),
-                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Grade" })], borders: tableBorders })
+                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "#", style: "QFOptionReset" })], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Answers", style: "TableHead" })], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Feedback", style: "TableHead" })], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Grade", style: "TableHead" })], borders: tableBorders })
                                     ]
                                 }));
 
                                 // Option Rows
-                                const optionLabels = ['A.', 'B.', 'C.', 'D.', 'E.', 'F.'];
                                 q.options.forEach((opt, optIdx) => {
                                     const isCorrect = q.correctIndex === optIdx;
                                     const grade = isCorrect ? "100" : "0";
-                                    const optLabel = optIdx < optionLabels.length ? optionLabels[optIdx] : '';
                                     rows.push(new docz.TableRow({
                                         children: [
-                                            new docz.TableCell({ children: [new docz.Paragraph({ text: optLabel, style: "QFOption" })], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({ text: "", style: "QFOption" })], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({ text: opt.text || "", style: "Cell" })], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({ text: opt.feedback || "", style: "QFFeedback" })], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({ text: grade, style: "QFGrade" })], borders: tableBorders })
@@ -624,7 +622,11 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                     { id: "QFOption", name: "QFOption", basedOn: "Normal", next: "Normal", run: {} },
                                     { id: "Cell", name: "Cell", basedOn: "Normal", next: "Normal", run: {} },
                                     { id: "QFFeedback", name: "QFFeedback", basedOn: "Normal", next: "Normal", run: {} },
-                                    { id: "QFGrade", name: "QFGrade", basedOn: "Normal", next: "Normal", run: {} }
+                                    { id: "QFGrade", name: "QFGrade", basedOn: "Normal", next: "Normal", run: {} },
+                                    { id: "QFType", name: "QFType", basedOn: "Normal", next: "Normal", run: {} },
+                                    { id: "TableRowHead", name: "TableRowHead", basedOn: "Normal", next: "Normal", run: {} },
+                                    { id: "TableHead", name: "TableHead", basedOn: "Normal", next: "Normal", run: {} },
+                                    { id: "QFOptionReset", name: "QFOptionReset", basedOn: "Normal", next: "Normal", run: {} }
                                 ]
                             },
                             sections: [{
