@@ -173,7 +173,17 @@
                 </select>
             </div>
             
-            <button class="btn-generate" id="fetchBtn">Fetch Live Grades</button>
+            <button class="btn-generate" id="fetchBtn" style="margin-bottom: 2rem;">Fetch Live Grades</button>
+
+            <!-- FETCH BY STUDENT REPORT -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 2rem; margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: #34d399;">Student Global Summary</h3>
+                <div class="input-group" style="margin-bottom: 1.5rem;">
+                    <label>🔍 Find by Register Number (Username)</label>
+                    <input type="text" id="studentSearchInput" placeholder="Enter Reg Nu, e.g. 24UCO102" style="margin-bottom: 1rem;">
+                </div>
+                <button class="btn-generate" id="fetchStudentBtn" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);">Fetch Student Summary</button>
+            </div>
         </div>
 
         <!-- Results & Filtering Table -->
@@ -468,6 +478,131 @@
         
         document.getElementById('tableFilterInput').addEventListener('input', applyFilters);
         document.getElementById('dateFilterInput').addEventListener('change', applyFilters);
+
+        // --- STUDENT GLOBAL SUMMARY LOGIC ---
+        document.getElementById('fetchStudentBtn').addEventListener('click', async () => {
+            const regNo = document.getElementById('studentSearchInput').value.trim().toLowerCase();
+            if (!regNo) {
+                showStatus('error', 'Please enter a Register Number / Username first.'); return;
+            }
+
+            const resWrap = document.getElementById('resultsWrapper');
+            const tbody = document.getElementById('gradesBody');
+            resWrap.style.display = 'none';
+            tbody.innerHTML = '';
+            currentGradesData = [];
+            document.getElementById('tableFilterInput').value = "";
+
+            try {
+                showStatus('loading', `🔍 Searching all courses for student: ${regNo}...`);
+
+                // 1. Find User ID by scanning unique courses
+                let targetUserId = null;
+                let targetUserName = null;
+                const uniqueCourses = [...new Set(allQuizzes.map(q => q.course))];
+                
+                for (let i = 0; i < uniqueCourses.length; i++) {
+                    const cid = uniqueCourses[i];
+                    try {
+                        const uRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid=${cid}`);
+                        const students = await uRes.json();
+                        if (Array.isArray(students)) {
+                            const found = students.find(s => (s.idnumber || "").toLowerCase() === regNo || (s.username || "").toLowerCase() === regNo);
+                            if (found) {
+                                targetUserId = found.id;
+                                targetUserName = found.fullname;
+                                break;
+                            }
+                        }
+                    } catch(e) { /* ignore and continue */ }
+                }
+
+                if (!targetUserId) {
+                    showStatus('error', `Could not find student '${regNo}' in any active courses.`); return;
+                }
+
+                // 2. Fetch attempts exactly for this user across ALL quizzes
+                showStatus('loading', `Found ${targetUserName}! Scanning ${allQuizzes.length} quizzes for attempts...`);
+                let summaryData = [];
+                let checkedCount = 0;
+
+                for (let quiz of allQuizzes) {
+                    checkedCount++;
+                    if (checkedCount % 5 === 0) showStatus('loading', `Found ${targetUserName}! Scanning quizzes (${checkedCount}/${allQuizzes.length})...`);
+                    
+                    try {
+                        const attRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=${quiz.id}&status=all&userid=${targetUserId}`);
+                        const attData = await attRes.json();
+                        if (attData.attempts && attData.attempts.length > 0) {
+                            for (let att of attData.attempts) {
+                                // Add quiz info context
+                                att.quizName = quiz.name;
+                                att.fullname = targetUserName;
+                                att.usernameStr = regNo;
+                                
+                                // Fetch Q-wise
+                                try {
+                                    const revRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_attempt_review&moodlewsrestformat=json&attemptid=${att.id}`);
+                                    const revData = await revRes.json();
+                                    let qDetails = [];
+                                    if (revData.questions) {
+                                        revData.questions.forEach(q => {
+                                            qDetails.push(`Q${q.slot}: ${q.mark!==null&&q.mark!==undefined?parseFloat(q.mark).toFixed(1):'0'}/${q.maxmark?parseFloat(q.maxmark).toFixed(1):'1'}`);
+                                        });
+                                    }
+                                    att.qWiseStr = qDetails.length > 0 ? qDetails.join(' | ') : 'N/A';
+                                } catch(e) { att.qWiseStr = 'N/A'; }
+                                
+                                summaryData.push(att);
+                            }
+                        }
+                    } catch (e) { /* ignore */ }
+                }
+
+                if (summaryData.length === 0) {
+                    showStatus('error', `Student ${targetUserName} hasn't attempted any quizzes yet.`); return;
+                }
+
+                summaryData.forEach(att => {
+                    const gradeVal = att.sumgrades !== null ? att.sumgrades : 'Ungraded';
+                    const dateStr = formatUnixTime(att.timefinish);
+                    const state = att.state || "unknown";
+                    
+                    const dt = (att.timefinish && att.timefinish !== 0) ? new Date(att.timefinish * 1000) : null;
+                    let isoDate = "";
+                    if (dt) {
+                        const year = dt.getFullYear();
+                        const month = String(dt.getMonth() + 1).padStart(2, '0');
+                        const day = String(dt.getDate()).padStart(2, '0');
+                        isoDate = `${year}-${month}-${day}`;
+                    }
+
+                    // For summary layout, display the quiz name instead of student name (since it's all one student)
+                    const displayTitle = `<span style="font-size:0.8rem; color:#818cf8;">${att.quizName}</span><br/>${att.usernameStr} - ${att.fullname}`;
+                    const qWise = att.qWiseStr || 'N/A';
+
+                    currentGradesData.push({
+                        userid: `${att.quizName} | ${att.usernameStr} - ${att.fullname}`, // Used in CSV
+                        grade: gradeVal,
+                        qWise: qWise,
+                        state: state,
+                        date: dateStr,
+                        isoDate: isoDate,
+                        searchString: `${att.quizName} ${att.usernameStr} ${att.fullname} ${gradeVal} ${qWise} ${state} ${dateStr}`.toLowerCase()
+                    });
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${displayTitle}</td><td><b style="color:var(--primary); font-size: 1.1em">${gradeVal}</b></td><td style="font-size:0.85rem; max-width:250px; overflow-x:auto; white-space:nowrap; padding:0.5rem; background:rgba(0,0,0,0.2); border-radius:5px;">${qWise}</td><td>${state}</td><td>${dateStr}</td>`;
+                    tbody.appendChild(tr);
+                });
+
+                showStatus('success', `Found ${summaryData.length} total quiz attempts for ${targetUserName}!`);
+                resWrap.style.display = 'block';
+
+            } catch (error) {
+                showStatus('error', `Failed to fetch summary: ${error.message}`);
+            }
+        });
 
         // CSV EXPORT LOGIC
         document.getElementById('exportBtn').addEventListener('click', () => {
