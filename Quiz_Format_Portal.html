@@ -93,9 +93,10 @@
                     </p>
                 </div>
                 <div class="mt-6 flex gap-3 flex-wrap justify-center">
-                    <button @click="showModal = true" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-purple-100 flex items-center gap-2">
-                        ✨ Bulk AI Importer
-                    </button>
+                    <label class="cursor-pointer px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-purple-100 flex items-center gap-2">
+                        📥 Import TXT File
+                        <input type="file" class="hidden" accept=".txt,.csv" @change="importAikenFile">
+                    </label>
                     <button @click="showTemplateModal = true"
                         class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-blue-100 flex items-center gap-2">
                         📄 Blank Template
@@ -208,79 +209,6 @@
                 <p>Generates Word Document matching the Jostel College template structure.</p>
             </div>
 
-            <!-- AI Generator Modal -->
-            <div v-if="showModal"
-                class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">✨ AI Importer & Generator</h2>
-                        <button @click="showModal = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="space-y-5">
-                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm p-4 rounded-lg">
-                            <p><b>Note:</b> You need a free Google Gemini API Key to use this feature. <a
-                                    href="https://aistudio.google.com/app/apikey" target="_blank"
-                                    class="underline font-semibold">Get one here</a>.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Google Gemini API Key <span
-                                    class="text-xs text-gray-400">(Saved locally)</span></label>
-                            <input v-model="aiKey" type="password" placeholder="AIzaSy..."
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Paste Raw Questions / Syllabus Text</label>
-                            <textarea v-model="aiSyllabus" rows="4"
-                                placeholder="Paste your formatted/unformatted questions, or a topic like 'Introduction to machine learning'..."
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none resize-none"></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div class="col-span-2 md:col-span-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">AI Model Endpoint</label>
-                                <select v-model="aiModel"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 bg-white">
-                                    <option value="gemini-3.8-flash">Gemini 3.8 Flash (Required Default)</option>
-                                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Legacy User)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Bloom's Level</label>
-                                <select v-model="aiLevel"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 bg-white">
-                                    <option value="K1">K1 (Remember)</option>
-                                    <option value="K2">K2 (Understand)</option>
-                                    <option value="K3">K3 (Apply)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Questions</label>
-                                <input v-model.number="aiCount" type="number" min="1" max="50"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500">
-                            </div>
-                        </div>
-
-                        <div v-if="aiStatus"
-                            :class="aiStatusType === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'"
-                            class="p-4 rounded-lg text-sm font-medium">
-                            {{ aiStatus }}
-                        </div>
-
-                        <button @click="generateWithAI" :disabled="isGenerating"
-                            class="w-full mt-4 px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold rounded-lg shadow-md transition-all">
-                            {{ isGenerating ? '🧠 Generating Questions...' : '✨ Generate Automatically' }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <!-- Template Generator Modal -->
             <div v-if="showTemplateModal"
                 class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -333,16 +261,6 @@
                     courseCode: '',
                     templateName: 'Component-I_K1_K2_Template',
                     questions: [],
-                    // AI State
-                    showModal: false,
-                    aiKey: localStorage.getItem('geminiApikey') || '',
-                    aiModel: 'gemini-3.8-flash',
-                    aiSyllabus: '',
-                    aiLevel: 'K1',
-                    aiCount: 5,
-                    aiStatus: '',
-                    aiStatusType: 'info',
-                    isGenerating: false,
                     // Template State
                     showTemplateModal: false,
                     templateLevel: 'K1',
@@ -400,109 +318,69 @@
                     this.showTemplateModal = false;
                     setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 150);
                 },
-                async generateWithAI() {
-                    if (!this.aiKey) { this.aiStatus = "Please provide an API Key."; this.aiStatusType = "error"; return; }
-                    if (!this.aiSyllabus) { this.aiStatus = "Please paste syllabus or topic text."; this.aiStatusType = "error"; return; }
+                importAikenFile(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
 
-                    localStorage.setItem('geminiApikey', this.aiKey);
-
-                    this.isGenerating = true;
-                    this.aiStatus = `Processing text... Please wait a few seconds.`;
-                    this.aiStatusType = "info";
-
-                    const prompt = `You are an expert test creator and data extractor. 
-Analyze the following text provided by the user:
-
-[USER TEXT BEGIN]
-${this.aiSyllabus}
-[USER TEXT END]
-
-INSTRUCTIONS:
-1. If the [USER TEXT] looks like an existing list of questions and answers in some raw/unstructured format, EXTRACT those questions exactly as they are without generating new ones. Extract as many questions as you can find.
-2. If the [USER TEXT] looks like a syllabus or topic instead, GENERATE exactly ${this.aiCount} novel multiple-choice questions based on the topic.
-3. In both cases, the questions MUST be tagged with Bloom's Taxonomy Level: ${this.aiLevel}.
-
-IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the output in markdown blocks (e.g. \`\`\`json). Return exactly the raw array:
-[
-  {
-    "text": "Question text here",
-    "level": "${this.aiLevel}",
-    "options": [
-      { "text": "Response option 1", "feedback": "Optional feedback" },
-      { "text": "Response option 2", "feedback": "" },
-      { "text": "Response option 3", "feedback": "" },
-      { "text": "Response option 4", "feedback": "" }
-    ],
-    "correctIndex": 0
-  }
-]`;
-
-                    try {
-                        let response;
-                        try {
-                            const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.aiModel}:generateContent?key=${this.aiKey}`;
-                            response = await fetch(url, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    contents: [{ parts: [{ text: prompt }] }],
-                                    generationConfig: { temperature: 0.2 }
-                                })
-                            });
-                        } catch (netErr) {
-                            throw new Error("Network error hitting Gemini API. Check your connection.");
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const text = e.target.result;
+                        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                        
+                        let currentQ = null;
+                        const parsedQuestions = [];
+                        
+                        for (let i = 0; i < lines.length; i++) {
+                            const line = lines[i];
+                            
+                            // Answer line
+                            if (line.toUpperCase().startsWith('ANSWER:')) {
+                                if (currentQ) {
+                                    const correctLetter = line.split(':')[1].trim().toUpperCase();
+                                    const val = correctLetter.charCodeAt(0) - 65;
+                                    currentQ.correctIndex = (val >= 0 && val < 4) ? val : 0;
+                                    
+                                    while(currentQ.options.length < 4) {
+                                        currentQ.options.push({ text: '', feedback: '' });
+                                    }
+                                    parsedQuestions.push(currentQ);
+                                    currentQ = null;
+                                }
+                            } 
+                            // Option line
+                            else if (/^[A-Z][.)]\s+(.*)/i.test(line)) {
+                                if (currentQ) {
+                                    const match = line.match(/^[A-Z][.)]\s+(.*)/i);
+                                    currentQ.options.push({ text: match[1].trim(), feedback: '' });
+                                }
+                            }
+                            // Question line
+                            else {
+                                if (!currentQ) {
+                                    currentQ = {
+                                        id: Date.now() + Math.random() + i,
+                                        text: line,
+                                        level: 'K1', // Default
+                                        marks: 1, 
+                                        correctIndex: 0,
+                                        options: []
+                                    };
+                                } else {
+                                    currentQ.text += "\n" + line;
+                                }
+                            }
                         }
-
-                        const data = await response.json();
-                        if (data.error) throw new Error(data.error.message);
-
-                        let rawText = data.candidates[0].content.parts[0].text.trim();
-                        if (rawText.startsWith('```json')) {
-                            rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-                        }
-
-                        let genQs = [];
-                        try {
-                            genQs = JSON.parse(rawText);
-                        } catch (e) {
-                            const match = rawText.match(/\[(\s|.)*\]/g);
-                            if (match && match.length > 0) genQs = JSON.parse(match[0]);
-                            else throw new Error("AI returned invalid JSON structure.");
-                        }
-
-                        if (!Array.isArray(genQs)) throw new Error("AI output mismatch.");
-
-                        genQs.forEach(q => {
-                            let marks = 1;
-                            if (this.aiLevel === 'K2') marks = 2;
-                            if (this.aiLevel === 'K3') marks = 3;
-
-                            this.questions.push({
-                                id: Date.now() + Math.random(),
-                                text: q.text || 'Generated Question',
-                                level: this.aiLevel,
-                                marks: marks,
-                                correctIndex: (typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < 4) ? q.correctIndex : 0,
-                                options: q.options || [
-                                    { text: 'A', feedback: '' }, { text: 'B', feedback: '' }, { text: 'C', feedback: '' }, { text: 'D', feedback: '' }
-                                ]
-                            });
-                        });
-
-                        this.aiStatus = `Success! Appended ${genQs.length} items to the questions list.`;
-                        this.aiStatusType = "info";
-                        setTimeout(() => {
-                            this.showModal = false;
-                            this.aiStatus = '';
+                        
+                        if (parsedQuestions.length > 0) {
+                            this.questions = [...this.questions, ...parsedQuestions];
+                            alert(`Success! Fetched ${parsedQuestions.length} questions from the file.`);
                             setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
-                        }, 1200);
-
-                    } catch (e) {
-                        this.aiStatus = `Error: ${e.message}`;
-                        this.aiStatusType = "error";
-                    } finally {
-                        this.isGenerating = false;
-                    }
+                        } else {
+                            alert("Could not extract any questions. Make sure it's in standard Aiken format (Question text, A. option, B. option, and ANSWER: A).");
+                        }
+                        event.target.value = '';
+                    };
+                    reader.readAsText(file);
                 },
                 async generateDocx() {
                     try {
