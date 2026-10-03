@@ -44,13 +44,110 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         }
+
+        /* Letter Pad Styles */
+        .letter-paper-wrapper {
+            padding: 20px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+        }
+        .letter-paper {
+            background: #ffffff;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            color: #000000;
+            font-family: 'Times New Roman', Times, serif;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .letter-header-divider {
+            height: 3px;
+            background: #1e3a8a;
+            margin: 15px 0 20px 0;
+            position: relative;
+        }
+        .letter-header-divider::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #1e3a8a;
+        }
+        .editable-block {
+            outline: none;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .editable-block:hover {
+            background: rgba(59, 130, 246, 0.1);
+            cursor: pointer;
+        }
+        .editable-block:focus {
+            background: rgba(253, 224, 71, 0.3);
+            border-bottom: 2px solid #3b82f6;
+        }
+        .letter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 13.5px;
+        }
+        .letter-table th, .letter-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            vertical-align: middle;
+        }
+        .letter-table th {
+            font-weight: bold;
+            background: #f8fafc !important;
+            -webkit-print-color-adjust: exact;
+        }
+        .letter-signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+        }
+        .letter-sig-block {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .letter-paper, .letter-paper * {
+                visibility: visible;
+            }
+            .letter-paper {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 10mm;
+                box-shadow: none;
+                min-height: auto;
+            }
+            .editable-block {
+                background: none !important;
+                border: none !important;
+            }
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
 <div id="app" class="max-w-6xl mx-auto space-y-6">
 
-    <!-- Header Section -->
-    <div class="flex items-center justify-between mb-8">
+    <!-- Header Section (hidden in print) -->
+    <div class="flex items-center justify-between mb-8 print:hidden">
         <div class="flex items-center gap-4">
             <a href="index.html" class="text-brand-500 hover:text-brand-600 transition-colors bg-white p-2 rounded-lg shadow-sm border border-gray-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -64,7 +161,7 @@
     </div>
 
     <!-- ================= MAIN STUDENTS LIST VIEW ================= -->
-    <div v-show="currentView === 'list'" class="space-y-6">
+    <div v-if="currentView === 'list'" class="space-y-6 animate-fade-in-up print:hidden">
         <!-- Toolbar -->
         <div class="glass-card p-6 rounded-2xl flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3 w-full md:w-auto">
@@ -75,11 +172,11 @@
             </div>
             
             <div class="flex gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 font-semibold text-sm">
-                <button @click="generateSummary" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg flex items-center gap-2 border border-gray-200 transition-colors whitespace-nowrap">
+                <button @click="openLetterView('summary')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg flex items-center gap-2 border border-gray-200 transition-colors whitespace-nowrap">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     Month Summary
                 </button>
-                <button @click="generateClaimLetter" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg flex items-center gap-2 border border-gray-200 transition-colors whitespace-nowrap">
+                <button @click="openLetterView('letter')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg flex items-center gap-2 border border-gray-200 transition-colors whitespace-nowrap">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     Claim Letter
                 </button>
@@ -139,7 +236,7 @@
     </div> <!-- END LIST VIEW -->
 
     <!-- ================= EDIT WORKING HOURS VIEW ================= -->
-    <div v-if="currentView === 'hours' && activeStudent" class="space-y-6">
+    <div v-if="currentView === 'hours' && activeStudent" class="space-y-6 animate-fade-in-up print:hidden">
         <!-- Header Controls -->
         <div class="flex justify-between items-center mb-4">
             <button @click="currentView = 'list'" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-2 px-4 rounded-lg font-semibold flex items-center gap-2 shadow-sm transition-colors">
@@ -150,7 +247,6 @@
             </div>
         </div>
         
-        <!-- Student Details Banner -->
         <div class="glass-card p-6 rounded-2xl border-l-4 border-l-brand-500">
             <h2 class="text-2xl font-bold text-gray-800 mb-1">{{ activeStudent.name }} <span class="text-gray-400 text-lg font-normal">({{ activeStudent.regNo }})</span></h2>
             <p class="text-gray-500">{{ activeStudent.department }}</p>
@@ -219,7 +315,6 @@
             <div class="glass-card p-6 rounded-2xl flex flex-col justify-between h-full bg-white">
                 <div>
                     <h3 class="font-bold text-lg text-gray-800 border-b border-gray-200 pb-3 mb-5">Remuneration Summary</h3>
-                    
                     <div class="space-y-4">
                         <div class="flex justify-between items-center border-b border-dashed border-gray-200 pb-3">
                             <span class="text-sm text-gray-500 font-medium">Total Logged Hours:</span>
@@ -235,7 +330,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="mt-6 bg-brand-50 p-4 rounded-xl border border-brand-100 text-xs text-brand-700 leading-relaxed font-medium">
                     <span class="text-lg mr-1 inline-block align-middle">ℹ️</span> 
                     Remuneration rate is dynamically calculated at a flat ₹40 per hour of office assistance work as defined by the IQAC policy.
@@ -245,8 +339,7 @@
 
         <!-- Logs Detail Table -->
         <div class="glass-card p-6 rounded-2xl overflow-hidden shadow-sm">
-            <h3 class="font-bold text-lg text-gray-800 mb-5">Logs Record details for the active Month</h3>
-            
+            <h3 class="font-bold text-lg text-gray-800 mb-5">Logs Record details</h3>
             <div class="overflow-x-auto border rounded-xl border-gray-200">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -267,56 +360,190 @@
                             <td class="py-3 px-4 text-sm text-center font-bold text-brand-600">{{ log.hours.toFixed(2) }} hrs</td>
                             <td class="py-3 px-4 text-sm text-gray-600">{{ log.work || '-' }}</td>
                             <td class="py-3 px-4 text-center">
-                                <button @click="removeLog(idx)" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg transition-colors" title="Delete Log">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                <button @click="removeLog(idx)" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg transition-colors">
+                                    Remove
                                 </button>
                             </td>
                         </tr>
                     </tbody>
-                    <tbody v-else>
-                        <tr>
-                            <td colspan="6" class="py-12 text-center text-gray-400">
-                                <p class="text-sm font-medium">No hours recorded for this student in the selected month.</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot class="bg-gray-50 border-t-2 border-gray-200 font-bold">
-                        <tr>
-                            <td colspan="3" class="py-4 px-4 text-right text-gray-700">Total Monthly Hours:</td>
-                            <td class="py-4 px-4 text-center text-lg text-brand-600">{{ activeTotalHours.toFixed(2) }} hrs</td>
-                            <td colspan="2"></td>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
     </div> <!-- END HOURS VIEW -->
 
+    <!-- ================= FULL PRINTABLE LETTER VIEW ================= -->
+    <div v-if="currentView === 'letter' || currentView === 'summary'" class="space-y-6 animate-fade-in-up">
+        
+        <div class="flex justify-between items-center print:hidden bg-white p-4 rounded-xl border border-gray-200">
+            <button @click="currentView = 'list'" class="bg-gray-100 border border-gray-300 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-lg font-semibold flex items-center gap-2 shadow-sm transition-colors">
+                ← Back to Dashboard
+            </button>
+            <button onclick="window.print()" class="bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 shadow-sm shadow-brand-500/30 transition-transform active:scale-95">
+                🖨️ Print Document
+            </button>
+        </div>
+
+        <div class="bg-blue-50 text-blue-800 p-3 rounded-lg border border-blue-200 text-sm font-medium print:hidden text-center">
+            💡 <strong>Interactive Letter Pad:</strong> The document below is fully editable! You can click anywhere on the text elements to make corrections directly before printing.
+        </div>
+
+        <div class="letter-paper-wrapper">
+            <div class="letter-paper" id="claim-letter-document">
+                <!-- College Letterhead Header -->
+                <table style="width: 100%; border-collapse: collapse; border: none !important; margin: 0 auto;">
+                    <tr>
+                        <td style="width: 90px; vertical-align: top; padding: 0 !important; border: none !important;">
+                            <img src="jostel_logo.png" alt="College Crest" style="width: 75px; height: auto; display: block;" onerror="this.style.display='none'">
+                        </td>
+                        <td style="vertical-align: top; padding: 0 !important; border: none !important; text-align: center;">
+                            <div style="text-align: center; line-height: 1.3;">
+                                <h2 contenteditable="true" class="editable-block" style="font-size: 14.5px; font-weight: bold; margin: 0; color: #000; letter-spacing: 0.5px;">INTERNAL QUALITY ASSURANCE CELL</h2>
+                                <h1 contenteditable="true" class="editable-block" style="font-size: 21px; font-weight: bold; margin: 3px 0 5px 0; color: #000; letter-spacing: 0.5px;">ST. JOSEPH'S COLLEGE (AUTONOMOUS)</h1>
+                                <table style="margin: 3px auto; border-collapse: collapse; border: none !important; width: auto; font-size: 11.5px; font-weight: bold; color: #000; line-height: 1.4;">
+                                    <tr>
+                                        <td style="border: none !important; padding: 0 15px 0 0 !important; text-align: left; white-space: nowrap;">Accredited at A++ Grade (Cycle IV) by NAAC</td>
+                                        <td style="border: none !important; padding: 0 0 0 15px !important; text-align: left; white-space: nowrap;">Special Heritage College Status awarded by UGC</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: none !important; padding: 0 15px 0 0 !important; text-align: left; white-space: nowrap;">College with Potential for Excellence by UGC</td>
+                                        <td style="border: none !important; padding: 0 0 0 15px !important; text-align: left; white-space: nowrap;">DBT-STAR &amp; DST-FIST Sponsored College</td>
+                                    </tr>
+                                </table>
+                                <h3 contenteditable="true" class="editable-block" style="font-size: 13.5px; font-weight: bold; margin: 4px 0 2px 0; text-align: center; color: #000; letter-spacing: 0.5px;">TIRUCHIRAPPALLI - 620 002</h3>
+                                <p contenteditable="true" class="editable-block" style="font-size: 11px; margin: 2px 0; text-align: center; color: #000; font-weight: bold;">
+                                    Email: iqaccoor@mail.sjctni.edu &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; website: www.sjctni.edu
+                                </p>
+                            </div>
+                        </td>
+                        <td style="width: 90px; padding: 0 !important; border: none !important;"></td>
+                    </tr>
+                </table>
+                <div class="letter-header-divider"></div>
+
+                <!-- DATE -->
+                <div style="text-align: right; margin-bottom: 24px; font-size: 14.5px;">
+                    <span class="editable-block font-bold" contenteditable="true">Date: {{ getTodayDateFormatted() }}</span>
+                </div>
+
+                <!-- LETTER OR SUMMARY VIEW RENDER -->
+                <div v-if="currentView === 'letter'">
+                    <div style="margin-bottom: 24px; font-size: 14.5px; line-height: 1.5;">
+                        <p style="margin: 0 0 2px 0;">To</p>
+                        <div class="editable-block" contenteditable="true" style="margin-left: 20px; font-weight: bold;">
+                            Rev. Fr. Principal<br>
+                            St. Joseph's College (Autonomous)<br>
+                            Tiruchirappalli-2
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 16px; font-size: 14.5px;">
+                        <span class="editable-block" contenteditable="true">Respected Rev. Father,</span>
+                    </div>
+                    <div style="margin-bottom: 20px; font-size: 14.5px; line-height: 1.5; font-weight: bold; padding-left: 40px; text-indent: -40px;">
+                        <div class="editable-block" contenteditable="true">
+                            Sub: Remuneration for Office assistance work – Earn while you Learn Scheme - Reg.
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 20px; font-size: 14.5px; line-height: 1.6; text-align: justify; text-indent: 40px;">
+                        <div class="editable-block" contenteditable="true">
+                            Kindly sanction remuneration for the work done by the following Students for preparation of documentation and assistance during the month of <strong>{{ selectedMonth }}</strong>.
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="currentView === 'summary'">
+                    <div style="margin-bottom: 20px; font-size: 16px; font-weight: bold; text-align: center; text-decoration: underline;">
+                        Monthly Work Summary Details
+                    </div>
+                    <div style="margin-bottom: 20px; font-size: 14.5px;">
+                        <span class="editable-block" contenteditable="true">This is the official tracked work summary generated for the month of <strong>{{ selectedMonth }}</strong>.</span>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC TABLE TO RENDER -->
+                <table class="letter-table" style="margin-bottom: 24px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 45px; text-align: center;">S.No</th>
+                            <th style="text-align: left;">Name & Reg No</th>
+                            <th v-if="currentView === 'summary'" style="text-align: left;">Department</th>
+                            <th style="width: 80px; text-align: center;">Rate (₹/hr)</th>
+                            <th style="width: 80px; text-align: center;">Hours</th>
+                            <th style="width: 100px; text-align: center;">Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(student, index) in filteredStudents" :key="student.regNo">
+                            <td class="text-center">{{ index + 1 }}</td>
+                            <td>
+                                <strong>{{ student.name }}</strong><br>
+                                <span style="font-size: 12px; color: #555;">{{ student.regNo }}</span>
+                            </td>
+                            <td v-if="currentView === 'summary'">{{ student.department }}</td>
+                            <td class="text-center font-bold">{{ ratePerHour }}</td>
+                            <td class="text-center font-bold text-blue-800">{{ calcHours(student).toFixed(2) }}</td>
+                            <td class="text-center font-bold text-green-800">{{ (calcHours(student) * ratePerHour).toFixed(2) }}</td>
+                        </tr>
+                        <!-- Grand Total Row -->
+                        <tr style="background: #f1f5f9;">
+                            <td :colspan="currentView === 'summary' ? 4 : 3" style="text-align: right; font-weight: bold; font-size:15px;">Grand Total:</td>
+                            <td class="text-center font-extrabold text-blue-900" style="font-size:15px;">
+                                {{ filteredStudents.reduce((sum, s) => sum + calcHours(s), 0).toFixed(2) }}
+                            </td>
+                            <td class="text-center font-extrabold text-green-900" style="font-size:15px;">
+                                ₹{{ (filteredStudents.reduce((sum, s) => sum + calcHours(s), 0) * ratePerHour).toFixed(2) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div v-if="currentView === 'letter'" style="margin-bottom: 30px; font-size: 14.5px; line-height: 1.5;">
+                    <span style="font-weight: bold;">Rupees in Words:</span>
+                    <span class="editable-block" contenteditable="true" style="display: inline-block; font-weight: bold;">{{ convertNumberToWords(filteredStudents.reduce((sum, s) => sum + calcHours(s), 0) * ratePerHour) }}</span>
+                </div>
+
+                <div v-if="currentView === 'letter'" style="margin-bottom: 40px; font-size: 14.5px;">
+                    <span class="editable-block" contenteditable="true">Thank you</span>
+                </div>
+
+                <div class="letter-signatures">
+                    <div class="letter-sig-block">
+                        <div class="editable-block" contenteditable="true" style="min-width: 150px; text-align: left;">
+                            Dr V. Jude Nirmal<br>
+                            Director - IQAC
+                        </div>
+                    </div>
+                    <div v-if="currentView === 'letter'" class="letter-sig-block">
+                        <div class="editable-block" contenteditable="true" style="min-width: 150px; text-align: right;">
+                            Rev. Dr K. Arockiam SJ<br>
+                            Principal
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div> <!-- END LETTER VIEW -->
+
     <!-- Fake Add Modal -->
-    <div v-if="showAddModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in-up">
+    <div v-if="showAddModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in-up print:hidden">
         <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Add New Student</h2>
-            
             <form @submit.prevent="addStudent" class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold mb-1 text-gray-700">Register Number</label>
-                    <input v-model="newStudent.regNo" type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20" placeholder="e.g. 21UCO123">
+                    <input v-model="newStudent.regNo" type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-500">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1 text-gray-700">Student Name</label>
-                    <input v-model="newStudent.name" type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20" placeholder="Full Name">
+                    <input v-model="newStudent.name" type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-500">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1 text-gray-700">Department</label>
-                    <input v-model="newStudent.department" type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20" placeholder="e.g. B.Com">
+                    <input v-model="newStudent.department" type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-500">
                 </div>
                 <div class="flex gap-4 pt-4">
-                    <button type="button" @click="showAddModal = false" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-colors shadow-sm shadow-brand-500/30">
-                        Confirm Add
-                    </button>
+                    <button type="button" @click="showAddModal = false" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg transition-colors">Cancel</button>
+                    <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg shadow-sm">Confirm Add</button>
                 </div>
             </form>
         </div>
@@ -328,12 +555,11 @@
 
     createApp({
         data() {
-            // Get current month + next few months for dropdown
             const date = new Date();
             const monthsNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
             return {
-                currentView: 'list', // 'list' or 'hours'
+                currentView: 'list', // 'list', 'hours', 'letter', 'summary'
                 ratePerHour: 40.00,
                 
                 months: [
@@ -345,27 +571,15 @@
                 showAddModal: false,
                 activeStudent: null,
                 
-                logMode: 'current', // 'current' or 'manual'
-                logForm: {
-                    date: this.getTodayDate(),
-                    in: '',
-                    out: '',
-                    work: ''
-                },
+                logMode: 'current',
+                logForm: { date: this.getTodayDateInput(), in: '', out: '', work: '' },
                 
-                newStudent: {
-                    regNo: '',
-                    name: '',
-                    department: ''
-                },
+                newStudent: { regNo: '', name: '', department: '' },
                 
                 students: [
-                    // Demo data
                     { 
                         regNo: '23PD001', name: 'Ajay James', department: 'Computer Science', month: `${monthsNames[date.getMonth()]} ${date.getFullYear()}`,
-                        logs: [
-                            { date: this.getTodayDate(), in: '10:00', out: '12:30', work: 'Data entry', hours: 2.5 }
-                        ]
+                        logs: [ { date: this.getTodayDateInput(), in: '10:00', out: '12:30', work: 'Data entry', hours: 2.5 } ]
                     }
                 ]
             }
@@ -388,10 +602,9 @@
         watch: {
             logMode(newVal) {
                 if (newVal === 'current') {
-                    this.logForm.date = this.getTodayDate();
+                    this.logForm.date = this.getTodayDateInput();
                 } else {
-                    this.logForm.in = '';
-                    this.logForm.out = '';
+                    this.logForm.in = ''; this.logForm.out = '';
                 }
             }
         },
@@ -416,74 +629,66 @@
                 this.activeStudent = student;
                 this.currentView = 'hours';
                 this.logMode = 'current';
-                this.logForm = {
-                    date: this.getTodayDate(),
-                    in: '', out: '', work: ''
-                };
+                this.logForm = { date: this.getTodayDateInput(), in: '', out: '', work: '' };
+            },
+            openLetterView(type) {
+                if (this.filteredStudents.length === 0) {
+                    alert("No students found in the selected month to generate document.");
+                    return;
+                }
+                this.currentView = type; // 'letter' or 'summary'
             },
             calcHours(student) {
                 if(!student.logs) return 0;
                 return student.logs.reduce((sum, log) => sum + log.hours, 0);
             },
-            getTodayDate() {
-                const now = new Date();
-                return now.toISOString().split('T')[0];
+            getTodayDateInput() { return new Date().toISOString().split('T')[0]; },
+            getTodayDateFormatted() {
+                const d = new Date();
+                return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth()+1).padStart(2, '0')}.${d.getFullYear()}`;
             },
             getCurrentTimeStr() {
                 const now = new Date();
                 return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             },
-            punchIn() {
-                this.logForm.in = this.getCurrentTimeStr();
-                this.logForm.out = '';
-            },
+            punchIn() { this.logForm.in = this.getCurrentTimeStr(); this.logForm.out = ''; },
             punchOut() {
-                if (!this.logForm.in) {
-                    alert('Please Punch IN first, or use Manual Entry.');
-                    return;
-                }
+                if (!this.logForm.in) { alert('Please Punch IN first, or use Manual Entry.'); return; }
                 this.logForm.out = this.getCurrentTimeStr();
             },
             calcTimeDiff(tin, tout) {
-                const d1 = new Date(`2000-01-01T${tin}:00`);
-                const d2 = new Date(`2000-01-01T${tout}:00`);
-                const diffMs = d2 - d1;
+                const diffMs = new Date(`2000-01-01T${tout}:00`) - new Date(`2000-01-01T${tin}:00`);
                 return diffMs / (1000 * 60 * 60);
             },
             saveLog() {
-                if(!this.logForm.in || !this.logForm.out) {
-                    alert('Please provide valid IN and OUT times.'); return;
-                }
+                if(!this.logForm.in || !this.logForm.out) { alert('Please provide valid IN and OUT times.'); return; }
                 const hrs = this.calcTimeDiff(this.logForm.in, this.logForm.out);
-                if (hrs <= 0) {
-                    alert('OUT time must be after IN time.'); return;
-                }
+                if (hrs <= 0) { alert('OUT time must be after IN time.'); return; }
                 
                 if (!this.activeStudent.logs) this.activeStudent.logs = [];
                 this.activeStudent.logs.push({
-                    date: this.logForm.date,
-                    in: this.logForm.in,
-                    out: this.logForm.out,
-                    work: this.logForm.work,
-                    hours: hrs
+                    date: this.logForm.date, in: this.logForm.in, out: this.logForm.out, work: this.logForm.work, hours: hrs
                 });
                 
-                // reset form
-                this.logForm.in = '';
-                this.logForm.out = '';
-                this.logForm.work = '';
-                if(this.logMode === 'manual') this.logForm.date = this.getTodayDate();
+                this.logForm.in = ''; this.logForm.out = ''; this.logForm.work = '';
+                if(this.logMode === 'manual') this.logForm.date = this.getTodayDateInput();
             },
             removeLog(idx) {
-                if(confirm('Remove this log entry?')) {
-                    this.activeStudent.logs.splice(idx, 1);
-                }
+                if(confirm('Remove this log entry?')) this.activeStudent.logs.splice(idx, 1);
             },
-            generateSummary() {
-                alert(`Generated Monthly Summary for ${this.selectedMonth}`);
-            },
-            generateClaimLetter() {
-                alert(`Generated Claim Letter for ${this.selectedMonth}`);
+            convertNumberToWords(amount) {
+                const a = ['','One ','Two ','Three ','Four ', 'Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+                const b = ['', '', 'Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'];
+                const num = parseInt(amount, 10);
+                if ((num = num.toString()).length > 9) return 'overflow';
+                n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+                if (!n) return; var str = '';
+                str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+                str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+                str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+                str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+                str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Only' : 'Only';
+                return str ? `Rupees ${str}` : "Rupees Zero Only";
             }
         }
     }).mount('#app');
