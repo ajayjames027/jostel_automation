@@ -329,8 +329,20 @@ createApp({
             this.selectedCourse = '';
             this.selectedQuiz = '';
         },
-        selectedCourse(newVal) {
+        async selectedCourse(newVal) {
             this.selectedQuiz = '';
+            if (newVal) {
+                try {
+                    const qzs = await this.request('mod_quiz_get_quizzes_by_courses', `&courseids[0]=${newVal}`);
+                    if (qzs && qzs.quizzes) {
+                        qzs.quizzes.forEach(newQ => {
+                            if (!this.quizzes.find(ex => ex.id == newQ.id)) {
+                                this.quizzes.push(newQ);
+                            }
+                        });
+                    }
+                } catch(e) { } 
+            }
         }
     },
     mounted() {
