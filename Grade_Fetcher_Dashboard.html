@@ -7,111 +7,115 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #10b981;
-            --primary-hover: #059669; 
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
-            --border-color: rgba(16, 185, 129, 0.2);
+            --primary: #1e3a8a; /* Deep University Blue */
+            --primary-hover: #1e40af; 
+            --secondary: #3b82f6;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --table-header-bg: #1e3a8a;
+            --table-header-text: #ffffff;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Outfit', -apple-system, sans-serif;
             background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(104, 46, 1, 0.2) 0px, transparent 50%);
-            background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 2rem;
+            line-height: 1.6;
         }
 
         .dashboard {
             width: 100%;
-            max-width: 950px;
+            max-width: 1000px;
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
+            border-radius: 12px;
             padding: 3rem;
-            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             transition: all 0.3s;
         }
 
-        .header { text-align: center; margin-bottom: 2rem; }
+        .header { text-align: center; margin-bottom: 2.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 2rem; }
         .header img { height: 80px; margin-bottom: 1rem; object-fit: contain; }
-        .header h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; background: linear-gradient(to right, #34d399, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .header p { color: var(--text-muted); font-size: 1.1rem; }
+        .header h1 { font-size: 2.2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        .header p { color: var(--text-muted); font-size: 1.1rem; font-weight: 300; }
 
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-        .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .input-group { display: flex; flex-direction: column; gap: 0.4rem; }
         
-        label { font-weight: 600; font-size: 0.9rem; color: #f8fafc; }
+        label { font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
         
-        input[type="text"], input[type="password"], select {
-            background: rgba(15, 23, 42, 0.6);
+        input[type="text"], input[type="password"], input[type="date"], select {
+            background: #ffffff;
             border: 1px solid var(--border-color);
-            color: white;
-            padding: 1rem;
-            border-radius: 12px;
+            color: var(--text-main);
+            padding: 0.9rem;
+            border-radius: 8px;
             font-family: inherit;
+            font-size: 1rem;
             outline: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             width: 100%;
+            box-sizing: border-box;
         }
         
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
-        select option { background: #0f172a; color: white; padding: 10px; }
+        input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        select option { background: #ffffff; color: var(--text-main); padding: 10px; }
 
         .btn-generate {
             display: block;
             width: 100%;
-            padding: 1.2rem;
-            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            padding: 1.1rem;
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 1.2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: background-color 0.2s, transform 0.1s;
             font-family: inherit;
         }
-        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.6); }
+        .btn-generate:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-generate:active { transform: translateY(0); }
         
         .btn-export {
             display: block;
             width: 100%;
-            padding: 1rem;
-            background: #cbd5e1;
-            color: #0f172a;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
+            padding: 0.9rem;
+            background: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             margin-top: 1rem;
+            transition: all 0.2s;
         }
+        .btn-export:hover { background: #e2e8f0; }
 
-        .status { margin-top: 1.5rem; padding: 1.5rem; border-radius: 12px; display: none; text-align: center; }
-        .status.error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; display: block;}
-        .status.success { background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); color: #34d399; display: block;}
-        .status.loading { background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); color: #818cf8; display: block;}
+        .status { margin-top: 1.5rem; padding: 1.2rem; border-radius: 8px; display: none; text-align: center; font-weight: 500; font-size: 0.95rem; }
+        .status.error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; display: block;}
+        .status.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; display: block;}
+        .status.loading { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; display: block;}
 
         .table-container {
             margin-top: 1rem;
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
-            border-radius: 12px;
+            border-radius: 8px;
             border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
         
         .filters-bar {
@@ -119,17 +123,40 @@
             grid-template-columns: 2fr 1fr 1fr;
             gap: 1rem;
             margin-top: 2rem;
+            align-items: end;
         }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; background: rgba(15, 23, 42, 0.6); }
-        th, td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        th { background: rgba(16, 185, 129, 0.1); color: #34d399; position: sticky; top: 0; }
-        tr:hover { background: rgba(255,255,255,0.05); }
+        table { width: 100%; border-collapse: collapse; text-align: left; background: #ffffff; }
+        th, td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+        th { background: var(--table-header-bg); color: var(--table-header-text); position: sticky; top: 0; font-weight: 600; z-index: 10; }
+        tr:hover { background: #f8fafc; }
+        
+        .q-wise-box {
+            font-size:0.85rem; 
+            max-width:250px; 
+            overflow-x:auto; 
+            white-space:nowrap; 
+            padding:0.4rem 0.6rem; 
+            background:#f1f5f9; 
+            border: 1px solid #e2e8f0;
+            border-radius:4px;
+            color: #475569;
+        }
 
         /* Multi-step logic */
-        #step2 { display: none; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem; }
+        #step2 { display: none; margin-top: 1.5rem; padding-top: 1.5rem; }
         #resultsWrapper { display: none; margin-top: 2rem; }
         .hidden-row { display: none !important; }
+        
+        .section-title {
+            margin-bottom: 1.2rem;
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -166,23 +193,23 @@
                 <input type="text" id="quizSearchInput" placeholder="Type a course or quiz name to filter..." style="margin-bottom: 1rem;">
 
                 <label>📅 Or Find Quiz by Date Attempted / Opened</label>
-                <input type="date" id="quizDateSearch" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); color: white; padding: 1rem; border-radius: 12px; font-family: inherit; outline: none; transition: all 0.3s ease; width: 100%; box-sizing: border-box; margin-bottom: 1.5rem;">
+                <input type="date" id="quizDateSearch" style="margin-bottom: 1.5rem;">
                 
                 <select id="quizSelect">
                     <option value="" disabled selected>-- Select a Quiz --</option>
                 </select>
             </div>
             
-            <button class="btn-generate" id="fetchBtn" style="margin-bottom: 2rem;">Fetch Live Grades</button>
+            <button class="btn-generate" id="fetchBtn" style="margin-bottom: 1rem;">Fetch Live Grades</button>
 
             <!-- FETCH BY STUDENT REPORT -->
-            <div style="border-top: 1px solid var(--border-color); padding-top: 2rem; margin-top: 2rem;">
-                <h3 style="margin-bottom: 1rem; color: #34d399;">Student Global Summary</h3>
-                <div class="input-group" style="margin-bottom: 1.5rem;">
-                    <label>🔍 Find by Register Number (Username)</label>
-                    <input type="text" id="studentSearchInput" placeholder="Enter Reg Nu, e.g. 24UCO102" style="margin-bottom: 1rem;">
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 2rem;">
+                <h3 class="section-title">Global Transcript Search</h3>
+                <div class="input-group" style="margin-bottom: 1.2rem;">
+                    <label>Find specific records by Register Number / Username</label>
+                    <input type="text" id="studentSearchInput" placeholder="Enter Reg No, e.g. 24UCO102">
                 </div>
-                <button class="btn-generate" id="fetchStudentBtn" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);">Fetch Student Summary</button>
+                <button class="btn-generate" id="fetchStudentBtn" style="background: var(--secondary); border: 1px solid #2563eb;">Search Student Transcript</button>
             </div>
         </div>
 
@@ -194,8 +221,8 @@
                     <input type="text" id="tableFilterInput" placeholder="Filter by Register Number/State...">
                 </div>
                 <div class="input-group">
-                    <label>📅 Date Filter</label>
-                    <input type="date" id="dateFilterInput" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); color: white; padding: 1rem; border-radius: 12px; font-family: inherit; outline: none; transition: all 0.3s ease; width: 100%; box-sizing: border-box;">
+                    <label>📅 Filter Existing Below</label>
+                    <input type="date" id="dateFilterInput">
                 </div>
                 <div class="input-group">
                     <label>Quick Export</label>
@@ -436,7 +463,7 @@
                     });
 
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${finalUser}</td><td><b style="color:var(--primary); font-size: 1.1em">${gradeVal}</b></td><td style="font-size:0.85rem; max-width:250px; overflow-x:auto; white-space:nowrap; padding:0.5rem; background:rgba(0,0,0,0.2); border-radius:5px;">${qWise}</td><td>${state}</td><td>${dateStr}</td>`;
+                    tr.innerHTML = `<td>${finalUser}</td><td><b style="color:var(--primary); font-size: 1.05em">${gradeVal}</b></td><td><div class="q-wise-box">${qWise}</div></td><td>${state}</td><td>${dateStr}</td>`;
                     tbody.appendChild(tr);
                 });
 
@@ -578,7 +605,7 @@
                     }
 
                     // For summary layout, display the quiz name instead of student name (since it's all one student)
-                    const displayTitle = `<span style="font-size:0.8rem; color:#818cf8;">${att.quizName}</span><br/>${att.usernameStr} - ${att.fullname}`;
+                    const displayTitle = `<span style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">${att.quizName}</span><br/><b>${att.usernameStr}</b> - ${att.fullname}`;
                     const qWise = att.qWiseStr || 'N/A';
 
                     currentGradesData.push({
@@ -592,7 +619,7 @@
                     });
 
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${displayTitle}</td><td><b style="color:var(--primary); font-size: 1.1em">${gradeVal}</b></td><td style="font-size:0.85rem; max-width:250px; overflow-x:auto; white-space:nowrap; padding:0.5rem; background:rgba(0,0,0,0.2); border-radius:5px;">${qWise}</td><td>${state}</td><td>${dateStr}</td>`;
+                    tr.innerHTML = `<td>${displayTitle}</td><td><b style="color:var(--primary); font-size: 1.05em">${gradeVal}</b></td><td><div class="q-wise-box">${qWise}</div></td><td>${state}</td><td>${dateStr}</td>`;
                     tbody.appendChild(tr);
                 });
 
