@@ -286,6 +286,11 @@ createApp({
             return Math.max(...this.displayData.map(d => d.total)).toFixed(1);
         }
     },
+    mounted() {
+        if (this.apiToken && this.moodleUrl) {
+            this.connect();
+        }
+    },
     methods: {
         setStatus(msg, type='info') {
             this.status = msg;
