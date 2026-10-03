@@ -197,8 +197,9 @@
                 <table id="gradesTable">
                     <thead>
                         <tr>
-                            <th>Reg. Number</th>
-                            <th>Grade</th>
+                            <th>Reg. No / Name</th>
+                            <th>Total Grade</th>
+                            <th>Q-Wise Details</th>
                             <th>Status</th>
                             <th>Date Finished</th>
                         </tr>
@@ -280,13 +281,21 @@
                 return;
             }
             const filtered = allQuizzes.filter(quiz => {
-                if (!quiz.timeopen || quiz.timeopen === 0) return false;
-                const dt = new Date(quiz.timeopen * 1000);
-                const year = dt.getFullYear();
-                const month = String(dt.getMonth() + 1).padStart(2, '0');
-                const day = String(dt.getDate()).padStart(2, '0');
-                const isoDate = `${year}-${month}-${day}`;
-                return isoDate === dateQuery;
+                const qOpen = quiz.timeopen ? new Date(quiz.timeopen * 1000) : null;
+                const qClose = (quiz.timeclose && quiz.timeclose > 0) ? new Date(quiz.timeclose * 1000) : null;
+                const targetDt = new Date(dateQuery);
+                
+                const toIso = d => d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` : null;
+                
+                // Direct specific match
+                if (toIso(qOpen) === dateQuery) return true;
+                
+                // Overlap match: if the date falls inside the window
+                targetDt.setHours(12, 0, 0, 0); 
+                if (qOpen && qClose && targetDt >= qOpen && targetDt <= qClose) return true;
+                if (qOpen && !qClose && targetDt >= qOpen) return true;
+                
+                return false;
             });
             populateQuizDropdown(filtered);
             if (filtered.length === 0) {
@@ -341,22 +350,44 @@
 
                 let allStudentAttempts = [];
 
-                // Fetch attempts sequentially to avoid rate limits
+                // Fetch attempts sequentially to avoid rate limits and update user visually
+                let progressCount = 0;
                 for (let i = 0; i < students.length; i++) {
                     const student = students[i];
                     const studentId = student.id;
                     const studentName = student.fullname;
-                    const studentUsername = student.username || ""; // Use username (register number) if available
+                    const studentReg = student.idnumber || student.username || ""; // Best effort for Reg Number
+                    
+                    progressCount++;
+                    showStatus('loading', `Checking grades for student ${progressCount} of ${students.length}...`);
                     
                     const attemptRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=${quizId}&status=all&userid=${studentId}`);
                     const attemptData = await attemptRes.json();
                     
                     if (attemptData.attempts && attemptData.attempts.length > 0) {
-                        attemptData.attempts.forEach(att => {
+                        for (let att of attemptData.attempts) {
                             att.fullname = studentName;
-                            att.usernameStr = studentUsername;
+                            att.usernameStr = studentReg;
+                            
+                            // Fetch detailed Q-wise marks for this attempt!
+                            try {
+                                const revRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_attempt_review&moodlewsrestformat=json&attemptid=${att.id}`);
+                                const revData = await revRes.json();
+                                let qDetails = [];
+                                if (revData.questions) {
+                                    revData.questions.forEach(q => {
+                                        let cleanMark = q.mark !== null && q.mark !== undefined ? parseFloat(q.mark).toFixed(1) : '0';
+                                        let cleanMax = q.maxmark ? parseFloat(q.maxmark).toFixed(1) : '1';
+                                        qDetails.push(`Q${q.slot}: ${cleanMark}/${cleanMax}`);
+                                    });
+                                }
+                                att.qWiseStr = qDetails.length > 0 ? qDetails.join(' | ') : 'N/A';
+                            } catch(e) {
+                                att.qWiseStr = 'Details Unavailable';
+                            }
+                            
                             allStudentAttempts.push(att);
-                        });
+                        }
                     }
                 }
 
@@ -380,20 +411,22 @@
                         isoDate = `${year}-${month}-${day}`;
                     }
 
-                    // Prefer username (register number), fallback to fullname + ID, then userid fallback
-                    const finalUser = att.usernameStr ? att.usernameStr : (att.fullname ? `${att.fullname} (ID: ${att.userid})` : att.userid);
+                    // Prefer register number, fallback to fullname, then userid fallback
+                    const finalUser = att.usernameStr ? `${att.usernameStr} - ${att.fullname}` : (att.fullname ? `${att.fullname} (ID: ${att.userid})` : att.userid);
+                    const qWise = att.qWiseStr || 'N/A';
 
                     currentGradesData.push({
                         userid: finalUser,
                         grade: gradeVal,
+                        qWise: qWise,
                         state: state,
                         date: dateStr,
                         isoDate: isoDate,
-                        searchString: `${att.userid} ${gradeVal} ${state} ${dateStr}`.toLowerCase()
+                        searchString: `${finalUser} ${gradeVal} ${qWise} ${state} ${dateStr}`.toLowerCase()
                     });
 
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${att.userid}</td><td><b>${gradeVal}</b></td><td>${state}</td><td>${dateStr}</td>`;
+                    tr.innerHTML = `<td>${finalUser}</td><td><b style="color:var(--primary); font-size: 1.1em">${gradeVal}</b></td><td style="font-size:0.85rem; max-width:250px; overflow-x:auto; white-space:nowrap; padding:0.5rem; background:rgba(0,0,0,0.2); border-radius:5px;">${qWise}</td><td>${state}</td><td>${dateStr}</td>`;
                     tbody.appendChild(tr);
                 });
 
@@ -444,14 +477,14 @@
             const query = document.getElementById('tableFilterInput').value.toLowerCase();
             const dateQuery = document.getElementById('dateFilterInput').value;
             
-            let csvContent = "data:text/csv;charset=utf-8,Reg Number,Grade,Status,Date Finished\n";
+            let csvContent = "data:text/csv;charset=utf-8,Register No / Name,Total Grade,Q-Wise Details,Status,Date Finished\n";
             currentGradesData.forEach(row => {
                 let include = true;
                 if (query && !row.searchString.includes(query)) include = false;
                 if (dateQuery && row.isoDate !== dateQuery) include = false;
                 
                 if (include) {
-                    csvContent += `${row.userid},${row.grade},${row.state},"${row.date}"\n`;
+                    csvContent += `"${row.userid}",${row.grade},"${row.qWise}",${row.state},"${row.date}"\n`;
                 }
             });
             const encodedUri = encodeURI(csvContent);
