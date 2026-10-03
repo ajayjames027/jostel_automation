@@ -1,0 +1,44 @@
+--- word/header1.xml ---
+-602615
+533717
+0
+0
+JosTEL – Joseph’s Technology Enhanced Learning
+ST. JOSEPH’S COLLEGE (Autonomous)
+Accredited at A
+++
+ Grade (Cycle IV) by NAAC    Special Heritage Status Awarded by UGC
+College with Potential for Excellence by UGC    DBT-STAR &amp; DST-FIST Sponsored College
+TIRUCHIRAPPALLI - 620 0
+02
+-98742
+-1204278
+0
+0
+--- docProps/core.xml ---
+Ajay James
+Ajay James
+304
+2023-09-28T05:56:00Z
+2023-01-23T10:17:00Z
+2026-10-03T15:44:00Z
+--- docProps/app.xml ---
+Normal.dotm
+604
+1
+0
+0
+Microsoft Office Word
+0
+0
+0
+false
+Title
+1
+false
+0
+false
+false
+16.0000
+--- docProps/custom.xml ---
+188af31c-39b8-466f-8834-79bf39d4eb45
