@@ -539,6 +539,11 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 // Q-01 - K1 (MC)
                                 children.push(
                                     new Paragraph({
+                                        text: "Quiz Category",
+                                        heading: HeadingLevel.HEADING_1
+                                    }),
+                                    new Paragraph({ text: "" }),
+                                    new Paragraph({
                                         children: [new TextRun({ text: `Q-${String(qNumber).padStart(2, '0')} – ${level} (MC)`, bold: true })],
                                         spacing: { before: 100, after: 100 }
                                     })
@@ -595,12 +600,14 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 }));
 
                                 // Option Rows
+                                const optionChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                                 q.options.forEach((opt, optIdx) => {
                                     const isCorrect = q.correctIndex === optIdx;
                                     const grade = isCorrect ? "100" : "0";
+                                    const optLabel = optionChars[optIdx] + ".";
                                     rows.push(new docz.TableRow({
                                         children: [
-                                            new docz.TableCell({ children: [new docz.Paragraph({ text: "", style: "QFOption" })], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({ text: optLabel, style: "QFOption" })], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({ text: opt.text || "", style: "Cell" })], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({ text: opt.feedback || "", style: "QFFeedback" })], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({ text: grade, style: "QFGrade" })], borders: tableBorders })
@@ -614,8 +621,11 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                     borders: tableBorders
                                 });
 
-                                children.push(table);
-                                children.push(new docz.Paragraph({ text: "" })); // Spacing block
+                                children.push(
+                                    new Paragraph({ text: "Question " + qNumber, heading: HeadingLevel.HEADING_2 }),
+                                    table,
+                                    new docz.Paragraph({ text: "" })
+                                );
                             });
                         }
 
