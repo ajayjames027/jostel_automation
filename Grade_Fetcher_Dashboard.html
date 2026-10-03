@@ -116,7 +116,7 @@
         
         .filters-bar {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 2fr 1fr 1fr;
             gap: 1rem;
             margin-top: 2rem;
         }
@@ -178,7 +178,11 @@
             <div class="filters-bar">
                 <div class="input-group">
                     <label>🔍 Smart Filter</label>
-                    <input type="text" id="tableFilterInput" placeholder="Filter by Register Number, State, or Date...">
+                    <input type="text" id="tableFilterInput" placeholder="Filter by Register Number/State...">
+                </div>
+                <div class="input-group">
+                    <label>📅 Date Filter</label>
+                    <input type="date" id="dateFilterInput" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); color: white; padding: 1rem; border-radius: 12px; font-family: inherit; outline: none; transition: all 0.3s ease; width: 100%; box-sizing: border-box;">
                 </div>
                 <div class="input-group">
                     <label>Quick Export</label>
@@ -309,12 +313,22 @@
                     const gradeVal = att.sumgrades !== null ? att.sumgrades : 'Ungraded';
                     const dateStr = formatUnixTime(att.timefinish);
                     const state = att.state || "unknown";
+                    
+                    const dt = (att.timefinish && att.timefinish !== 0) ? new Date(att.timefinish * 1000) : null;
+                    let isoDate = "";
+                    if (dt) {
+                        const year = dt.getFullYear();
+                        const month = String(dt.getMonth() + 1).padStart(2, '0');
+                        const day = String(dt.getDate()).padStart(2, '0');
+                        isoDate = `${year}-${month}-${day}`;
+                    }
 
                     currentGradesData.push({
                         userid: att.userid,
                         grade: gradeVal,
                         state: state,
                         date: dateStr,
+                        isoDate: isoDate,
                         searchString: `${att.userid} ${gradeVal} ${state} ${dateStr}`.toLowerCase()
                     });
 
@@ -332,19 +346,35 @@
         });
 
         // SMART TABLE FILTER LOGIC
-        document.getElementById('tableFilterInput').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
+        function applyFilters() {
+            const query = document.getElementById('tableFilterInput').value.toLowerCase();
+            const dateQuery = document.getElementById('dateFilterInput').value;
             const rows = document.getElementById('gradesBody').getElementsByTagName('tr');
             
             for (let i = 0; i < rows.length; i++) {
-                // If we match the stored search string, show the row, else hide
-                if (currentGradesData[i].searchString.includes(query)) {
+                let showRow = true;
+                const rowData = currentGradesData[i];
+                
+                // Text search filter
+                if (query && !rowData.searchString.includes(query)) {
+                    showRow = false;
+                }
+                
+                // Date match filter
+                if (dateQuery && rowData.isoDate !== dateQuery) {
+                    showRow = false;
+                }
+
+                if (showRow) {
                     rows[i].classList.remove('hidden-row');
                 } else {
                     rows[i].classList.add('hidden-row');
                 }
             }
-        });
+        }
+        
+        document.getElementById('tableFilterInput').addEventListener('input', applyFilters);
+        document.getElementById('dateFilterInput').addEventListener('change', applyFilters);
 
         // CSV EXPORT LOGIC
         document.getElementById('exportBtn').addEventListener('click', () => {
@@ -352,10 +382,15 @@
             
             // Only export currently VISIBLE rows based on filter
             const query = document.getElementById('tableFilterInput').value.toLowerCase();
+            const dateQuery = document.getElementById('dateFilterInput').value;
             
             let csvContent = "data:text/csv;charset=utf-8,Reg Number,Grade,Status,Date Finished\n";
             currentGradesData.forEach(row => {
-                if (row.searchString.includes(query)) {
+                let include = true;
+                if (query && !row.searchString.includes(query)) include = false;
+                if (dateQuery && row.isoDate !== dateQuery) include = false;
+                
+                if (include) {
                     csvContent += `${row.userid},${row.grade},${row.state},"${row.date}"\n`;
                 }
             });
