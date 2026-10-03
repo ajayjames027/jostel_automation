@@ -7,7 +7,7 @@
     <title>JosTEL: Template Hub</title>
     <!-- Tailwind CSS for sleek, modern UI -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- Vue.js for reactivity -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- docx.js for Word document generation -->
@@ -20,15 +20,15 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Outfit', 'sans-serif'],
                     },
                     colors: {
                         brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            900: '#0c4a6e',
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            500: '#1e3a8a',
+                            600: '#1e40af',
+                            900: '#0f172a',
                         }
                     }
                 }
@@ -37,8 +37,8 @@
     </script>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background-color: #f1f5f9;
         }
 
         .glass-panel {
@@ -88,7 +88,7 @@
                 <img src="./jostel_logo.png" alt="Jostel Logo" class="h-20 mb-3 object-contain"
                     onerror="this.style.display='none'">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800 tracking-tight">JosTEL: Template Hub</h1>
+                    <h1 class="text-3xl font-bold text-brand-500 tracking-tight">JosTEL: Template Hub</h1>
                     <p class="text-gray-500 mt-2">Easily feed questions and export properly formatted Moodle Word files.
                     </p>
                 </div>
