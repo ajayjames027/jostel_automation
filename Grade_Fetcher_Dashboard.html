@@ -163,7 +163,10 @@
             <div class="input-group" style="margin-bottom: 1.5rem;">
                 <!-- Filter Quizzes -->
                 <label>Course/Class Filter (Search Quizzes)</label>
-                <input type="text" id="quizSearchInput" placeholder="Type a course or quiz name to filter dropdown..." style="margin-bottom: 0.5rem;">
+                <input type="text" id="quizSearchInput" placeholder="Type a course or quiz name to filter..." style="margin-bottom: 1rem;">
+
+                <label>📅 Or Find Quiz by Date Attempted / Opened</label>
+                <input type="date" id="quizDateSearch" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); color: white; padding: 1rem; border-radius: 12px; font-family: inherit; outline: none; transition: all 0.3s ease; width: 100%; box-sizing: border-box; margin-bottom: 1.5rem;">
                 
                 <select id="quizSelect">
                     <option value="" disabled selected>-- Select a Quiz --</option>
@@ -262,11 +265,35 @@
             }
         });
 
-        // Filter Quizzes Dropdown
+        // Filter Quizzes Dropdown by Text
         document.getElementById('quizSearchInput').addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase();
             const filtered = allQuizzes.filter(quiz => quiz.name.toLowerCase().includes(q));
             populateQuizDropdown(filtered);
+        });
+
+        // Filter Quizzes by Date
+        document.getElementById('quizDateSearch').addEventListener('change', (e) => {
+            const dateQuery = e.target.value; // YYYY-MM-DD
+            if (!dateQuery) {
+                populateQuizDropdown(allQuizzes);
+                return;
+            }
+            const filtered = allQuizzes.filter(quiz => {
+                if (!quiz.timeopen || quiz.timeopen === 0) return false;
+                const dt = new Date(quiz.timeopen * 1000);
+                const year = dt.getFullYear();
+                const month = String(dt.getMonth() + 1).padStart(2, '0');
+                const day = String(dt.getDate()).padStart(2, '0');
+                const isoDate = `${year}-${month}-${day}`;
+                return isoDate === dateQuery;
+            });
+            populateQuizDropdown(filtered);
+            if (filtered.length === 0) {
+                 showStatus('error', 'No quizzes found for this date. Try clearing the date filter.');
+            } else {
+                 showStatus('success', `Found ${filtered.length} quizzes opened on this date!`);
+            }
         });
 
         function populateQuizDropdown(quizzesArray) {
@@ -316,14 +343,18 @@
 
                 // Fetch attempts sequentially to avoid rate limits
                 for (let i = 0; i < students.length; i++) {
-                    const studentId = students[i].id;
-                    const studentName = students[i].fullname;
+                    const student = students[i];
+                    const studentId = student.id;
+                    const studentName = student.fullname;
+                    const studentUsername = student.username || ""; // Use username (register number) if available
+                    
                     const attemptRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=${quizId}&status=all&userid=${studentId}`);
                     const attemptData = await attemptRes.json();
                     
                     if (attemptData.attempts && attemptData.attempts.length > 0) {
                         attemptData.attempts.forEach(att => {
                             att.fullname = studentName;
+                            att.usernameStr = studentUsername;
                             allStudentAttempts.push(att);
                         });
                     }
@@ -349,7 +380,8 @@
                         isoDate = `${year}-${month}-${day}`;
                     }
 
-                    const finalUser = att.fullname ? `${att.fullname} (ID: ${att.userid})` : att.userid;
+                    // Prefer username (register number), fallback to fullname + ID, then userid fallback
+                    const finalUser = att.usernameStr ? att.usernameStr : (att.fullname ? `${att.fullname} (ID: ${att.userid})` : att.userid);
 
                     currentGradesData.push({
                         userid: finalUser,
