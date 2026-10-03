@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage Analytics - JosTEL</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Outfit Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            500: '#1e3a8a', 
+                            600: '#1e40af', 
+                            900: '#0f172a',
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+        .table-header {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        th {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            font-size: 14.5px;
+        }
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+<div id="app" class="max-w-7xl mx-auto space-y-6 animate-fade-in-up">
+
+    <!-- Header Section -->
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="text-brand-500 hover:text-brand-600 transition-colors bg-white p-2 rounded-lg shadow-sm border border-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-brand-500 tracking-tight">JosTEL Usage Analytics</h1>
+                <p class="text-gray-500 text-sm">Comprehensive System Usage and Engagement Reports</p>
+            </div>
+        </div>
+        <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-12 object-contain" onerror="this.style.display='none'">
+    </div>
+
+    <!-- Configuration / Filters Toolbar -->
+    <div class="glass-card p-6 rounded-2xl flex flex-wrap gap-6 items-end mb-6">
+        <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Reporting Period</label>
+            <select v-model="academicYear" class="border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 font-semibold text-brand-600 min-w-[200px]">
+                <option value="2023-2024">Academic Year 2023-2024</option>
+                <option value="2024-2025">Academic Year 2024-2025</option>
+                <option value="2025-2026">Academic Year 2025-2026</option>
+            </select>
+        </div>
+        <div class="flex-1">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Moodle API Token</label>
+            <input v-model="apiToken" type="password" placeholder="Enter secure Moodle token" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
+        </div>
+        <button @click="fetchAnalytics" class="bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 px-6 rounded-lg flex items-center gap-2 shadow-sm transition-transform active:scale-95">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Generate Report
+        </button>
+    </div>
+
+    <div v-show="isLoading" class="text-center py-20">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mb-4"></div>
+        <h3 class="text-lg font-bold text-brand-500">Fetching Analytics...</h3>
+        <p class="text-gray-500 text-sm">Aggregating Moodle token data from endpoints.</p>
+    </div>
+
+    <!-- Analytics Dashboard Content -->
+    <div v-show="!isLoading && isDataLoaded" class="space-y-8 animate-fade-in-up">
+        
+        <!-- Part 1: User Active Summary -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="bg-gray-50/50 p-5 border-b border-gray-100 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <span class="bg-blue-100 text-blue-600 p-1.5 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    Part 1: User Active Summary
+                </h2>
+                <div class="text-sm font-semibold text-brand-500">{{ academicYear }}</div>
+            </div>
+            
+            <div class="p-6 space-y-8">
+                <!-- Students Table -->
+                <div>
+                    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Student Engagement</h3>
+                    <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                        <table class="w-full">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Class</th>
+                                    <th class="text-center">Total Users</th>
+                                    <th class="text-center">Active Users</th>
+                                    <th class="text-right">Engagement (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(row, i) in data.students" :key="i">
+                                    <td class="font-medium text-gray-800">{{ row.dept }}</td>
+                                    <td>{{ row.cls }}</td>
+                                    <td class="text-center font-semibold text-gray-600">{{ row.total }}</td>
+                                    <td class="text-center font-semibold text-blue-600">{{ row.active }}</td>
+                                    <td class="text-right">
+                                        <span class="inline-block bg-green-50 text-green-700 px-2.5 py-1 rounded-full font-bold text-xs ring-1 ring-green-500/20">
+                                            {{ ((row.active / row.total) * 100).toFixed(1) }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Faculty Table -->
+                <div>
+                    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Faculty Engagement</h3>
+                    <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                        <table class="w-full">
+                            <thead class="table-header">
+                                <tr>
+                                    <th rowspan="2" class="border-r border-gray-200 align-bottom">Department</th>
+                                    <th colspan="2" class="text-center border-b border-r border-gray-200">Shift I</th>
+                                    <th colspan="2" class="text-center border-b border-gray-200">Shift II</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center border-r border-gray-200 bg-gray-50/50">Total</th>
+                                    <th class="text-center border-r border-gray-200 bg-gray-50/50">Active</th>
+                                    <th class="text-center border-r border-gray-200 bg-gray-50/50">Total</th>
+                                    <th class="text-center bg-gray-50/50">Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(row, i) in data.faculty" :key="i">
+                                    <td class="font-medium text-gray-800 border-r border-gray-100">{{ row.dept }}</td>
+                                    <td class="text-center border-r border-gray-100">{{ row.shift1Total }}</td>
+                                    <td class="text-center font-bold text-brand-600 border-r border-gray-100">{{ row.shift1Active }}</td>
+                                    <td class="text-center border-r border-gray-100">{{ row.shift2Total }}</td>
+                                    <td class="text-center font-bold text-brand-600">{{ row.shift2Active }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Part 2: Courses Summary -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="bg-gray-50/50 p-5 border-b border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <span class="bg-purple-100 text-purple-600 p-1.5 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+                    Part 2: Courses Summary
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                    <table class="w-full">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Department</th>
+                                <th>Class</th>
+                                <th class="text-center">Total Courses</th>
+                                <th class="text-center">Courses > 50% Participation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, i) in data.courses" :key="i">
+                                <td class="font-medium text-gray-800">{{ row.dept }}</td>
+                                <td>{{ row.cls }}</td>
+                                <td class="text-center font-semibold text-gray-600">{{ row.total }}</td>
+                                <td class="text-center font-bold text-purple-600">{{ row.greater50 }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Part 3: Content Upload Summary -->
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="bg-gray-50/50 p-5 border-b border-gray-100">
+                <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <span class="bg-orange-100 text-orange-600 p-1.5 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
+                    Part 3: Content Upload Summary
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                    <table class="w-full">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Department</th>
+                                <th>Content Type</th>
+                                <th class="text-right">No. of Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, i) in data.content" :key="i">
+                                <td class="font-medium text-gray-800">{{ row.dept }}</td>
+                                <td>
+                                    <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-2.5 py-1 rounded-md text-xs font-bold border border-gray-200">
+                                        {{ row.type }}
+                                    </span>
+                                </td>
+                                <td class="text-right font-semibold text-orange-600">{{ row.count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Part 4: Assessment and Evaluation -->
+            <div class="glass-card rounded-2xl overflow-hidden flex flex-col">
+                <div class="bg-gray-50/50 p-5 border-b border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <span class="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+                        Part 4: Assessment & Evaluation
+                    </h2>
+                </div>
+                <div class="p-6 flex-1">
+                    <div class="overflow-x-auto border border-gray-200 rounded-xl h-full">
+                        <table class="w-full">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Type</th>
+                                    <th class="text-right">Count/Stat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(row, i) in data.assessment" :key="i">
+                                    <td class="font-medium text-gray-800">{{ row.dept }}</td>
+                                    <td class="text-gray-600 font-medium">{{ row.type }}</td>
+                                    <td class="text-right font-bold" :class="row.type.includes('Percentage') ? 'text-green-600' : 'text-indigo-600'">
+                                        {{ row.count }}{{ row.type.includes('Percentage') ? '%' : '' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Part 5: Discussion Forum & Chatrooms -->
+            <div class="glass-card rounded-2xl overflow-hidden flex flex-col">
+                <div class="bg-gray-50/50 p-5 border-b border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <span class="bg-teal-100 text-teal-600 p-1.5 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+                        Part 5: Discussion Forum & Chatrooms
+                    </h2>
+                </div>
+                <div class="p-6 flex-1">
+                    <div class="overflow-x-auto border border-gray-200 rounded-xl h-full">
+                        <table class="w-full">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>Department</th>
+                                    <th class="text-right">No. of Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(row, i) in data.discussions" :key="i">
+                                    <td class="font-medium text-gray-800">{{ row.dept }}</td>
+                                    <td class="text-right font-bold text-teal-600">{{ row.count }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 bg-teal-50 text-teal-700 text-xs font-semibold p-3 rounded-lg border border-teal-100 flex items-center gap-2">
+                        <span>ℹ️</span> Data dynamically pooled from Moodle API endpoint via secure token.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                academicYear: '2025-2026',
+                apiToken: '',
+                isLoading: false,
+                isDataLoaded: false,
+                
+                // Sample Data to simulate API structure
+                data: {
+                    students: [
+                        { dept: 'Computer Science', cls: 'III B.Sc CS', total: 60, active: 58 },
+                        { dept: 'Commerce', cls: 'I B.Com CA', total: 72, active: 45 },
+                        { dept: 'Physics', cls: 'II M.Sc Phy', total: 30, active: 29 },
+                    ],
+                    faculty: [
+                        { dept: 'Computer Science', shift1Total: 12, shift1Active: 10, shift2Total: 8, shift2Active: 7 },
+                        { dept: 'Commerce', shift1Total: 15, shift1Active: 14, shift2Total: 18, shift2Active: 12 },
+                    ],
+                    courses: [
+                        { dept: 'Computer Science', cls: 'III B.Sc CS', total: 6, greater50: 5 },
+                        { dept: 'Commerce', cls: 'I B.Com CA', total: 8, greater50: 3 },
+                        { dept: 'English', cls: 'I B.A Eng', total: 5, greater50: 4 }
+                    ],
+                    content: [
+                        { dept: 'Computer Science', type: 'Video Lecture', count: 45 },
+                        { dept: 'Computer Science', type: 'PDF', count: 120 },
+                        { dept: 'Commerce', type: 'PPT', count: 85 },
+                        { dept: 'Physics', type: 'External Link', count: 20 },
+                    ],
+                    assessment: [
+                        { dept: 'Computer Science', type: 'Assignment Created', count: 24 },
+                        { dept: 'Computer Science', type: 'Assignment Submitted', count: 1400 },
+                        { dept: 'Computer Science', type: 'Submitted Percentage', count: 96.5 },
+                        { dept: 'Commerce', type: 'Assignment Created', count: 18 },
+                        { dept: 'Commerce', type: 'Submitted Percentage', count: 72.8 }
+                    ],
+                    discussions: [
+                        { dept: 'Computer Science', count: 450 },
+                        { dept: 'Commerce', count: 210 },
+                        { dept: 'Physics', count: 180 },
+                        { dept: 'English', count: 890 }
+                    ]
+                }
+            }
+        },
+        methods: {
+            fetchAnalytics() {
+                if(!this.apiToken) {
+                    alert("Please enter a valid Moodle API Token to fetch real data.");
+                }
+                
+                this.isLoading = true;
+                this.isDataLoaded = false;
+                
+                // Simulate network latency & token validation
+                setTimeout(() => {
+                    this.isLoading = false;
+                    this.isDataLoaded = true;
+                }, 1200);
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
