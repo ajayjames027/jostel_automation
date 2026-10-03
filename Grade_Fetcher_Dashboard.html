@@ -272,7 +272,7 @@ createApp({
             
             if (this.selectedCourse) {
                 // If a specific course is selected, strict filter.
-                qs = qs.filter(q => q.course === this.selectedCourse);
+                qs = qs.filter(q => q.course == this.selectedCourse);
             } else if (this.selectedCategory) {
                 // If category is selected, get valid courses for this category
                 const catCourseIds = this.filteredCourses.map(c => c.id);
@@ -399,7 +399,7 @@ createApp({
             // Determine active quizzes to scan
             let targetQuizzes = [];
             if (this.selectedQuiz) {
-                targetQuizzes = this.quizzes.filter(q => q.id === this.selectedQuiz);
+                targetQuizzes = this.quizzes.filter(q => q.id == this.selectedQuiz);
             } else {
                 targetQuizzes = this.filteredQuizzes; 
             }
