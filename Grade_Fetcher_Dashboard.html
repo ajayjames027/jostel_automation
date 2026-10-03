@@ -296,19 +296,45 @@
             }
 
             try {
-                showStatus('loading', `Downloading live grades for Quiz ID ${quizId}...`);
-                const gradesRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=${quizId}&status=all`);
-                const gradesData = await gradesRes.json();
+                const quizObj = allQuizzes.find(q => q.id == quizId);
+                const courseId = quizObj ? quizObj.course : null;
+                if (!courseId) throw new Error("Could not determine Course ID for this quiz.");
 
-                if (gradesData.exception) throw new Error(gradesData.message);
+                showStatus('loading', `Fetching enrolled students for course ${courseId}...`);
+                
+                const usersRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid=${courseId}`);
+                const students = await usersRes.json();
+                
+                if (students.exception) throw new Error(students.message);
+                if (!Array.isArray(students) || students.length === 0) {
+                     showStatus('error', "No students found in this course."); return;
+                }
 
-                const attempts = gradesData.attempts || [];
-                if (attempts.length === 0) {
-                    showStatus('error', `No grades found! No one has attempted this test yet.`);
+                showStatus('loading', `Found ${students.length} enrolled users. Pulling individual grades... (This may take a few seconds)`);
+
+                let allStudentAttempts = [];
+
+                // Fetch attempts sequentially to avoid rate limits
+                for (let i = 0; i < students.length; i++) {
+                    const studentId = students[i].id;
+                    const studentName = students[i].fullname;
+                    const attemptRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=${quizId}&status=all&userid=${studentId}`);
+                    const attemptData = await attemptRes.json();
+                    
+                    if (attemptData.attempts && attemptData.attempts.length > 0) {
+                        attemptData.attempts.forEach(att => {
+                            att.fullname = studentName;
+                            allStudentAttempts.push(att);
+                        });
+                    }
+                }
+
+                if (allStudentAttempts.length === 0) {
+                    showStatus('error', `0 matching grades found! None of the ${students.length} users have attempted this test yet.`);
                     return;
                 }
 
-                attempts.forEach(att => {
+                allStudentAttempts.forEach(att => {
                     // Only map if it exists
                     const gradeVal = att.sumgrades !== null ? att.sumgrades : 'Ungraded';
                     const dateStr = formatUnixTime(att.timefinish);
@@ -323,8 +349,10 @@
                         isoDate = `${year}-${month}-${day}`;
                     }
 
+                    const finalUser = att.fullname ? `${att.fullname} (ID: ${att.userid})` : att.userid;
+
                     currentGradesData.push({
-                        userid: att.userid,
+                        userid: finalUser,
                         grade: gradeVal,
                         state: state,
                         date: dateStr,
