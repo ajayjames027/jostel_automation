@@ -501,12 +501,14 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 }));
 
                                 // Option Rows
+                                const optionLabels = ['A.', 'B.', 'C.', 'D.', 'E.', 'F.'];
                                 q.options.forEach((opt, optIdx) => {
                                     const isCorrect = q.correctIndex === optIdx;
                                     const grade = isCorrect ? "100" : "0";
+                                    const optLabel = optIdx < optionLabels.length ? optionLabels[optIdx] : '';
                                     rows.push(new docz.TableRow({
                                         children: [
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: String.fromCharCode(160), style: "QFOption"})], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: optLabel, style: "QFOption"})], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({text: opt.text || "", style: "Cell"})], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({text: opt.feedback || "", style: "QFFeedback"})], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({text: grade, style: "QFGrade"})], borders: tableBorders })
