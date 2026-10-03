@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +14,7 @@
     <script src="https://unpkg.com/docx@7.3.0/build/index.js"></script>
     <!-- FileSaver.js for downloading the file -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -35,44 +36,87 @@
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
+
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
-        .slide-enter-from, .slide-leave-to { opacity: 0; transform: translateY(-20px); }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .slide-enter-active,
+        .slide-leave-active {
+            transition: all 0.3s ease;
+        }
+
+        .slide-enter-from,
+        .slide-leave-to {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
     </style>
 </head>
+
 <body>
     <div id="app" class="min-h-screen p-4 md:p-8">
         <div class="max-w-5xl mx-auto">
             <!-- Header -->
-            <header class="mb-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <header
+                class="mb-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Moodle DOCX Portal</h1>
-                    <p class="text-gray-500 mt-1">Easily feed questions and export properly formatted Moodle Word files.</p>
+                    <p class="text-gray-500 mt-1">Easily feed questions and export properly formatted Moodle Word files.
+                    </p>
                 </div>
                 <div class="mt-4 md:mt-0 flex gap-3 flex-wrap justify-center md:justify-end">
-                    <button @click="showModal = true" class="px-5 py-2.5 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-purple-100 flex items-center gap-2">
+                    <!--<button @click="showModal = true" class="px-5 py-2.5 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-purple-100 flex items-center gap-2">
                         ✨ AI Generator
-                    </button>
-                    <button @click="showTemplateModal = true" class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-blue-100 flex items-center gap-2">
+                    </button>-->
+                    <button @click="showTemplateModal = true"
+                        class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-blue-100 flex items-center gap-2">
                         📄 Blank Template
                     </button>
-                    <button @click="addQuestion" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-brand-100">
+                    <button @click="addQuestion"
+                        class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-brand-100">
                         + Add Question
                     </button>
-                    <button @click="generateDocx" v-if="questions.length > 0" class="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-green-100 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Export DOCX
+                    <button @click="generateMoodleXML" v-if="questions.length > 0"
+                        class="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-orange-100 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                        Moodle XML
+                    </button>
+                    <button @click="generateDocx" v-if="questions.length > 0"
+                        class="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-green-100 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        DOCX
                     </button>
                 </div>
             </header>
@@ -82,11 +126,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Course Code & Title</label>
-                        <input v-model="courseCode" type="text" placeholder="e.g. 25UBU501 - Principles of Management" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
+                        <input v-model="courseCode" type="text" placeholder="e.g. 25UBU501 - Principles of Management"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Template Type (Naming)</label>
-                        <input v-model="templateName" type="text" placeholder="e.g. Component-I_K1_K2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
+                        <input v-model="templateName" type="text" placeholder="e.g. Component-I_K1_K2"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
                     </div>
                 </div>
             </div>
@@ -94,88 +140,120 @@
             <!-- Questions List -->
             <transition-group name="slide" tag="div" class="space-y-6">
                 <div v-for="(q, index) in questions" :key="q.id" class="glass-panel p-6 rounded-2xl relative group">
-                    <button @click="removeQuestion(index)" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Remove Question">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <button @click="removeQuestion(index)"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remove Question">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
                     </button>
-                    
+
                     <div class="flex items-center gap-4 mb-4">
-                        <span class="bg-gray-100 text-gray-700 text-sm font-bold px-3 py-1 rounded-full">Q-{{ String(index+1).padStart(2, '0') }}</span>
-                        
-                        <select v-model="q.level" @change="updateMarks(q)" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-brand-500 focus:border-brand-500 outline-none bg-white">
+                        <span class="bg-gray-100 text-gray-700 text-sm font-bold px-3 py-1 rounded-full">Q-{{
+                            String(index+1).padStart(2, '0') }}</span>
+
+                        <select v-model="q.level" @change="updateMarks(q)"
+                            class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium focus:ring-brand-500 focus:border-brand-500 outline-none bg-white">
                             <option value="K1">Level K1</option>
                             <option value="K2">Level K2</option>
                             <option value="K3">Level K3</option>
                         </select>
-                        <div class="text-sm text-gray-500">Marks: <input v-model.number="q.marks" type="number" min="1" class="w-16 px-2 py-1 border border-gray-300 rounded-md text-center outline-none"></div>
+                        <div class="text-sm text-gray-500">Marks: <input v-model.number="q.marks" type="number" min="1"
+                                class="w-16 px-2 py-1 border border-gray-300 rounded-md text-center outline-none"></div>
                     </div>
 
                     <div class="mb-5">
-                        <textarea v-model="q.text" rows="2" placeholder="Write your question here..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all resize-none font-medium text-gray-800"></textarea>
+                        <textarea v-model="q.text" rows="2" placeholder="Write your question here..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all resize-none font-medium text-gray-800"></textarea>
                     </div>
 
                     <div class="space-y-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Options (Select the correct one)</label>
-                        <div v-for="(opt, optIndex) in q.options" :key="optIndex" class="flex flex-col md:flex-row items-center gap-3 bg-white p-2 border border-gray-100 rounded-lg shadow-sm">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Options (Select the correct
+                            one)</label>
+                        <div v-for="(opt, optIndex) in q.options" :key="optIndex"
+                            class="flex flex-col md:flex-row items-center gap-3 bg-white p-2 border border-gray-100 rounded-lg shadow-sm">
                             <div class="flex items-center justify-center pl-2">
-                                <input type="radio" :name="'correct_' + q.id" :value="optIndex" v-model="q.correctIndex" class="w-5 h-5 text-brand-600 bg-gray-100 border-gray-300 focus:ring-brand-500 cursor-pointer">
+                                <input type="radio" :name="'correct_' + q.id" :value="optIndex" v-model="q.correctIndex"
+                                    class="w-5 h-5 text-brand-600 bg-gray-100 border-gray-300 focus:ring-brand-500 cursor-pointer">
                             </div>
-                            <input v-model="opt.text" type="text" :placeholder="'Option ' + (optIndex + 1)" class="flex-1 px-4 py-2 bg-transparent border-none outline-none focus:ring-0">
-                            <input v-model="opt.feedback" type="text" placeholder="Feedback (optional)" class="flex-1 px-4 py-2 text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-md outline-none focus:border-brand-300 hidden md:block">
+                            <input v-model="opt.text" type="text" :placeholder="'Option ' + (optIndex + 1)"
+                                class="flex-1 px-4 py-2 bg-transparent border-none outline-none focus:ring-0">
+                            <input v-model="opt.feedback" type="text" placeholder="Feedback (optional)"
+                                class="flex-1 px-4 py-2 text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-md outline-none focus:border-brand-300 hidden md:block">
                         </div>
                     </div>
                 </div>
             </transition-group>
 
-            <div v-if="questions.length === 0" class="text-center py-20 bg-white rounded-2xl border border-gray-200 border-dashed">
+            <div v-if="questions.length === 0"
+                class="text-center py-20 bg-white rounded-2xl border border-gray-200 border-dashed">
                 <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                    </path>
                 </svg>
                 <h3 class="mt-2 text-sm font-medium text-gray-900">No questions added</h3>
                 <p class="mt-1 text-sm text-gray-500">Get started by adding a new question.</p>
-                <button @click="addQuestion" class="mt-4 px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors">
+                <button @click="addQuestion"
+                    class="mt-4 px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors">
                     Add Question
                 </button>
             </div>
-            
+
             <div class="mt-8 text-center text-sm text-gray-400">
                 <p>Generates Word Document matching the Jostel College template structure.</p>
             </div>
-            
+
             <!-- AI Generator Modal -->
-            <div v-if="showModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div v-if="showModal"
+                class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">✨ AI Auto-Generator</h2>
                         <button @click="showModal = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
                         </button>
                     </div>
-                    
+
                     <div class="space-y-5">
                         <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm p-4 rounded-lg">
-                            <p><b>Note:</b> You need a free Google Gemini API Key to use this feature. <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline font-semibold">Get one here</a>.</p>
+                            <p><b>Note:</b> You need a free Google Gemini API Key to use this feature. <a
+                                    href="https://aistudio.google.com/app/apikey" target="_blank"
+                                    class="underline font-semibold">Get one here</a>.</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Google Gemini API Key <span class="text-xs text-gray-400">(Saved locally)</span></label>
-                            <input v-model="aiKey" type="password" placeholder="AIzaSy..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Google Gemini API Key <span
+                                    class="text-xs text-gray-400">(Saved locally)</span></label>
+                            <input v-model="aiKey" type="password" placeholder="AIzaSy..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
                         </div>
-                        
+
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Paste Syllabus / Topic Text</label>
-                            <textarea v-model="aiSyllabus" rows="4" placeholder="e.g. Introduction to machine learning, neural networks, backpropagation..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none resize-none"></textarea>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Paste Syllabus / Topic
+                                Text</label>
+                            <textarea v-model="aiSyllabus" rows="4"
+                                placeholder="e.g. Introduction to machine learning, neural networks, backpropagation..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none resize-none"></textarea>
                         </div>
-                        
+
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <div class="col-span-2 md:col-span-1">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">AI Model Endpoint</label>
-                                <select v-model="aiModel" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                                <select v-model="aiModel"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 bg-white">
                                     <option value="gemini-3.8-flash">Gemini 3.8 Flash (Required Default)</option>
                                     <option value="gemini-2.5-flash">Gemini 2.5 Flash (Legacy User)</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Bloom's Level</label>
-                                <select v-model="aiLevel" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                                <select v-model="aiLevel"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 bg-white">
                                     <option value="K1">K1 (Remember)</option>
                                     <option value="K2">K2 (Understand)</option>
                                     <option value="K3">K3 (Apply)</option>
@@ -183,46 +261,59 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Questions</label>
-                                <input v-model.number="aiCount" type="number" min="1" max="50" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500">
+                                <input v-model.number="aiCount" type="number" min="1" max="50"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500">
                             </div>
                         </div>
-                        
-                        <div v-if="aiStatus" :class="aiStatusType === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'" class="p-4 rounded-lg text-sm font-medium">
+
+                        <div v-if="aiStatus"
+                            :class="aiStatusType === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'"
+                            class="p-4 rounded-lg text-sm font-medium">
                             {{ aiStatus }}
                         </div>
-                        
-                        <button @click="generateWithAI" :disabled="isGenerating" class="w-full mt-4 px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold rounded-lg shadow-md transition-all">
+
+                        <button @click="generateWithAI" :disabled="isGenerating"
+                            class="w-full mt-4 px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold rounded-lg shadow-md transition-all">
                             {{ isGenerating ? '🧠 Generating Questions...' : '✨ Generate Automatically' }}
                         </button>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Template Generator Modal -->
-            <div v-if="showTemplateModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div v-if="showTemplateModal"
+                class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 md:p-8">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">📄 Blank Template Builder</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">📄 Blank Template Builder
+                        </h2>
                         <button @click="showTemplateModal = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
                         </button>
                     </div>
-                    
+
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Default Bloom's Level</label>
-                            <select v-model="templateLevel" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <select v-model="templateLevel"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                 <option value="K1">K1 (1 Mark)</option>
                                 <option value="K2">K2 (2 Marks)</option>
                                 <option value="K3">K3 (3 Marks)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of Blank Questions</label>
-                            <input v-model.number="templateCount" type="number" min="1" max="150" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of Blank
+                                Questions</label>
+                            <input v-model.number="templateCount" type="number" min="1" max="150"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
-                        
-                        <button @click="generateTemplate" class="w-full mt-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-blue-100">
+
+                        <button @click="generateTemplate"
+                            class="w-full mt-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-blue-100">
                             Create Blank Boxes
                         </button>
                     </div>
@@ -289,7 +380,7 @@
                     if (this.templateLevel === 'K3') defaultMarks = 3;
 
                     const count = parseInt(this.templateCount) || 1;
-                    
+
                     for (let i = 0; i < count; i++) {
                         this.questions.push({
                             id: Date.now() + Math.random() + i,
@@ -311,9 +402,9 @@
                 async generateWithAI() {
                     if (!this.aiKey) { this.aiStatus = "Please provide an API Key."; this.aiStatusType = "error"; return; }
                     if (!this.aiSyllabus) { this.aiStatus = "Please paste syllabus or topic text."; this.aiStatusType = "error"; return; }
-                    
+
                     localStorage.setItem('geminiApikey', this.aiKey);
-                    
+
                     this.isGenerating = true;
                     this.aiStatus = `Analyzing text and generating ${this.aiCount} questions... Please wait a few seconds.`;
                     this.aiStatusType = "info";
@@ -335,7 +426,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
     "correctIndex": 0
   }
 ]`;
-                    
+
                     try {
                         let response;
                         try {
@@ -348,7 +439,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                     generationConfig: { temperature: 0.2 }
                                 })
                             });
-                        } catch(netErr) {
+                        } catch (netErr) {
                             throw new Error("Network error hitting Gemini API. Check your connection.");
                         }
 
@@ -359,16 +450,16 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                         if (rawText.startsWith('```json')) {
                             rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
                         }
-                        
+
                         let genQs = [];
                         try {
                             genQs = JSON.parse(rawText);
-                        } catch(e) {
+                        } catch (e) {
                             const match = rawText.match(/\[(\s|.)*\]/g);
                             if (match && match.length > 0) genQs = JSON.parse(match[0]);
                             else throw new Error("AI returned invalid JSON structure.");
                         }
-                        
+
                         if (!Array.isArray(genQs)) throw new Error("AI output mismatch.");
 
                         genQs.forEach(q => {
@@ -383,7 +474,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 marks: marks,
                                 correctIndex: (typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < 4) ? q.correctIndex : 0,
                                 options: q.options || [
-                                    {text: 'A', feedback: ''}, {text: 'B', feedback: ''}, {text: 'C', feedback: ''}, {text: 'D', feedback: ''}
+                                    { text: 'A', feedback: '' }, { text: 'B', feedback: '' }, { text: 'C', feedback: '' }, { text: 'D', feedback: '' }
                                 ]
                             });
                         });
@@ -409,7 +500,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                         const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, HeadingLevel, AlignmentType } = docz;
 
                         const children = [];
-                        
+
                         // Template Title
                         children.push(
                             new Paragraph({
@@ -419,7 +510,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 spacing: { after: 200 }
                             })
                         );
-                        
+
                         if (this.courseCode) {
                             children.push(
                                 new Paragraph({
@@ -433,11 +524,11 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
 
                         // Group questions by Level (K1, K2, etc.)
                         const levels = [...new Set(this.questions.map(q => q.level))];
-                        
-                        for (const level of Object.keys({K1:1, K2:2, K3:3})) {
+
+                        for (const level of Object.keys({ K1: 1, K2: 2, K3: 3 })) {
                             const levelQs = this.questions.filter(q => q.level === level);
                             if (levelQs.length === 0) continue;
-                            
+
                             children.push(new Paragraph({
                                 children: [new TextRun({ text: `[${level} – ${this.courseCode || 'Enter course code'}]`, bold: true })],
                                 spacing: { before: 200, after: 200 }
@@ -461,42 +552,42 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 };
 
                                 const rows = [];
-                                
+
                                 // Row 1: Question Text & MC type
                                 rows.push(new docz.TableRow({
                                     children: [
                                         new docz.TableCell({
-                                            children: [new docz.Paragraph({text: q.text || "[Empty Question]"})],
+                                            children: [new docz.Paragraph({ text: q.text || "[Empty Question]" })],
                                             columnSpan: 3, borders: tableBorders
                                         }),
                                         new docz.TableCell({
-                                            children: [new docz.Paragraph({text: "MC"})],
+                                            children: [new docz.Paragraph({ text: "MC" })],
                                             borders: tableBorders
                                         })
                                     ]
                                 }));
-                                
+
                                 // Row 2: Default Mark
                                 rows.push(new docz.TableRow({
                                     children: [
                                         new docz.TableCell({
-                                            children: [new docz.Paragraph({text: "Default mark:"})],
+                                            children: [new docz.Paragraph({ text: "Default mark:" })],
                                             columnSpan: 3, borders: tableBorders
                                         }),
                                         new docz.TableCell({
-                                            children: [new docz.Paragraph({text: String(q.marks)})],
+                                            children: [new docz.Paragraph({ text: String(q.marks) })],
                                             borders: tableBorders
                                         })
                                     ]
                                 }));
-                                
+
                                 // Row 3: Headers
                                 rows.push(new docz.TableRow({
                                     children: [
-                                        new docz.TableCell({ children: [new docz.Paragraph({text: "#"})], borders: tableBorders }),
-                                        new docz.TableCell({ children: [new docz.Paragraph({text: "Answers"})], borders: tableBorders }),
-                                        new docz.TableCell({ children: [new docz.Paragraph({text: "Feedback"})], borders: tableBorders }),
-                                        new docz.TableCell({ children: [new docz.Paragraph({text: "Grade"})], borders: tableBorders })
+                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "#" })], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Answers" })], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Feedback" })], borders: tableBorders }),
+                                        new docz.TableCell({ children: [new docz.Paragraph({ text: "Grade" })], borders: tableBorders })
                                     ]
                                 }));
 
@@ -508,10 +599,10 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                     const optLabel = optIdx < optionLabels.length ? optionLabels[optIdx] : '';
                                     rows.push(new docz.TableRow({
                                         children: [
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: optLabel, style: "QFOption"})], borders: tableBorders }),
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: opt.text || "", style: "Cell"})], borders: tableBorders }),
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: opt.feedback || "", style: "QFFeedback"})], borders: tableBorders }),
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: grade, style: "QFGrade"})], borders: tableBorders })
+                                            new docz.TableCell({ children: [new docz.Paragraph({ text: optLabel, style: "QFOption" })], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({ text: opt.text || "", style: "Cell" })], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({ text: opt.feedback || "", style: "QFFeedback" })], borders: tableBorders }),
+                                            new docz.TableCell({ children: [new docz.Paragraph({ text: grade, style: "QFGrade" })], borders: tableBorders })
                                         ]
                                     }));
                                 });
@@ -521,7 +612,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                     width: { size: 100, type: docz.WidthType.PERCENTAGE },
                                     borders: tableBorders
                                 });
-                                
+
                                 children.push(table);
                                 children.push(new docz.Paragraph({ text: "" })); // Spacing block
                             });
@@ -534,16 +625,62 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                             }]
                         });
 
-                        Packer.toBlob(doc).then(blob => {
-                            window.saveAs(blob, `${this.courseCode || 'Quiz'}_${this.templateName || 'Template'}.docx`);
-                        });
+                        const buffer = await Packer.toBlob(doc);
+                        const filename = (this.templateName || "Component-I_K1_K2") + ".docx";
+                        saveAs(buffer, filename);
                     } catch (e) {
-                        alert("Error generating Document: " + e.message);
+                        alert("Error generating DOCX: " + e.message);
                         console.error(e);
+                    }
+                },
+                generateMoodleXML() {
+                    try {
+                        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<quiz>\n';
+                        
+                        this.questions.forEach((q, index) => {
+                            const qNumber = String(index + 1).padStart(2, '0');
+                            const level = q.level;
+                            const code = this.courseCode || 'Enter course code';
+                            const title = `Q-${qNumber} – ${level} (MC) [${code}]`;
+                            
+                            xml += `  <question type="multichoice">\n`;
+                            xml += `    <name>\n      <text><![CDATA[${title}]]></text>\n    </name>\n`;
+                            xml += `    <questiontext format="html">\n`;
+                            xml += `      <text><![CDATA[<p>${q.text}</p>]]></text>\n`;
+                            xml += `    </questiontext>\n`;
+                            xml += `    <defaultgrade>${q.marks}</defaultgrade>\n`;
+                            xml += `    <penalty>0.3333333</penalty>\n`;
+                            xml += `    <hidden>0</hidden>\n`;
+                            xml += `    <single>true</single>\n`;
+                            xml += `    <shuffleanswers>true</shuffleanswers>\n`;
+                            xml += `    <answernumbering>abc</answernumbering>\n`;
+                            
+                            q.options.forEach((opt, optIndex) => {
+                                const fraction = (q.correctIndex === optIndex) ? "100" : "0";
+                                xml += `    <answer fraction="${fraction}" format="html">\n`;
+                                xml += `      <text><![CDATA[<p>${opt.text}</p>]]></text>\n`;
+                                if (opt.feedback) {
+                                    xml += `      <feedback format="html">\n`;
+                                    xml += `        <text><![CDATA[<p>${opt.feedback}</p>]]></text>\n`;
+                                    xml += `      </feedback>\n`;
+                                }
+                                xml += `    </answer>\n`;
+                            });
+                            xml += `  </question>\n`;
+                        });
+                        
+                        xml += `</quiz>`;
+                        
+                        const blob = new Blob([xml], { type: "application/xml;charset=utf-8" });
+                        const filename = (this.templateName || "Moodle_Questions") + ".xml";
+                        saveAs(blob, filename);
+                    } catch(e) {
+                        alert("Error generating Moodle XML: " + e.message);
                     }
                 }
             }
         }).mount('#app');
     </script>
 </body>
+
 </html>
