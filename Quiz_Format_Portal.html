@@ -544,7 +544,8 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                     }),
                                     new Paragraph({ text: "" }),
                                     new Paragraph({
-                                        children: [new TextRun({ text: `Q-${String(qNumber).padStart(2, '0')} – ${level} (MC)`, bold: true })],
+                                        text: `Q-${String(qNumber).padStart(2, '0')} – ${level} (MC)`,
+                                        heading: docz.HeadingLevel.HEADING_2,
                                         spacing: { before: 100, after: 100 }
                                     })
                                 );
@@ -622,7 +623,6 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                 });
 
                                 children.push(
-                                    new Paragraph({ text: "Question " + qNumber, heading: HeadingLevel.HEADING_2 }),
                                     table,
                                     new docz.Paragraph({ text: "" })
                                 );
