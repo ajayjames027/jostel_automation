@@ -60,7 +60,10 @@
                     <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Moodle DOCX Portal</h1>
                     <p class="text-gray-500 mt-1">Easily feed questions and export properly formatted Moodle Word files.</p>
                 </div>
-                <div class="mt-4 md:mt-0 flex gap-3">
+                <div class="mt-4 md:mt-0 flex gap-3 flex-wrap justify-center md:justify-end">
+                    <button @click="showModal = true" class="px-5 py-2.5 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-purple-100 flex items-center gap-2">
+                        ✨ AI Generator
+                    </button>
                     <button @click="addQuestion" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-brand-100">
                         + Add Question
                     </button>
@@ -134,6 +137,57 @@
             <div class="mt-8 text-center text-sm text-gray-400">
                 <p>Generates Word Document matching the Jostel College template structure.</p>
             </div>
+            
+            <!-- AI Generator Modal -->
+            <div v-if="showModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">✨ AI Auto-Generator</h2>
+                        <button @click="showModal = false" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm p-4 rounded-lg">
+                            <p><b>Note:</b> You need a free Google Gemini API Key to use this feature. <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline font-semibold">Get one here</a>.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Google Gemini API Key <span class="text-xs text-gray-400">(Saved locally)</span></label>
+                            <input v-model="aiKey" type="password" placeholder="AIzaSy..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Paste Syllabus / Topic Text</label>
+                            <textarea v-model="aiSyllabus" rows="4" placeholder="e.g. Introduction to machine learning, neural networks, backpropagation..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none resize-none"></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Bloom's Level</label>
+                                <select v-model="aiLevel" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white">
+                                    <option value="K1">K1 (Remembering)</option>
+                                    <option value="K2">K2 (Understanding)</option>
+                                    <option value="K3">K3 (Applying)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">No. of Questions</label>
+                                <input v-model.number="aiCount" type="number" min="1" max="50" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            </div>
+                        </div>
+                        
+                        <div v-if="aiStatus" :class="aiStatusType === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'" class="p-4 rounded-lg text-sm font-medium">
+                            {{ aiStatus }}
+                        </div>
+                        
+                        <button @click="generateWithAI" :disabled="isGenerating" class="w-full mt-4 px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white font-bold rounded-lg shadow-md transition-all">
+                            {{ isGenerating ? '🧠 Generating Questions...' : '✨ Generate Automatically' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -145,7 +199,16 @@
                 return {
                     courseCode: '',
                     templateName: 'Component-I_K1_K2_Template',
-                    questions: []
+                    questions: [],
+                    // AI State
+                    showModal: false,
+                    aiKey: localStorage.getItem('geminiApikey') || '',
+                    aiSyllabus: '',
+                    aiLevel: 'K1',
+                    aiCount: 5,
+                    aiStatus: '',
+                    aiStatusType: 'info',
+                    isGenerating: false
                 }
             },
             methods: {
@@ -173,6 +236,101 @@
                     if (q.level === 'K1') q.marks = 1;
                     else if (q.level === 'K2') q.marks = 2;
                     else if (q.level === 'K3') q.marks = 3;
+                },
+                async generateWithAI() {
+                    if (!this.aiKey) { this.aiStatus = "Please provide an API Key."; this.aiStatusType = "error"; return; }
+                    if (!this.aiSyllabus) { this.aiStatus = "Please paste syllabus or topic text."; this.aiStatusType = "error"; return; }
+                    
+                    localStorage.setItem('geminiApikey', this.aiKey);
+                    
+                    this.isGenerating = true;
+                    this.aiStatus = `Analyzing text and generating ${this.aiCount} questions... Please wait a few seconds.`;
+                    this.aiStatusType = "info";
+
+                    const prompt = `You are an expert test creator. Generate exactly ${this.aiCount} multiple-choice questions for the following syllabus/topic:
+${this.aiSyllabus}.
+The questions MUST be created targeting Bloom's Taxonomy Level: ${this.aiLevel}.
+IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the output in markdown blocks (e.g. \`\`\`json). Return exactly the raw array:
+[
+  {
+    "text": "Question text here",
+    "level": "${this.aiLevel}",
+    "options": [
+      { "text": "Response option 1", "feedback": "Optional feedback" },
+      { "text": "Response option 2", "feedback": "" },
+      { "text": "Response option 3", "feedback": "" },
+      { "text": "Response option 4", "feedback": "" }
+    ],
+    "correctIndex": 0
+  }
+]`;
+                    
+                    try {
+                        let response;
+                        try {
+                            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.aiKey}`;
+                            response = await fetch(url, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    contents: [{ parts: [{ text: prompt }] }],
+                                    generationConfig: { temperature: 0.2 }
+                                })
+                            });
+                        } catch(netErr) {
+                            throw new Error("Network error hitting Gemini API. Check your connection.");
+                        }
+
+                        const data = await response.json();
+                        if (data.error) throw new Error(data.error.message);
+
+                        let rawText = data.candidates[0].content.parts[0].text.trim();
+                        if (rawText.startsWith('```json')) {
+                            rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                        }
+                        
+                        let genQs = [];
+                        try {
+                            genQs = JSON.parse(rawText);
+                        } catch(e) {
+                            const match = rawText.match(/\[(\s|.)*\]/g);
+                            if (match && match.length > 0) genQs = JSON.parse(match[0]);
+                            else throw new Error("AI returned invalid JSON structure.");
+                        }
+                        
+                        if (!Array.isArray(genQs)) throw new Error("AI output mismatch.");
+
+                        genQs.forEach(q => {
+                            let marks = 1;
+                            if (this.aiLevel === 'K2') marks = 2;
+                            if (this.aiLevel === 'K3') marks = 3;
+
+                            this.questions.push({
+                                id: Date.now() + Math.random(),
+                                text: q.text || 'Generated Question',
+                                level: this.aiLevel,
+                                marks: marks,
+                                correctIndex: (typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < 4) ? q.correctIndex : 0,
+                                options: q.options || [
+                                    {text: 'A', feedback: ''}, {text: 'B', feedback: ''}, {text: 'C', feedback: ''}, {text: 'D', feedback: ''}
+                                ]
+                            });
+                        });
+
+                        this.aiStatus = `Success! Appended ${genQs.length} items to the questions list.`;
+                        this.aiStatusType = "info";
+                        setTimeout(() => {
+                            this.showModal = false;
+                            this.aiStatus = '';
+                            setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
+                        }, 1200);
+
+                    } catch (e) {
+                        this.aiStatus = `Error: ${e.message}`;
+                        this.aiStatusType = "error";
+                    } finally {
+                        this.isGenerating = false;
+                    }
                 },
                 async generateDocx() {
                     try {
