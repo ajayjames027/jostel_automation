@@ -555,6 +555,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
 
                                 // Row 1: Question Text & MC type
                                 rows.push(new docz.TableRow({
+                                    tableHeader: true,
                                     children: [
                                         new docz.TableCell({
                                             children: [new docz.Paragraph({ text: q.text || "[Empty Question]", style: "Cell" })],
@@ -569,6 +570,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
 
                                 // Row 2: Default Mark
                                 rows.push(new docz.TableRow({
+                                    tableHeader: true,
                                     children: [
                                         new docz.TableCell({
                                             children: [new docz.Paragraph({ text: "Default mark:", style: "TableRowHead" })],
@@ -583,6 +585,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
 
                                 // Row 3: Headers
                                 rows.push(new docz.TableRow({
+                                    tableHeader: true,
                                     children: [
                                         new docz.TableCell({ children: [new docz.Paragraph({ text: "#", style: "QFOptionReset" })], borders: tableBorders }),
                                         new docz.TableCell({ children: [new docz.Paragraph({ text: "Answers", style: "TableHead" })], borders: tableBorders }),
