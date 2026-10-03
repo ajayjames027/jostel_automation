@@ -83,11 +83,14 @@
     <div id="app" class="min-h-screen p-4 md:p-8">
         <div class="max-w-5xl mx-auto">
             <!-- Header -->
-            <header class="mb-8 text-center flex flex-col justify-center items-center bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative">
-                <img src="./jostel_logo.png" alt="Jostel Logo" class="h-20 mb-3 object-contain" onerror="this.style.display='none'">
+            <header
+                class="mb-8 text-center flex flex-col justify-center items-center bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative">
+                <img src="./jostel_logo.png" alt="Jostel Logo" class="h-20 mb-3 object-contain"
+                    onerror="this.style.display='none'">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800 tracking-tight">JosTEL: Template Hub</h1>
-                    <p class="text-gray-500 mt-2">Easily feed questions and export properly formatted Moodle Word files.</p>
+                    <p class="text-gray-500 mt-2">Easily feed questions and export properly formatted Moodle Word files.
+                    </p>
                 </div>
                 <div class="mt-6 flex gap-3 flex-wrap justify-center">
                     <!--<button @click="showModal = true" class="px-5 py-2.5 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-purple-100 flex items-center gap-2">
@@ -101,14 +104,14 @@
                         class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-brand-100">
                         + Add Question
                     </button>
-                    <button @click="generateMoodleXML" v-if="questions.length > 0"
+                    <!--<button @click="generateMoodleXML" v-if="questions.length > 0"
                         class="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-orange-100 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                         </svg>
                         Moodle XML
-                    </button>
+                    </button>-->
                     <button @click="generateDocx" v-if="questions.length > 0"
                         class="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-sm transition-all focus:ring-4 focus:ring-green-100 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -675,13 +678,13 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                 generateMoodleXML() {
                     try {
                         let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<quiz>\n';
-                        
+
                         this.questions.forEach((q, index) => {
                             const qNumber = String(index + 1).padStart(2, '0');
                             const level = q.level;
                             const code = this.courseCode || 'Enter course code';
                             const title = `Q-${qNumber} – ${level} (MC) [${code}]`;
-                            
+
                             xml += `  <question type="multichoice">\n`;
                             xml += `    <name>\n      <text><![CDATA[${title}]]></text>\n    </name>\n`;
                             xml += `    <questiontext format="html">\n`;
@@ -693,7 +696,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                             xml += `    <single>true</single>\n`;
                             xml += `    <shuffleanswers>true</shuffleanswers>\n`;
                             xml += `    <answernumbering>abc</answernumbering>\n`;
-                            
+
                             q.options.forEach((opt, optIndex) => {
                                 const fraction = (q.correctIndex === optIndex) ? "100" : "0";
                                 xml += `    <answer fraction="${fraction}" format="html">\n`;
@@ -707,13 +710,13 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                             });
                             xml += `  </question>\n`;
                         });
-                        
+
                         xml += `</quiz>`;
-                        
+
                         const blob = new Blob([xml], { type: "application/xml;charset=utf-8" });
                         const filename = (this.templateName || "Moodle_Questions") + ".xml";
                         saveAs(blob, filename);
-                    } catch(e) {
+                    } catch (e) {
                         alert("Error generating Moodle XML: " + e.message);
                     }
                 }
