@@ -406,7 +406,21 @@
 
                     // 2. Fetch Courses
                     const courses = await callWS('core_course_get_courses') || [];
-                    const activeCourses = Array.isArray(courses) ? courses.filter(c => c.id !== 1) : []; // skip site
+                    
+                    // Parse the selected Academic Year (e.g. "2025-2026")
+                    const [startYear, endYear] = this.academicYear.split('-');
+                    // Moodle stores dates as UNIX timestamps (seconds). Assuming Academic Year is June 1st to May 31st.
+                    const startDateLimit = new Date(`${startYear}-06-01T00:00:00Z`).getTime() / 1000;
+                    const endDateLimit = new Date(`${endYear}-05-31T23:59:59Z`).getTime() / 1000;
+
+                    const activeCourses = Array.isArray(courses) ? courses.filter(c => {
+                        if (c.id === 1) return false; // skip site course
+                        // Check if the course startdate falls within the selected academic year bounds
+                        if (c.startdate && c.startdate >= startDateLimit && c.startdate <= endDateLimit) {
+                            return true;
+                        }
+                        return false;
+                    }) : [];
 
                     // Initialize trackers
                     activeCourses.forEach(c => {
