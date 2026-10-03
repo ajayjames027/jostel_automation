@@ -297,7 +297,7 @@
 
             try {
                 showStatus('loading', `Downloading live grades for Quiz ID ${quizId}...`);
-                const gradesRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=${quizId}&status=all`);
+                const gradesRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_attempts&moodlewsrestformat=json&quizid=${quizId}&status=all`);
                 const gradesData = await gradesRes.json();
 
                 if (gradesData.exception) throw new Error(gradesData.message);
