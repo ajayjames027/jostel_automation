@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Outfit Font -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
     <script>
         tailwind.config = {
@@ -42,6 +44,8 @@
         body {
             font-family: 'Outfit', -apple-system, sans-serif;
             background-color: #f1f5f9;
+            margin: 0;
+            padding: 0;
         }
 
         .glass-card {
@@ -62,70 +66,152 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        .login-input {
+            border: 1px solid #cbd5e1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .login-input:focus {
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+<body>
+<div id="app" class="min-h-screen flex flex-col items-center">
 
-    <!-- Header Section -->
-    <header class="w-full max-w-5xl text-center flex flex-col justify-center items-center mt-6 mb-12 animate-fade-in-up">
-        <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-24 mb-4 object-contain" onerror="this.style.display='none'">
-        <div>
-            <h1 class="text-4xl md:text-5xl font-bold text-brand-500 tracking-tight">JosTEL Ecosystem</h1>
-            <p class="text-gray-500 mt-3 text-lg max-w-2xl mx-auto">Centralized automation suite for generating Moodle templates, aggregating student grades, and streamlining academic workflows.</p>
+    <!-- LOGIN SCREEN -->
+    <div v-if="!isLoggedIn" class="min-h-screen w-full flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-10 rounded-2xl animate-fade-in-up text-center">
+            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-20 mx-auto mb-6 object-contain" onerror="this.style.display='none'">
+            <h2 class="text-2xl font-bold text-brand-900 mb-2">Welcome Back</h2>
+            <p class="text-gray-500 mb-8 text-sm">Please sign in to access the Automation Hub.</p>
+            
+            <form @submit.prevent="login" class="space-y-5 text-left">
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-gray-700">Username</label>
+                    <input v-model="username" type="text" class="login-input" placeholder="Enter username">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-gray-700">Password</label>
+                    <input v-model="password" type="password" class="login-input" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 px-4 rounded-lg transition-colors mt-2">
+                    Sign In Validate
+                </button>
+            </form>
+            
+            <p v-if="errorMsg" class="mt-4 text-sm text-red-500 font-semibold">{{ errorMsg }}</p>
         </div>
-    </header>
-
-    <!-- Cards Grid -->
-    <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 px-4 animate-fade-in-up" style="animation-delay: 0.15s;">
-        
-        <!-- Grade Fetcher -->
-        <a href="./Grade_Fetcher_Dashboard.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-            <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Grade Fetcher</h2>
-            <p class="text-gray-500 text-sm">Securely connect using token access to explore and retrieve live quiz grades across multiple courses.</p>
-            <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
-                Open Dashboard <span>&rarr;</span>
-            </div>
-        </a>
-
-        <!-- Template Hub -->
-        <a href="./Quiz_Format_Portal.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-            <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Template Hub</h2>
-            <p class="text-gray-500 text-sm">Create standard Moodle WordTable Question imports instantly via TXT import or blank visual generation.</p>
-            <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
-                Open Dashboard <span>&rarr;</span>
-            </div>
-        </a>
-
-        <!-- Moodle Automation -->
-        <a href="./Moodle_Automation_Dashboard.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-            <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Excel Engine</h2>
-            <p class="text-gray-500 text-sm">Bulk export, analyze, and format Moodle outputs efficiently via locally running Excel processing logic.</p>
-            <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
-                Open Dashboard <span>&rarr;</span>
-            </div>
-        </a>
-
     </div>
 
-    <!-- Footer -->
-    <footer class="mt-auto pt-16 pb-6 text-center text-gray-400 text-sm animate-fade-in-up" style="animation-delay: 0.3s;">
-        <p>&copy; 2026 JosTEL Automation Suite. Crafted for seamless curriculum workflows.</p>
-    </footer>
+    <!-- MAIN DASHBOARD -->
+    <div v-else class="w-full h-full flex flex-col items-center p-4 md:p-8">
+        <!-- Header Section -->
+        <header class="w-full max-w-5xl text-center flex flex-col justify-center items-center mt-6 mb-12 animate-fade-in-up">
+            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-24 mb-4 object-contain" onerror="this.style.display='none'">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold text-brand-500 tracking-tight">JosTEL Ecosystem</h1>
+                <p class="text-gray-500 mt-3 text-lg max-w-2xl mx-auto">Centralized automation suite for generating Moodle templates, aggregating student grades, and streamlining academic workflows.</p>
+                <button @click="logout" class="mt-4 text-sm text-brand-500 font-semibold hover:underline">Log out</button>
+            </div>
+        </header>
+
+        <!-- Cards Grid -->
+        <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 px-4 animate-fade-in-up" style="animation-delay: 0.15s;">
+            <!-- Grade Fetcher -->
+            <a href="./Grade_Fetcher_Dashboard.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
+                <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Grade Fetcher</h2>
+                <p class="text-gray-500 text-sm">Securely connect using token access to explore and retrieve live quiz grades across multiple courses.</p>
+                <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
+                    Open Dashboard <span>&rarr;</span>
+                </div>
+            </a>
+
+            <!-- Template Hub -->
+            <a href="./Quiz_Format_Portal.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
+                <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Template Hub</h2>
+                <p class="text-gray-500 text-sm">Create standard Moodle WordTable Question imports instantly via TXT import or blank visual generation.</p>
+                <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
+                    Open Dashboard <span>&rarr;</span>
+                </div>
+            </a>
+
+            <!-- Moodle Automation -->
+            <a href="./Moodle_Automation_Dashboard.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
+                <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Excel Engine</h2>
+                <p class="text-gray-500 text-sm">Bulk export, analyze, and format Moodle outputs efficiently via locally running Excel processing logic.</p>
+                <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
+                    Open Dashboard <span>&rarr;</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-auto pt-16 pb-6 text-center text-gray-400 text-sm animate-fade-in-up" style="animation-delay: 0.3s;">
+            <p>&copy; 2026 JosTEL Automation Suite. Crafted for seamless curriculum workflows.</p>
+        </footer>
+    </div>
+
+</div>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                isLoggedIn: false,
+                username: '',
+                password: '',
+                errorMsg: ''
+            }
+        },
+        mounted() {
+            // Check if they already logged in during this browser session
+            if (sessionStorage.getItem('jostel_auth') === 'granted') {
+                this.isLoggedIn = true;
+            }
+        },
+        methods: {
+            login() {
+                if (this.username === 'admin' && this.password === 'admin123') {
+                    this.isLoggedIn = true;
+                    this.errorMsg = '';
+                    sessionStorage.setItem('jostel_auth', 'granted');
+                } else {
+                    this.errorMsg = 'Invalid username or password.';
+                    this.password = ''; // clear password on fail
+                }
+            },
+            logout() {
+                this.isLoggedIn = false;
+                this.username = '';
+                this.password = '';
+                sessionStorage.removeItem('jostel_auth');
+            }
+        }
+    }).mount('#app');
+</script>
 
 </body>
 </html>
