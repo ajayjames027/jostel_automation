@@ -617,7 +617,16 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                         }
 
                         const doc = new Document({
+                            creator: "Moodle Quiz Generator",
+                            language: "en-US",
                             styles: {
+                                default: {
+                                    document: {
+                                        run: {
+                                            language: "en-US"
+                                        }
+                                    }
+                                },
                                 paragraphStyles: [
                                     { id: "QFOption", name: "QFOption", basedOn: "Normal", next: "Normal", run: {} },
                                     { id: "Cell", name: "Cell", basedOn: "Normal", next: "Normal", run: {} },
