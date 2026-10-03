@@ -3,660 +3,460 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jostel Grade Fetcher Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Jostel Marks Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        primary: '#1e3a8a',
+                        secondary: '#3b82f6',
+                        bglight: '#f1f5f9'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary: #1e3a8a; /* Deep University Blue */
-            --primary-hover: #1e40af; 
-            --secondary: #3b82f6;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #cbd5e1;
-            --table-header-bg: #1e3a8a;
-            --table-header-text: #ffffff;
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'Outfit', -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            line-height: 1.6;
-        }
-
-        .dashboard {
-            width: 100%;
-            max-width: 1000px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 3rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            transition: all 0.3s;
-        }
-
-        .header { text-align: center; margin-bottom: 2.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 2rem; }
-        .header img { height: 80px; margin-bottom: 1rem; object-fit: contain; }
-        .header h1 { font-size: 2.2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
-        .header p { color: var(--text-muted); font-size: 1.1rem; font-weight: 300; }
-
-        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-        .input-group { display: flex; flex-direction: column; gap: 0.4rem; }
-        
-        label { font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
-        
-        input[type="text"], input[type="password"], input[type="date"], select {
+        body { background-color: #f1f5f9; color: #1e293b; }
+        .glass-panel {
             background: #ffffff;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 0.9rem;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.2s ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-        select option { background: #ffffff; color: var(--text-main); padding: 10px; }
-
-        .btn-generate {
-            display: block;
-            width: 100%;
-            padding: 1.1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            font-family: inherit;
-        }
-        .btn-generate:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        .btn-generate:active { transform: translateY(0); }
-        
-        .btn-export {
-            display: block;
-            width: 100%;
-            padding: 0.9rem;
-            background: #f1f5f9;
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 1rem;
-            transition: all 0.2s;
-        }
-        .btn-export:hover { background: #e2e8f0; }
-
-        .status { margin-top: 1.5rem; padding: 1.2rem; border-radius: 8px; display: none; text-align: center; font-weight: 500; font-size: 0.95rem; }
-        .status.error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; display: block;}
-        .status.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; display: block;}
-        .status.loading { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; display: block;}
-
-        .table-container {
-            margin-top: 1rem;
-            max-height: 450px;
-            overflow-y: auto;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
+            border: 1px solid #cbd5e1;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border-radius: 12px;
         }
+        select, input[type="text"], input[type="date"], input[type="password"] {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            outline: none;
+            width: 100%;
+        }
+        select:focus, input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
         
-        .filters-bar {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 1rem;
-            margin-top: 2rem;
-            align-items: end;
-        }
-
-        table { width: 100%; border-collapse: collapse; text-align: left; background: #ffffff; }
-        th, td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
-        th { background: var(--table-header-bg); color: var(--table-header-text); position: sticky; top: 0; font-weight: 600; z-index: 10; }
-        tr:hover { background: #f8fafc; }
-        
-        .q-wise-box {
-            font-size:0.85rem; 
-            max-width:250px; 
-            overflow-x:auto; 
-            white-space:nowrap; 
-            padding:0.4rem 0.6rem; 
-            background:#f1f5f9; 
-            border: 1px solid #e2e8f0;
-            border-radius:4px;
-            color: #475569;
-        }
-
-        /* Multi-step logic */
-        #step2 { display: none; margin-top: 1.5rem; padding-top: 1.5rem; }
-        #resultsWrapper { display: none; margin-top: 2rem; }
-        .hidden-row { display: none !important; }
-        
-        .section-title {
-            margin-bottom: 1.2rem;
-            color: var(--primary);
-            font-size: 1.4rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        table { border-collapse: collapse; width: 100%; border-radius: 8px; overflow: hidden; }
+        th { background-color: #1e3a8a; color: white; font-weight: 600; text-align: left; padding: 12px; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #f8fafc; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-    <div class="dashboard">
-        <div class="header">
-            <img src="./jostel_logo.png" alt="Jostel Logo" onerror="this.style.display='none'">
-            <h1>Live Grade Fetcher</h1>
-            <p>Connect securely using your token to explore all quizzes.</p>
-        </div>
+<div id="app" class="max-w-6xl mx-auto space-y-6">
 
-        <!-- Step 1: Connect -->
-        <div id="step1">
-            <div class="form-grid">
-                <div class="input-group">
-                    <label>Moodle API Token</label>
-                    <input type="password" id="apiToken" value="20346d2c25c71285ffc0f147a3f9eab8">
-                </div>
-                <div class="input-group">
-                    <label>Moodle Base URL</label>
-                    <input type="text" id="moodleUrl" value="https://service.sjctni.edu/jostel/moodle">
-                </div>
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <img src="./jostel_logo.png" alt="Logo" class="h-16 mx-auto mb-3" onerror="this.style.display='none'">
+        <h1 class="text-3xl font-bold text-primary tracking-tight">JOSTEL MARKS DASHBOARD</h1>
+    </div>
+
+    <!-- Connection Setup (Hidden when connected) -->
+    <div v-if="!isConnected" class="glass-panel p-6 max-w-xl mx-auto">
+        <h2 class="text-xl font-semibold mb-4">Connect to Moodle</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold mb-1">Moodle Base URL</label>
+                <input v-model="moodleUrl" type="text" placeholder="https://...">
             </div>
-            <button class="btn-generate" id="connectBtn">Connect to Moodle & Load Quizzes</button>
-        </div>
-
-        <div class="status" id="statusMessage"></div>
-
-        <!-- Step 2: Select Quiz and Fetch -->
-        <div id="step2">
-            <div class="input-group" style="margin-bottom: 1.5rem;">
-                <!-- Filter Quizzes -->
-                <label>Course/Class Filter (Search Quizzes)</label>
-                <input type="text" id="quizSearchInput" placeholder="Type a course or quiz name to filter..." style="margin-bottom: 1rem;">
-
-                <label>📅 Or Find Quiz by Date Attempted / Opened</label>
-                <input type="date" id="quizDateSearch" style="margin-bottom: 1.5rem;">
-                
-                <select id="quizSelect">
-                    <option value="" disabled selected>-- Select a Quiz --</option>
-                </select>
+            <div>
+                <label class="block text-sm font-semibold mb-1">API Token</label>
+                <input v-model="apiToken" type="password" placeholder="Moodle Token">
             </div>
-            
-            <button class="btn-generate" id="fetchBtn" style="margin-bottom: 1rem;">Fetch Live Grades</button>
-
-            <!-- FETCH BY STUDENT REPORT -->
-            <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 2rem;">
-                <h3 class="section-title">Global Transcript Search</h3>
-                <div class="input-group" style="margin-bottom: 1.2rem;">
-                    <label>Find specific records by Register Number / Username</label>
-                    <input type="text" id="studentSearchInput" placeholder="Enter Reg No, e.g. 24UCO102">
-                </div>
-                <button class="btn-generate" id="fetchStudentBtn" style="background: var(--secondary); border: 1px solid #2563eb;">Search Student Transcript</button>
-            </div>
-        </div>
-
-        <!-- Results & Filtering Table -->
-        <div id="resultsWrapper">
-            <div class="filters-bar">
-                <div class="input-group">
-                    <label>🔍 Smart Filter</label>
-                    <input type="text" id="tableFilterInput" placeholder="Filter by Register Number/State...">
-                </div>
-                <div class="input-group">
-                    <label>📅 Filter Existing Below</label>
-                    <input type="date" id="dateFilterInput">
-                </div>
-                <div class="input-group">
-                    <label>Quick Export</label>
-                    <button class="btn-export" id="exportBtn" style="margin: 0; padding: 1rem;">Export CSV</button>
-                </div>
-            </div>
-
-            <div class="table-container" id="tableContainer">
-                <table id="gradesTable">
-                    <thead>
-                        <tr>
-                            <th>Reg. No / Name</th>
-                            <th>Total Grade</th>
-                            <th>Q-Wise Details</th>
-                            <th>Status</th>
-                            <th>Date Finished</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gradesBody"></tbody>
-                </table>
-            </div>
+            <button @click="connect" :disabled="isLoading" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50">
+                {{ isLoading ? 'Connecting...' : 'Connect' }}
+            </button>
+            <p v-if="status" class="text-sm text-center text-red-500 mt-2">{{ status }}</p>
         </div>
     </div>
 
-    <script>
-        let currentGradesData = [];
-        let allQuizzes = [];
-        let apiToken = "";
-        let apiUrl = "";
+    <!-- Main Dashboard -->
+    <div v-if="isConnected" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        <!-- Sidebar Filters  -->
+        <div class="glass-panel p-5 md:col-span-1 space-y-4 self-start">
+            <h3 class="font-bold text-lg border-b pb-2 mb-2">Filters</h3>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-1">Category</label>
+                <select v-model="selectedCategory">
+                    <option value="">All Categories</option>
+                    <option v-for="cat in categories" :value="cat.id">{{ cat.name }}</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-1">Course</label>
+                <select v-model="selectedCourse">
+                    <option value="">All Courses</option>
+                    <option v-for="c in filteredCourses" :value="c.id">{{ c.fullname }}</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold mb-1">Quiz</label>
+                <select v-model="selectedQuiz">
+                    <option value="">All Quizzes</option>
+                    <option v-for="q in filteredQuizzes" :value="q.id">{{ q.name }}</option>
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">From Date</label>
+                    <input v-model="fromDate" type="date">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">To Date</label>
+                    <input v-model="toDate" type="date">
+                </div>
+            </div>
 
-        // UI Helpers
-        function showStatus(type, message) {
-            const statusBox = document.getElementById('statusMessage');
-            statusBox.className = `status ${type}`;
-            statusBox.innerHTML = message;
+            <div class="mt-2">
+                <label class="block text-sm font-semibold mb-1">Student Username/RegNo</label>
+                <input v-model="studentSearch" type="text" placeholder="e.g. 231001">
+            </div>
+
+            <div class="flex gap-2 pt-4">
+                <button @click="searchRecords" :disabled="isLoading" class="flex-1 bg-primary hover:bg-blue-800 text-white font-semibold py-2 rounded transition-colors disabled:opacity-50">
+                    SEARCH
+                </button>
+                <button @click="resetFilters" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 rounded transition-colors">
+                    RESET
+                </button>
+            </div>
+            <p v-if="status" class="text-xs text-center mt-2 font-medium" :class="statusType === 'error' ? 'text-red-500' : 'text-blue-600'">{{ status }}</p>
+        </div>
+
+        <!-- Data Area -->
+        <div class="md:col-span-3 space-y-6">
+            
+            <!-- Aggregates / Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-panel p-4 text-center">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Students</p>
+                    <p class="text-2xl font-bold text-primary">{{ uniqueStudents }}</p>
+                </div>
+                <div class="glass-panel p-4 text-center">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Attempts</p>
+                    <p class="text-2xl font-bold text-primary">{{ displayData.length }}</p>
+                </div>
+                <div class="glass-panel p-4 text-center">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Average</p>
+                    <p class="text-2xl font-bold text-primary">{{ avgGrade }}</p>
+                </div>
+                <div class="glass-panel p-4 text-center">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Highest</p>
+                    <p class="text-2xl font-bold text-primary">{{ highestGrade }}</p>
+                </div>
+            </div>
+
+            <!-- Main Table -->
+            <div class="glass-panel overflow-x-auto shadow-sm">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Quiz</th>
+                            <th>Date</th>
+                            <th class="text-center">1M</th>
+                            <th class="text-center">2M</th>
+                            <th class="text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody v-if="displayData.length > 0">
+                        <tr v-for="row in displayData" :key="row.id">
+                            <td class="font-medium text-gray-800">
+                                <div>{{ row.username }}</div>
+                                <div class="text-xs text-gray-400">{{ row.fullname }}</div>
+                            </td>
+                            <td>{{ row.quizName }}</td>
+                            <td class="text-sm text-gray-600">{{ row.dateStr }}</td>
+                            <td class="text-center font-semibold text-blue-600">{{ row.m1 }}</td>
+                            <td class="text-center font-semibold text-purple-600">{{ row.m2 }}</td>
+                            <td class="text-center font-bold text-primary">{{ row.total }}</td>
+                        </tr>
+                    </tbody>
+                    <tbody v-else>
+                        <tr>
+                            <td colspan="6" class="text-center py-12 text-gray-400 font-medium">
+                                No records found. Adjust your filters and click Search.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Export -->
+            <div class="flex justify-end pt-2" v-if="displayData.length > 0">
+                <button @click="exportCSV" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow-sm font-semibold text-sm transition-colors">
+                    Export to CSV
+                </button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            apiToken: '20346d2c25c71285ffc0f147a3f9eab8',
+            moodleUrl: 'https://service.sjctni.edu/jostel/moodle',
+            isConnected: false,
+            isLoading: false,
+            status: '',
+            statusType: 'info',
+            
+            categories: [],
+            courses: [],
+            quizzes: [],
+            
+            selectedCategory: '',
+            selectedCourse: '',
+            selectedQuiz: '',
+            fromDate: '',
+            toDate: '',
+            studentSearch: '',
+            
+            scannedAttempts: [], // All attempts fetched from network
         }
-
-        function formatUnixTime(unixStamp) {
-            if (!unixStamp || unixStamp === 0) return "Not Finished";
-            const d = new Date(unixStamp * 1000);
-            return d.toLocaleDateString() + " " + d.toLocaleTimeString();
+    },
+    computed: {
+        apiUrl() {
+            return `${this.moodleUrl.replace(/\/$/, "")}/webservice/rest/server.php`;
+        },
+        filteredCourses() {
+            if (!this.selectedCategory) return this.courses;
+            return this.courses.filter(c => c.categoryid == this.selectedCategory);
+        },
+        filteredQuizzes() {
+            let targetCourses = this.selectedCourse ? [this.selectedCourse] : this.filteredCourses.map(c => c.id);
+            return this.quizzes.filter(q => targetCourses.includes(q.course));
+        },
+        displayData() {
+            return this.scannedAttempts.filter(att => {
+                // Filter by local text (Student, Quiz Name)
+                if (this.studentSearch) {
+                    const term = this.studentSearch.toLowerCase();
+                    const match = att.username.toLowerCase().includes(term) || 
+                                  att.fullname.toLowerCase().includes(term) || 
+                                  att.quizName.toLowerCase().includes(term);
+                    if (!match) return false;
+                }
+                
+                // Filter by UI Dates if applied
+                if (this.fromDate || this.toDate) {
+                    const rowDate = new Date(att.timestamp);
+                    rowDate.setHours(0,0,0,0);
+                    if (this.fromDate) {
+                        const fd = new Date(this.fromDate); fd.setHours(0,0,0,0);
+                        if (rowDate < fd) return false;
+                    }
+                    if (this.toDate) {
+                        const td = new Date(this.toDate); td.setHours(0,0,0,0);
+                        if (rowDate > td) return false;
+                    }
+                }
+                
+                return true;
+            });
+        },
+        uniqueStudents() {
+            const users = new Set(this.displayData.map(d => d.username || d.fullname));
+            return users.size;
+        },
+        avgGrade() {
+            if (this.displayData.length === 0) return 0;
+            const sum = this.displayData.reduce((acc, row) => acc + row.total, 0);
+            return (sum / this.displayData.length).toFixed(1);
+        },
+        highestGrade() {
+            if (this.displayData.length === 0) return 0;
+            return Math.max(...this.displayData.map(d => d.total)).toFixed(1);
         }
-
-        // STEP 1: LOAD QUIZZES
-        document.getElementById('connectBtn').addEventListener('click', async () => {
-            apiToken = document.getElementById('apiToken').value.trim();
-            const baseUrl = document.getElementById('moodleUrl').value.trim().replace(/\/$/, "");
-            apiUrl = `${baseUrl}/webservice/rest/server.php`;
-
-            if (!apiToken || !baseUrl) {
-                showStatus('error', 'Token and URL are required.'); return;
+    },
+    methods: {
+        setStatus(msg, type='info') {
+            this.status = msg;
+            this.statusType = type;
+        },
+        async request(fn, params="") {
+            const url = `${this.apiUrl}?wstoken=${this.apiToken}&wsfunction=${fn}&moodlewsrestformat=json${params}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.exception) throw new Error(data.message);
+            return data;
+        },
+        async connect() {
+            if (!this.apiToken || !this.moodleUrl) {
+                this.setStatus('Fields required', 'error'); return;
             }
-
-            showStatus('loading', 'Connecting to Moodle & gathering quizzes...');
+            this.isLoading = true;
+            this.setStatus('Authenticating & loading hierarchy...');
+            
             try {
-                const res = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_quizzes_by_courses&moodlewsrestformat=json`);
-                const data = await res.json();
+                // Fetch Categories
+                try {
+                    const cats = await this.request('core_course_get_categories');
+                    this.categories = Array.isArray(cats) ? cats : [];
+                } catch(e) { this.categories = []; /* fallback */ }
+                
+                // Fetch Courses
+                try {
+                    const crs = await this.request('core_course_get_courses');
+                    this.courses = Array.isArray(crs) ? crs.filter(c => c.id !== 1) : []; // skip site course
+                } catch(e) { this.courses = []; }
+                
+                // Fetch all visible Quizzes
+                const qzs = await this.request('mod_quiz_get_quizzes_by_courses');
+                this.quizzes = qzs.quizzes || [];
 
-                if (data.exception) throw new Error(data.message || "Failed to load quizzes");
-
-                allQuizzes = data.quizzes || [];
-                if (allQuizzes.length === 0) {
-                    showStatus('error', "Connected successfully, but 0 quizzes were found for your account."); return;
-                }
-
-                allQuizzes.sort((a,b) => b.id - a.id); 
-                populateQuizDropdown(allQuizzes);
-
-                document.getElementById('step1').style.display = 'none';
-                document.getElementById('step2').style.display = 'block';
-                showStatus('success', `Successfully loaded ${allQuizzes.length} Quizzes! Select one below.`);
-            } catch (err) {
-                if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-                    showStatus('error', `<b>CORS Block / Network Error</b>`);
-                } else {
-                    showStatus('error', `Error: ${err.message}`);
-                }
+                this.isConnected = true;
+                this.setStatus('');
+            } catch (error) {
+                this.setStatus(`Connection failed: ${error.message}`, 'error');
+            } finally {
+                this.isLoading = false;
             }
-        });
-
-        // Filter Quizzes Dropdown by Text
-        document.getElementById('quizSearchInput').addEventListener('input', (e) => {
-            const q = e.target.value.toLowerCase();
-            const filtered = allQuizzes.filter(quiz => quiz.name.toLowerCase().includes(q));
-            populateQuizDropdown(filtered);
-        });
-
-        // Filter Quizzes by Date
-        document.getElementById('quizDateSearch').addEventListener('change', (e) => {
-            const dateQuery = e.target.value; // YYYY-MM-DD
-            if (!dateQuery) {
-                populateQuizDropdown(allQuizzes);
+        },
+        resetFilters() {
+            this.selectedCategory = '';
+            this.selectedCourse = '';
+            this.selectedQuiz = '';
+            this.fromDate = '';
+            this.toDate = '';
+            this.studentSearch = '';
+            this.scannedAttempts = [];
+            this.setStatus('');
+        },
+        async searchRecords() {
+            this.isLoading = true;
+            this.scannedAttempts = [];
+            
+            // Determine active quizzes to scan
+            let targetQuizzes = [];
+            if (this.selectedQuiz) {
+                targetQuizzes = this.quizzes.filter(q => q.id === this.selectedQuiz);
+            } else {
+                targetQuizzes = this.filteredQuizzes; 
+            }
+            
+            if (targetQuizzes.length === 0) {
+                this.setStatus('No quizzes available for this selection.', 'error');
+                this.isLoading = false;
                 return;
             }
-            const filtered = allQuizzes.filter(quiz => {
-                const qOpen = quiz.timeopen ? new Date(quiz.timeopen * 1000) : null;
-                const qClose = (quiz.timeclose && quiz.timeclose > 0) ? new Date(quiz.timeclose * 1000) : null;
-                const targetDt = new Date(dateQuery);
-                
-                const toIso = d => d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` : null;
-                
-                // Direct specific match
-                if (toIso(qOpen) === dateQuery) return true;
-                
-                // Overlap match: if the date falls inside the window
-                targetDt.setHours(12, 0, 0, 0); 
-                if (qOpen && qClose && targetDt >= qOpen && targetDt <= qClose) return true;
-                if (qOpen && !qClose && targetDt >= qOpen) return true;
-                
-                return false;
-            });
-            populateQuizDropdown(filtered);
-            if (filtered.length === 0) {
-                 showStatus('error', 'No quizzes found for this date. Try clearing the date filter.');
-            } else {
-                 showStatus('success', `Found ${filtered.length} quizzes opened on this date!`);
+
+            if (targetQuizzes.length > 5 && !this.selectedQuiz && !this.studentSearch && !this.selectedCourse) {
+                 this.setStatus('Searching across too many quizzes. Please filter by Course or Quiz to avoid timeouts.', 'error');
+                 this.isLoading = false;
+                 return;
             }
-        });
 
-        function populateQuizDropdown(quizzesArray) {
-            const sel = document.getElementById('quizSelect');
-            sel.innerHTML = '<option value="" disabled selected>-- Choose a Quiz --</option>';
-            quizzesArray.forEach(q => {
-                const opt = document.createElement('option');
-                opt.value = q.id;
-                opt.textContent = `[ID: ${q.id}] ${q.name}`;
-                sel.appendChild(opt);
-            });
-        }
-
-        // STEP 2: FETCH GRADES
-        document.getElementById('fetchBtn').addEventListener('click', async () => {
-            const quizId = document.getElementById('quizSelect').value;
-            const resWrap = document.getElementById('resultsWrapper');
-            const tbody = document.getElementById('gradesBody');
-            
-            resWrap.style.display = 'none';
-            tbody.innerHTML = '';
-            currentGradesData = [];
-            document.getElementById('tableFilterInput').value = "";
-
-            if (!quizId) {
-                showStatus('error', 'Please select a quiz from the dropdown first!'); return;
-            }
+            this.setStatus(`Scanning ${targetQuizzes.length} quizzes...`);
 
             try {
-                const quizObj = allQuizzes.find(q => q.id == quizId);
-                const courseId = quizObj ? quizObj.course : null;
-                if (!courseId) throw new Error("Could not determine Course ID for this quiz.");
+                // Collect target quizzes
+                let totalAttemptsFound = 0;
 
-                showStatus('loading', `Fetching enrolled students for course ${courseId}...`);
-                
-                const usersRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid=${courseId}`);
-                const students = await usersRes.json();
-                
-                if (students.exception) throw new Error(students.message);
-                if (!Array.isArray(students) || students.length === 0) {
-                     showStatus('error', "No students found in this course."); return;
-                }
-
-                showStatus('loading', `Found ${students.length} enrolled users. Pulling individual grades... (This may take a few seconds)`);
-
-                let allStudentAttempts = [];
-
-                // Fetch attempts sequentially to avoid rate limits and update user visually
-                let progressCount = 0;
-                for (let i = 0; i < students.length; i++) {
-                    const student = students[i];
-                    const studentId = student.id;
-                    const studentName = student.fullname;
-                    const studentReg = student.idnumber || student.username || ""; // Best effort for Reg Number
+                for (let quiz of targetQuizzes) {
+                    // Get all students enrolled in this quiz's course
+                    let users = [];
+                    try {
+                        users = await this.request('core_enrol_get_enrolled_users', `&courseid=${quiz.course}`);
+                    } catch(e) { continue; } // skip if can't read users
                     
-                    progressCount++;
-                    showStatus('loading', `Checking grades for student ${progressCount} of ${students.length}...`);
-                    
-                    const attemptRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=${quizId}&status=all&userid=${studentId}`);
-                    const attemptData = await attemptRes.json();
-                    
-                    if (attemptData.attempts && attemptData.attempts.length > 0) {
-                        for (let att of attemptData.attempts) {
-                            att.fullname = studentName;
-                            att.usernameStr = studentReg;
-                            
-                            // Fetch detailed Q-wise marks for this attempt!
-                            try {
-                                const revRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_attempt_review&moodlewsrestformat=json&attemptid=${att.id}`);
-                                const revData = await revRes.json();
-                                let qDetails = [];
-                                if (revData.questions) {
-                                    revData.questions.forEach(q => {
-                                        let cleanMark = q.mark !== null && q.mark !== undefined ? parseFloat(q.mark).toFixed(1) : '0';
-                                        let cleanMax = q.maxmark ? parseFloat(q.maxmark).toFixed(1) : '1';
-                                        qDetails.push(`Q${q.slot}: ${cleanMark}/${cleanMax}`);
+                    // Filter users locally if studentSearch is globally active
+                    if (this.studentSearch) {
+                        const term = this.studentSearch.toLowerCase();
+                        users = users.filter(u => 
+                            (u.idnumber && u.idnumber.toLowerCase().includes(term)) || 
+                            (u.username && u.username.toLowerCase().includes(term)) ||
+                            (u.fullname && u.fullname.toLowerCase().includes(term))
+                        );
+                    }
+
+                    if (users.length === 0) continue;
+
+                    // Pull attempts per user
+                    for (let user of users) {
+                        try {
+                            const attData = await this.request('mod_quiz_get_user_attempts', `&quizid=${quiz.id}&status=all&userid=${user.id}`);
+                            if (attData.attempts && attData.attempts.length > 0) {
+                                for (let att of attData.attempts) {
+                                    if (att.state !== 'finished') continue; // Only graded
+                                    
+                                    // Parse Quiz marks
+                                    let sum1M = 0; let sum2M = 0;
+                                    try {
+                                        const revData = await this.request('mod_quiz_get_attempt_review', `&attemptid=${att.id}`);
+                                        if (revData.questions) {
+                                            revData.questions.forEach(q => {
+                                                let mark = q.mark !== null ? parseFloat(q.mark) : 0;
+                                                let max = q.maxmark ? parseFloat(q.maxmark) : 1;
+                                                if (max === 1) sum1M += mark;
+                                                else if (max === 2) sum2M += mark;
+                                                else sum1M += mark; // Default fallback to 1M
+                                            });
+                                        }
+                                    } catch(e) { /* ignore deep breakdown fails */ }
+                                    
+                                    const d = new Date(att.timefinish * 1000);
+                                    
+                                    this.scannedAttempts.push({
+                                        id: att.id,
+                                        username: user.idnumber || user.username || 'Unknown',
+                                        fullname: user.fullname,
+                                        quizName: quiz.name,
+                                        timestamp: att.timefinish * 1000,
+                                        dateStr: `${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`,
+                                        m1: sum1M.toFixed(1),
+                                        m2: sum2M.toFixed(1),
+                                        total: att.sumgrades !== null ? parseFloat(att.sumgrades) : 0
                                     });
+                                    totalAttemptsFound++;
                                 }
-                                att.qWiseStr = qDetails.length > 0 ? qDetails.join(' | ') : 'N/A';
-                            } catch(e) {
-                                att.qWiseStr = 'Details Unavailable';
                             }
-                            
-                            allStudentAttempts.push(att);
-                        }
+                        } catch(e) { /* skip */ }
                     }
                 }
 
-                if (allStudentAttempts.length === 0) {
-                    showStatus('error', `0 matching grades found! None of the ${students.length} users have attempted this test yet.`);
-                    return;
-                }
+                this.setStatus(totalAttemptsFound > 0 ? `Successfully retrieved ${totalAttemptsFound} attempts.` : 'No attempts found matching criteria.', totalAttemptsFound > 0 ? 'info' : 'error');
 
-                allStudentAttempts.forEach(att => {
-                    // Only map if it exists
-                    const gradeVal = att.sumgrades !== null ? att.sumgrades : 'Ungraded';
-                    const dateStr = formatUnixTime(att.timefinish);
-                    const state = att.state || "unknown";
-                    
-                    const dt = (att.timefinish && att.timefinish !== 0) ? new Date(att.timefinish * 1000) : null;
-                    let isoDate = "";
-                    if (dt) {
-                        const year = dt.getFullYear();
-                        const month = String(dt.getMonth() + 1).padStart(2, '0');
-                        const day = String(dt.getDate()).padStart(2, '0');
-                        isoDate = `${year}-${month}-${day}`;
-                    }
-
-                    // Prefer register number, fallback to fullname, then userid fallback
-                    const finalUser = att.usernameStr ? `${att.usernameStr} - ${att.fullname}` : (att.fullname ? `${att.fullname} (ID: ${att.userid})` : att.userid);
-                    const qWise = att.qWiseStr || 'N/A';
-
-                    currentGradesData.push({
-                        userid: finalUser,
-                        grade: gradeVal,
-                        qWise: qWise,
-                        state: state,
-                        date: dateStr,
-                        isoDate: isoDate,
-                        searchString: `${finalUser} ${gradeVal} ${qWise} ${state} ${dateStr}`.toLowerCase()
-                    });
-
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${finalUser}</td><td><b style="color:var(--primary); font-size: 1.05em">${gradeVal}</b></td><td><div class="q-wise-box">${qWise}</div></td><td>${state}</td><td>${dateStr}</td>`;
-                    tbody.appendChild(tr);
-                });
-
-                showStatus('success', `Pulled ${currentGradesData.length} records successfully! Use the Smart Filter to sort them.`);
-                resWrap.style.display = 'block';
-
-            } catch (error) {
-                showStatus('error', `Failed to fetch grades: ${error.message}`);
+            } catch(e) {
+                this.setStatus(`Search Error: ${e.message}`, 'error');
+            } finally {
+                this.isLoading = false;
             }
-        });
-
-        // SMART TABLE FILTER LOGIC
-        function applyFilters() {
-            const query = document.getElementById('tableFilterInput').value.toLowerCase();
-            const dateQuery = document.getElementById('dateFilterInput').value;
-            const rows = document.getElementById('gradesBody').getElementsByTagName('tr');
-            
-            for (let i = 0; i < rows.length; i++) {
-                let showRow = true;
-                const rowData = currentGradesData[i];
-                
-                // Text search filter
-                if (query && !rowData.searchString.includes(query)) {
-                    showRow = false;
-                }
-                
-                // Date match filter
-                if (dateQuery && rowData.isoDate !== dateQuery) {
-                    showRow = false;
-                }
-
-                if (showRow) {
-                    rows[i].classList.remove('hidden-row');
-                } else {
-                    rows[i].classList.add('hidden-row');
-                }
-            }
-        }
-        
-        document.getElementById('tableFilterInput').addEventListener('input', applyFilters);
-        document.getElementById('dateFilterInput').addEventListener('change', applyFilters);
-
-        // --- STUDENT GLOBAL SUMMARY LOGIC ---
-        document.getElementById('fetchStudentBtn').addEventListener('click', async () => {
-            const regNo = document.getElementById('studentSearchInput').value.trim().toLowerCase();
-            if (!regNo) {
-                showStatus('error', 'Please enter a Register Number / Username first.'); return;
-            }
-
-            const resWrap = document.getElementById('resultsWrapper');
-            const tbody = document.getElementById('gradesBody');
-            resWrap.style.display = 'none';
-            tbody.innerHTML = '';
-            currentGradesData = [];
-            document.getElementById('tableFilterInput').value = "";
-
-            try {
-                showStatus('loading', `🔍 Searching all courses for student: ${regNo}...`);
-
-                // 1. Find User ID by scanning unique courses
-                let targetUserId = null;
-                let targetUserName = null;
-                const uniqueCourses = [...new Set(allQuizzes.map(q => q.course))];
-                
-                for (let i = 0; i < uniqueCourses.length; i++) {
-                    const cid = uniqueCourses[i];
-                    try {
-                        const uRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=core_enrol_get_enrolled_users&moodlewsrestformat=json&courseid=${cid}`);
-                        const students = await uRes.json();
-                        if (Array.isArray(students)) {
-                            const found = students.find(s => (s.idnumber || "").toLowerCase() === regNo || (s.username || "").toLowerCase() === regNo);
-                            if (found) {
-                                targetUserId = found.id;
-                                targetUserName = found.fullname;
-                                break;
-                            }
-                        }
-                    } catch(e) { /* ignore and continue */ }
-                }
-
-                if (!targetUserId) {
-                    showStatus('error', `Could not find student '${regNo}' in any active courses.`); return;
-                }
-
-                // 2. Fetch attempts exactly for this user across ALL quizzes
-                showStatus('loading', `Found ${targetUserName}! Scanning ${allQuizzes.length} quizzes for attempts...`);
-                let summaryData = [];
-                let checkedCount = 0;
-
-                for (let quiz of allQuizzes) {
-                    checkedCount++;
-                    if (checkedCount % 5 === 0) showStatus('loading', `Found ${targetUserName}! Scanning quizzes (${checkedCount}/${allQuizzes.length})...`);
-                    
-                    try {
-                        const attRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_user_attempts&moodlewsrestformat=json&quizid=${quiz.id}&status=all&userid=${targetUserId}`);
-                        const attData = await attRes.json();
-                        if (attData.attempts && attData.attempts.length > 0) {
-                            for (let att of attData.attempts) {
-                                // Add quiz info context
-                                att.quizName = quiz.name;
-                                att.fullname = targetUserName;
-                                att.usernameStr = regNo;
-                                
-                                // Fetch Q-wise
-                                try {
-                                    const revRes = await fetch(`${apiUrl}?wstoken=${apiToken}&wsfunction=mod_quiz_get_attempt_review&moodlewsrestformat=json&attemptid=${att.id}`);
-                                    const revData = await revRes.json();
-                                    let qDetails = [];
-                                    if (revData.questions) {
-                                        revData.questions.forEach(q => {
-                                            qDetails.push(`Q${q.slot}: ${q.mark!==null&&q.mark!==undefined?parseFloat(q.mark).toFixed(1):'0'}/${q.maxmark?parseFloat(q.maxmark).toFixed(1):'1'}`);
-                                        });
-                                    }
-                                    att.qWiseStr = qDetails.length > 0 ? qDetails.join(' | ') : 'N/A';
-                                } catch(e) { att.qWiseStr = 'N/A'; }
-                                
-                                summaryData.push(att);
-                            }
-                        }
-                    } catch (e) { /* ignore */ }
-                }
-
-                if (summaryData.length === 0) {
-                    showStatus('error', `Student ${targetUserName} hasn't attempted any quizzes yet.`); return;
-                }
-
-                summaryData.forEach(att => {
-                    const gradeVal = att.sumgrades !== null ? att.sumgrades : 'Ungraded';
-                    const dateStr = formatUnixTime(att.timefinish);
-                    const state = att.state || "unknown";
-                    
-                    const dt = (att.timefinish && att.timefinish !== 0) ? new Date(att.timefinish * 1000) : null;
-                    let isoDate = "";
-                    if (dt) {
-                        const year = dt.getFullYear();
-                        const month = String(dt.getMonth() + 1).padStart(2, '0');
-                        const day = String(dt.getDate()).padStart(2, '0');
-                        isoDate = `${year}-${month}-${day}`;
-                    }
-
-                    // For summary layout, display the quiz name instead of student name (since it's all one student)
-                    const displayTitle = `<span style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">${att.quizName}</span><br/><b>${att.usernameStr}</b> - ${att.fullname}`;
-                    const qWise = att.qWiseStr || 'N/A';
-
-                    currentGradesData.push({
-                        userid: `${att.quizName} | ${att.usernameStr} - ${att.fullname}`, // Used in CSV
-                        grade: gradeVal,
-                        qWise: qWise,
-                        state: state,
-                        date: dateStr,
-                        isoDate: isoDate,
-                        searchString: `${att.quizName} ${att.usernameStr} ${att.fullname} ${gradeVal} ${qWise} ${state} ${dateStr}`.toLowerCase()
-                    });
-
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${displayTitle}</td><td><b style="color:var(--primary); font-size: 1.05em">${gradeVal}</b></td><td><div class="q-wise-box">${qWise}</div></td><td>${state}</td><td>${dateStr}</td>`;
-                    tbody.appendChild(tr);
-                });
-
-                showStatus('success', `Found ${summaryData.length} total quiz attempts for ${targetUserName}!`);
-                resWrap.style.display = 'block';
-
-            } catch (error) {
-                showStatus('error', `Failed to fetch summary: ${error.message}`);
-            }
-        });
-
-        // CSV EXPORT LOGIC
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            if (!currentGradesData.length) return;
-            
-            // Only export currently VISIBLE rows based on filter
-            const query = document.getElementById('tableFilterInput').value.toLowerCase();
-            const dateQuery = document.getElementById('dateFilterInput').value;
-            
-            let csvContent = "data:text/csv;charset=utf-8,Register No / Name,Total Grade,Q-Wise Details,Status,Date Finished\n";
-            currentGradesData.forEach(row => {
-                let include = true;
-                if (query && !row.searchString.includes(query)) include = false;
-                if (dateQuery && row.isoDate !== dateQuery) include = false;
-                
-                if (include) {
-                    csvContent += `"${row.userid}",${row.grade},"${row.qWise}",${row.state},"${row.date}"\n`;
-                }
+        },
+        exportCSV() {
+            let csv = "Username,Fullname,Quiz,Date,1M Score,2M Score,Total Score\n";
+            this.displayData.forEach(r => {
+                csv += `"${r.username}","${r.fullname}","${r.quizName}","${r.dateStr}",${r.m1},${r.m2},${r.total}\n`;
             });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "filtered_quiz_grades.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-    </script>
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'JosTEL_Marks_Export.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+});
+</script>
 </body>
 </html>
