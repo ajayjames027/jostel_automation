@@ -619,6 +619,14 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                         }
 
                         const doc = new Document({
+                            styles: {
+                                paragraphStyles: [
+                                    { id: "QFOption", name: "QFOption", basedOn: "Normal", next: "Normal", run: {} },
+                                    { id: "Cell", name: "Cell", basedOn: "Normal", next: "Normal", run: {} },
+                                    { id: "QFFeedback", name: "QFFeedback", basedOn: "Normal", next: "Normal", run: {} },
+                                    { id: "QFGrade", name: "QFGrade", basedOn: "Normal", next: "Normal", run: {} }
+                                ]
+                            },
                             sections: [{
                                 properties: {},
                                 children: children
