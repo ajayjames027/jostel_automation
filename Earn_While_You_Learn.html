@@ -196,6 +196,7 @@
                             <th class="py-4 px-6 font-semibold text-gray-500 text-sm">Reg. No</th>
                             <th class="py-4 px-6 font-semibold text-gray-500 text-sm">Student Name</th>
                             <th class="py-4 px-6 font-semibold text-gray-500 text-sm">Department</th>
+                            <th class="py-4 px-6 font-semibold text-gray-500 text-sm">Account Details</th>
                             <th class="py-4 px-6 font-semibold text-gray-500 text-sm text-center">Total Hours</th>
                             <th class="py-4 px-6 font-semibold text-gray-500 text-sm text-right">Remuneration (₹)</th>
                             <th class="py-4 px-6 font-semibold text-gray-500 text-sm text-center">Actions</th>
@@ -206,6 +207,7 @@
                             <td class="py-4 px-6 font-bold text-gray-800">{{ student.regNo }}</td>
                             <td class="py-4 px-6 font-medium text-gray-800">{{ student.name }}</td>
                             <td class="py-4 px-6 text-gray-600">{{ student.department }}</td>
+                            <td class="py-4 px-6 text-gray-600 text-xs">{{ student.account }}</td>
                             <td class="py-4 px-6 text-center">
                                 <span class="bg-blue-50 text-blue-700 py-1 px-3 rounded-full font-bold text-sm">{{ calcHours(student).toFixed(2) }}</span>
                             </td>
@@ -392,8 +394,8 @@
                 <!-- College Letterhead Header -->
                 <table style="width: 100%; border-collapse: collapse; border: none !important; margin: 0 auto;">
                     <tr>
-                        <td style="width: 90px; vertical-align: top; padding: 0 !important; border: none !important;">
-                            <img src="jostel_logo.png" alt="College Crest" style="width: 75px; height: auto; display: block;" onerror="this.style.display='none'">
+                        <td style="width: 90px; vertical-align: top; padding: 0 !important; border: none !important; text-align: left;">
+                            <img src="college_logo.png" alt="College Crest" style="width: 75px; height: auto; display: block;" onerror="this.style.display='none'">
                         </td>
                         <td style="vertical-align: top; padding: 0 !important; border: none !important; text-align: center;">
                             <div style="text-align: center; line-height: 1.3;">
@@ -415,7 +417,9 @@
                                 </p>
                             </div>
                         </td>
-                        <td style="width: 90px; padding: 0 !important; border: none !important;"></td>
+                        <td style="width: 90px; vertical-align: top; padding: 0 !important; border: none !important; text-align: right;">
+                            <img src="jostel_logo.png" alt="JosTEL Logo" style="width: 75px; height: auto; display: block; float: right;" onerror="this.style.display='none'">
+                        </td>
                     </tr>
                 </table>
                 <div class="letter-header-divider"></div>
@@ -466,9 +470,10 @@
                             <th style="width: 45px; text-align: center;">S.No</th>
                             <th style="text-align: left;">Name & Reg No</th>
                             <th v-if="currentView === 'summary'" style="text-align: left;">Department</th>
-                            <th style="width: 80px; text-align: center;">Rate (₹/hr)</th>
-                            <th style="width: 80px; text-align: center;">Hours</th>
-                            <th style="width: 100px; text-align: center;">Total (₹)</th>
+                            <th style="text-align: left;">Account Details</th>
+                            <th style="width: 70px; text-align: center;">Rate (₹)</th>
+                            <th style="width: 60px; text-align: center;">Hrs</th>
+                            <th style="width: 90px; text-align: center;">Total (₹)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -479,13 +484,14 @@
                                 <span style="font-size: 12px; color: #555;">{{ student.regNo }}</span>
                             </td>
                             <td v-if="currentView === 'summary'">{{ student.department }}</td>
+                            <td style="font-size: 11.5px; white-space: pre-wrap;">{{ student.account }}</td>
                             <td class="text-center font-bold">{{ ratePerHour }}</td>
                             <td class="text-center font-bold text-blue-800">{{ calcHours(student).toFixed(2) }}</td>
                             <td class="text-center font-bold text-green-800">{{ (calcHours(student) * ratePerHour).toFixed(2) }}</td>
                         </tr>
                         <!-- Grand Total Row -->
                         <tr style="background: #f1f5f9;">
-                            <td :colspan="currentView === 'summary' ? 4 : 3" style="text-align: right; font-weight: bold; font-size:15px;">Grand Total:</td>
+                            <td :colspan="currentView === 'summary' ? 5 : 4" style="text-align: right; font-weight: bold; font-size:15px;">Grand Total:</td>
                             <td class="text-center font-extrabold text-blue-900" style="font-size:15px;">
                                 {{ filteredStudents.reduce((sum, s) => sum + calcHours(s), 0).toFixed(2) }}
                             </td>
@@ -508,8 +514,8 @@
                 <div class="letter-signatures">
                     <div class="letter-sig-block">
                         <div class="editable-block" contenteditable="true" style="min-width: 150px; text-align: left;">
-                            Dr V. Jude Nirmal<br>
-                            Director - IQAC
+                            Dr. George Gabriel Richard Roy<br>
+                            Coordinator
                         </div>
                     </div>
                     <div v-if="currentView === 'letter'" class="letter-sig-block">
@@ -540,6 +546,10 @@
                 <div>
                     <label class="block text-sm font-semibold mb-1 text-gray-700">Department</label>
                     <input v-model="newStudent.department" type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-gray-700">Account Details (Bank/Axc)</label>
+                    <textarea v-model="newStudent.account" rows="2" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-500" placeholder="e.g. SBI A/c: 123456789 IFSC: SBIN0001"></textarea>
                 </div>
                 <div class="flex gap-4 pt-4">
                     <button type="button" @click="showAddModal = false" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-lg transition-colors">Cancel</button>
@@ -574,11 +584,11 @@
                 logMode: 'current',
                 logForm: { date: this.getTodayDateInput(), in: '', out: '', work: '' },
                 
-                newStudent: { regNo: '', name: '', department: '' },
+                newStudent: { regNo: '', name: '', department: '', account: '' },
                 
                 students: [
                     { 
-                        regNo: '23PD001', name: 'Ajay James', department: 'Computer Science', month: `${monthsNames[date.getMonth()]} ${date.getFullYear()}`,
+                        regNo: '23PD001', name: 'Ajay James', department: 'Computer Science', account: 'SBI A/c 9876543210\nIFSC: SBIN001', month: `${monthsNames[date.getMonth()]} ${date.getFullYear()}`,
                         logs: [ { date: this.getTodayDateInput(), in: '10:00', out: '12:30', work: 'Data entry', hours: 2.5 } ]
                     }
                 ]
@@ -614,10 +624,11 @@
                     regNo: this.newStudent.regNo,
                     name: this.newStudent.name,
                     department: this.newStudent.department,
+                    account: this.newStudent.account,
                     month: this.selectedMonth,
                     logs: []
                 });
-                this.newStudent = { regNo: '', name: '', department: '' };
+                this.newStudent = { regNo: '', name: '', department: '', account: '' };
                 this.showAddModal = false;
             },
             removeStudent(regNo) {
