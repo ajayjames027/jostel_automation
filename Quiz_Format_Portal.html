@@ -506,7 +506,7 @@ IMPORTANT: Output strictly a valid, raw JSON array of objects. DO NOT wrap the o
                                     const grade = isCorrect ? "100" : "0";
                                     rows.push(new docz.TableRow({
                                         children: [
-                                            new docz.TableCell({ children: [new docz.Paragraph({text: " "})], borders: tableBorders }), // Empty # col
+                                            new docz.TableCell({ children: [new docz.Paragraph({text: String.fromCharCode(160)})], borders: tableBorders }), // Non-breaking space required by Moodle plugin
                                             new docz.TableCell({ children: [new docz.Paragraph({text: opt.text || ""})], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({text: opt.feedback || ""})], borders: tableBorders }),
                                             new docz.TableCell({ children: [new docz.Paragraph({text: grade})], borders: tableBorders })
