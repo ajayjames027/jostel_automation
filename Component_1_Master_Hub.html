@@ -1076,8 +1076,10 @@ createApp({
         exportBotTasksCSV() {
             if(!this.allocatedStudents.length) { alert("Generate timetable layout first!"); return; }
             let csvRows = [
-                ['Year_Category', 'Course_Shortname', 'Course_Name', 'Quiz_Name', 'Faculty_Email', 'Quiz_Start', 'Quiz_End', 'Subnet_IP']
+                ['Category', 'Sub_Category', 'Course_Shortname', 'Course_Name', 'Quiz_Name', 'Faculty_Email', 'Quiz_Start', 'Quiz_End', 'Subnet_IP']
             ];
+            
+            let academicYearCat = `${this.settings.academicStartYear}-${this.settings.academicStartYear + 1} A.Y.`;
             
             let classGroups = this.groupedByClass;
             Object.keys(classGroups).forEach(cName => {
@@ -1095,6 +1097,7 @@ createApp({
                 let dynamicQuizName = `${firstRecord.Date}_${cName}`;
                 
                 csvRows.push([
+                    academicYearCat,
                     catGuess,
                     cName,
                     cName,
