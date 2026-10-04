@@ -318,6 +318,7 @@
                                     <button @click="groupingMode = 'lab'" class="px-3 py-1 font-semibold rounded-sm transition" :class="groupingMode === 'lab' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-100'">Lab-Wise</button>
                                     <button @click="groupingMode = 'schedule'" class="px-3 py-1 font-semibold rounded-sm transition" :class="groupingMode === 'schedule' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-100'">Schedule-Wise</button>
                                     <button @click="groupingMode = 'class'" class="px-3 py-1 font-semibold rounded-sm transition" :class="groupingMode === 'class' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-100'">Class-Wise</button>
+                                    <button @click="groupingMode = 'audit'" class="px-3 py-1 font-bold rounded-sm transition border-l" :class="groupingMode === 'audit' ? 'bg-amber-100 text-amber-800' : 'text-amber-600 hover:bg-amber-50'">Audit & Vacancies</button>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -396,6 +397,64 @@
                                         <td class="font-mono text-xs">{{ row['Reg No'] }}</td>
                                         <td class="font-medium text-xs">{{ row['Name'] }}</td>
                                         <td class="font-black text-center text-primary text-sm">{{ row['Seat Number'] }}</td>
+                                    </tr>
+                                </template>
+
+                                <template v-else-if="groupingMode === 'audit'">
+                                    <tr>
+                                        <td colspan="6" class="p-6 bg-white">
+                                            <div class="max-w-4xl mx-auto">
+                                                <div class="glass-panel p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 flex justify-between items-center shadow-sm mb-6">
+                                                    <div>
+                                                        <h2 class="text-xl font-black text-primary">Student Integrity Matrix</h2>
+                                                        <p class="text-xs text-blue-600 font-bold mt-1">Verifies if all uploaded students received a valid seat.</p>
+                                                    </div>
+                                                    <div class="flex gap-6 text-center">
+                                                        <div>
+                                                            <div class="text-[10px] font-bold text-gray-500 uppercase">Uploaded</div>
+                                                            <div class="text-2xl font-black text-gray-700">{{ rosterStats.students }}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div class="text-[10px] font-bold text-blue-500 uppercase">Allocated</div>
+                                                            <div class="text-2xl font-black text-primary">{{ allocatedStudents.length }}</div>
+                                                        </div>
+                                                        <div class="border-l pl-6 border-blue-200">
+                                                            <div class="text-[10px] font-bold text-gray-500 uppercase">Dropped (Unallocated)</div>
+                                                            <div class="text-2xl font-black" :class="rosterStats.students > allocatedStudents.length ? 'text-red-600 animate-pulse' : 'text-green-500'">{{ rosterStats.students - allocatedStudents.length }}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <h2 class="text-lg font-bold text-slate-800 mb-3 ml-1 border-b pb-2">Session-by-Session Lab Vacancies</h2>
+                                                <div v-for="aud in utilizationAudit" :key="aud.session" class="mb-6 p-4 border rounded-lg bg-slate-50 shadow-sm border-slate-200">
+                                                    <div class="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
+                                                        <div class="font-black tracking-widest uppercase text-sm text-primary">{{ aud.session }}</div>
+                                                        <div class="text-xs font-bold text-gray-500 bg-white px-3 py-1 rounded-full border shadow-sm">Total Scheduled: <span class="text-black">{{ aud.totalStudents }}</span></div>
+                                                    </div>
+                                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                        <div v-for="ls in aud.labStats" :key="ls.name" class="p-3 border rounded shadow-sm relative overflow-hidden transition-all bg-white hover:-translate-y-0.5" :class="ls.free === ls.cap ? 'border-red-300' : (ls.free > 0 ? 'border-amber-300' : 'border-green-300')">
+                                                            <div v-if="ls.free === ls.cap" class="absolute top-0 right-0 w-8 h-8 bg-red-100 rounded-bl-full flex items-start justify-end pr-1 pt-1"><span class="w-2 h-2 rounded-full bg-red-500"></span></div>
+                                                            <div v-if="ls.free === 0" class="absolute top-0 right-0 w-8 h-8 bg-green-100 rounded-bl-full flex items-start justify-end pr-1 pt-1"><span class="w-2 h-2 rounded-full bg-green-500"></span></div>
+                                                            
+                                                            <div class="font-bold text-slate-700 text-sm mb-1 truncate">{{ ls.name }}</div>
+                                                            
+                                                            <div class="w-full bg-gray-100 rounded-full h-1.5 mb-2 overflow-hidden">
+                                                                <div class="h-1.5 rounded-full" :class="ls.free === ls.cap ? 'bg-red-400 w-0' : (ls.free > 0 ? 'bg-amber-400' : 'bg-green-500')" :style="'width: ' + (ls.used/ls.cap*100) + '%'"></div>
+                                                            </div>
+                                                            
+                                                            <div class="flex justify-between items-baseline mb-1">
+                                                                <span class="text-[10px] text-gray-500 font-bold uppercase">Occupied</span>
+                                                                <span class="text-sm font-black" :class="ls.used > 0 ? 'text-blue-800' : 'text-gray-400'">{{ ls.used }} <span class="text-gray-400 font-normal text-xs">/ {{ ls.cap }}</span></span>
+                                                            </div>
+                                                            
+                                                            <div v-if="ls.free === ls.cap" class="text-[9px] font-black text-red-600 bg-red-50 py-1 text-center rounded border border-red-100">100% EMPTY • LAB CAN BE SHUT</div>
+                                                            <div v-else-if="ls.free > 0" class="text-[10px] font-bold text-amber-700 bg-amber-50 py-0.5 text-center rounded border border-amber-100">{{ ls.free }} Free Seats Available</div>
+                                                            <div v-else class="text-[10px] font-bold text-green-700 bg-green-50 py-0.5 text-center rounded border border-green-100">MAX CAPACITY</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </template>
                                 
@@ -578,6 +637,30 @@ createApp({
                 acc[curr['Class']].push(curr);
                 return acc;
             }, {});
+        },
+        utilizationAudit() {
+            if(!this.allocatedStudents.length) return [];
+            let activeLabs = this.customLabs.filter(l=>l.active);
+            
+            let report = [];
+            this.uniqueSessions.forEach(sess => {
+                let [d, t] = sess.split(" :: ");
+                let sessStudents = this.allocatedStudents.filter(s => s.Date === d && s.Timing === t);
+                
+                let labStats = [];
+                let totalFree = 0;
+                activeLabs.forEach(lab => {
+                    let count = sessStudents.filter(s => s['Lab Room'] === lab.name).length;
+                    let cap = lab.rows * lab.cols;
+                    let free = cap - count;
+                    totalFree += free;
+                    
+                    labStats.push({ name: lab.name, used: count, cap: cap, free: free });
+                });
+                
+                report.push({ session: sess, totalStudents: sessStudents.length,  labStats, totalFree });
+            });
+            return report;
         }
     },
     methods: {
