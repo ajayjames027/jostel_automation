@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Component I Exam Master Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        :root {
+            --glass-bg: rgba(20, 25, 45, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glow: #3b82f6;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 16px;
+        }
+        .module-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+        .module-btn:hover, .module-btn.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateX(5px);
+            box-shadow: inset 4px 0 0 #3b82f6;
+        }
+        .step-number {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+        .futuristic-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            transition: all 0.3s;
+        }
+        .futuristic-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        .pulse-glow {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+        }
+        
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 3px; }
+    </style>
+</head>
+<body class="p-4 md:p-6 text-sm md:text-base">
+
+<div id="app" class="max-w-[1400px] mx-auto h-[92vh] flex gap-6">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="glass-panel w-80 flex flex-col overflow-hidden hidden md:flex shrink-0">
+        <div class="p-6 border-b border-[rgba(255,255,255,0.05)] text-center">
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 tracking-wider">
+                ORCHESTRATOR
+            </h1>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Component I Master Protocol</p>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-4 px-3 space-y-2">
+            <button v-for="(step, index) in steps" :key="index" 
+                    @click="currentStep = index"
+                    class="module-btn w-full text-left p-4 rounded-xl flex items-center gap-4 text-gray-300"
+                    :class="{ 'active': currentStep === index }">
+                <span class="text-2xl font-black step-number opacity-80" :class="{ 'opacity-100': currentStep === index }">
+                    0{{ index + 1 }}
+                </span>
+                <div>
+                    <div class="font-bold text-sm tracking-wide text-white">{{ step.title }}</div>
+                    <div class="text-[10px] text-gray-400 mt-0.5">{{ step.subtitle }}</div>
+                </div>
+            </button>
+        </div>
+        
+        <div class="p-4 bg-[rgba(0,0,0,0.2)] text-xs text-center text-gray-500 font-medium">
+            System Online • 7500 Students Capacity
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="glass-panel flex-1 flex flex-col overflow-hidden relative">
+        <transition name="fade" mode="out-in">
+            <div :key="currentStep" class="p-8 h-full flex flex-col overflow-y-auto relative">
+                
+                <!-- dynamic background glow -->
+                <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-[100px] opacity-10 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-[100px] opacity-10 pointer-events-none"></div>
+                
+                <!-- Header -->
+                <div class="mb-8 relative z-10 border-b border-[rgba(255,255,255,0.1)] pb-6">
+                    <div class="inline-block px-3 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-full text-xs font-bold tracking-widest mb-3">
+                        PHASE 0{{ currentStep + 1 }}
+                    </div>
+                    <h2 class="text-3xl font-bold text-white mb-2">{{ steps[currentStep].title }}</h2>
+                    <p class="text-gray-400 max-w-3xl leading-relaxed">{{ steps[currentStep].desc }}</p>
+                </div>
+
+                <!-- STEP 1: AI Seating Array -->
+                <div v-if="currentStep === 0" class="flex-1 space-y-6 relative z-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 glass-panel !bg-black/20 p-6 space-y-4">
+                            <h3 class="text-lg font-bold text-blue-400">Load Master Student Ledger</h3>
+                            <p class="text-xs text-gray-400">Upload the master XLSX containing all 7,500 students. The heuristic algorithm will distribute them across 20+ slots ensuring no two students from the same class sit adjacent.</p>
+                            
+                            <div class="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer bg-gray-900/30">
+                                <svg class="w-10 h-10 mx-auto text-gray-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                <span class="text-sm font-semibold text-gray-300">Drag & Drop master_roster.xlsx</span>
+                            </div>
+                            
+                            <button @click="startSeatingSim" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg font-bold text-white tracking-widest hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all flex items-center justify-center gap-3">
+                                <svg class="w-5 h-5 animate-spin hidden" id="spin1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                INITIATE AI SEATING ALLOCATION
+                            </button>
+                        </div>
+                        
+                        <div class="glass-panel !bg-black/20 p-6">
+                            <h3 class="text-sm font-bold text-gray-300 mb-4 tracking-widest uppercase">Lab Topologies</h3>
+                            <div class="space-y-3">
+                                <div v-for="lab in labs" class="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                                    <span class="font-medium text-gray-200">{{ lab.name }}</span>
+                                    <span class="text-xs font-bold px-2 py-1 bg-blue-900/50 text-blue-300 rounded border border-blue-800">{{ lab.cap }} SEATS</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-700/50 flex justify-between">
+                                <span class="text-sm font-bold text-gray-400">Total Yield / Slot</span>
+                                <span class="text-lg font-black text-green-400">385</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Hierarchy Builder -->
+                <div v-if="currentStep === 1" class="flex-1 space-y-6 relative z-10">
+                    <div class="glass-panel !bg-black/20 p-6">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
+                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-purple-400">Deep Moodle Integration</h3>
+                                <p class="text-xs text-gray-400">Automatically creates structure: Component 1 Exam > Department > Class > Course</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">Root Category Name</label>
+                                <input type="text" class="futuristic-input w-full p-3 rounded-lg" value="Component-I-Exams-2026">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">Template Blueprint Course ID</label>
+                                <input type="text" class="futuristic-input w-full p-3 rounded-lg" value="MASTER_COMP1_TEMPLATE">
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-5 flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-blue-300">Ready to Duplicate Blueprint</div>
+                                <div class="text-xs text-gray-400 mt-1">This will spawn courses exactly mapping your timetable automatically.</div>
+                            </div>
+                            <button class="px-6 py-2 bg-blue-600 text-white font-bold rounded shadow-lg hover:bg-blue-500 transition-colors">
+                                CONSTRUCT HIERARCHY
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Faculty Roster -->
+                <div v-if="currentStep === 2" class="flex-1 space-y-6 relative z-10">
+                    <div class="glass-panel !bg-black/20 p-6 flex flex-col items-center justify-center text-center py-16">
+                        <svg class="w-16 h-16 text-indigo-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <h3 class="text-2xl font-bold text-white mb-2">Dynamic Faculty Enrollment</h3>
+                        <p class="text-gray-400 max-w-md mx-auto mb-8">Scans your master roster to map specific Staff IDs to their respective Moodle courses, granting them Teacher privileges instantly.</p>
+                        <button class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_25px_rgba(79,70,229,0.6)] transition-all">
+                            SYNC FACULTY PERMISSIONS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: Network & Timing Config -->
+                <div v-if="currentStep === 3" class="flex-1 space-y-6 relative z-10">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="glass-panel !bg-black/20 p-6">
+                            <h3 class="text-lg font-bold text-orange-400 mb-4">Quiz Timings</h3>
+                            <p class="text-xs text-gray-400 mb-6">Bulk injects specific Start and Close limits via Selenium bot mapping for every single course.</p>
+                            <button class="w-full py-3 bg-gray-800 border border-gray-600 text-white rounded font-bold hover:bg-gray-700 transition">
+                                EXECUTE QUIZ_BUILDER_BOT.PY
+                            </button>
+                        </div>
+                        <div class="glass-panel !bg-black/20 p-6">
+                            <h3 class="text-lg font-bold text-red-400 mb-4">IP Subnet Restrictions</h3>
+                            <p class="text-xs text-gray-400 mb-6">Locks down all exams so they can ONLY be accessed from within your specified College Labs.</p>
+                            <input type="text" class="futuristic-input w-full p-3 rounded-lg mb-4" value="192.168.1.0/24, 10.0.0.0/16">
+                            <button class="w-full py-3 bg-red-600/80 text-white rounded font-bold hover:bg-red-500 transition shadow-[0_0_10px_rgba(220,38,38,0.3)]">
+                                LOCKDOWN IP ADDRESSES
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 5: Verification (Empty Quiz) -->
+                <div v-if="currentStep === 4" class="flex-1 space-y-6 relative z-10">
+                    <div class="glass-panel !bg-blue-900/10 border-blue-500/30 p-8 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-2xl font-bold text-blue-400 mb-2">Pre-Flight Safety Check</h3>
+                            <p class="text-gray-400">Verifies that all targeted faculty have successfully uploaded the component I questions.</p>
+                        </div>
+                        <a href="Empty_Quiz_Finder.html" target="_blank" class="px-6 py-3 bg-white text-blue-900 font-bold rounded-lg hover:bg-gray-100 transition shadow-lg flex items-center gap-2">
+                            LAUNCH FINDER 
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- STEP 6: Attendance Matrix -->
+                <div v-if="currentStep === 5" class="flex-1 space-y-6 relative z-10">
+                    <div class="glass-panel !bg-black/20 p-6 text-center">
+                        <div class="inline-flex p-4 rounded-full bg-emerald-500/20 mb-4 border border-emerald-500/30">
+                            <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Printable Attendance Generation</h3>
+                        <p class="text-gray-400 text-sm max-w-lg mx-auto mb-6">Cross-references the seating array from Step 1 to generate beautifully formatted PDF signatures sheets labeled by Lab Room, Day, and Slot.</p>
+                        <button class="px-8 py-3 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-500 transition shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                            COMPILE LAB-WISE PDFS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 7: Invigilator Claims -->
+                <div v-if="currentStep === 6" class="flex-1 space-y-6 relative z-10">
+                    <div class="glass-panel !bg-black/20 p-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-yellow-400">Invigilator Reimbursement Export</h3>
+                            <p class="text-xs text-gray-400 mt-1">Calculates workload per staff across all labs and slots into an Excel Claim Form.</p>
+                        </div>
+                        <button class="px-5 py-2 bg-yellow-500/20 text-yellow-300 font-bold border border-yellow-500/50 rounded hover:bg-yellow-500/30 transition">
+                            GENERATE CLAIM XLSX
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </transition>
+    </main>
+
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            currentStep: 0,
+            labs: [
+                { name: 'ECC Lab 1', cap: 60 },
+                { name: 'ECC Lab 2', cap: 45 },
+                { name: 'ECC Lab 3', cap: 50 },
+                { name: 'SCC Lab', cap: 60 },
+                { name: 'Math Lab', cap: 50 },
+                { name: 'JCICT Lab 1', cap: 60 },
+                { name: 'JCICT Lab 2', cap: 60 }
+            ],
+            steps: [
+                { title: 'Seating Array Matrix', subtitle: 'Scatter Algorithm & Allocation', desc: 'Distributes 7,500 students intelligently across physical labs based on dynamic capacity, ensuring rigorous anti-cheating placements (no adjacent classmates).' },
+                { title: 'Platform Hierarchy', subtitle: 'Categories & Courses', desc: 'Connects to Moodle to construct nested categories and blueprint clone courses exactly matching your scheduled exam structures.' },
+                { title: 'Faculty Enrollment', subtitle: 'Staff Mapping', desc: 'Securely links professors to their generated exam courses with the correct elevated privileges entirely in bulk over the system network.' },
+                { title: 'Security & Timing', subtitle: 'Firewalls & Timetable', desc: 'Implements strictly timed automatic openings/closings per quiz and locks down access using precise college IP subnet whitelists to prevent external network access.' },
+                { title: 'Pre-Flight Diagnostics', subtitle: 'Empty Quiz Scanner', desc: 'Performs a comprehensive automated sweep of the platform to isolate any courses where the responsible faculty member has failed to upload the actual quiz document.' },
+                { title: 'Attendance Compilation', subtitle: 'Lab-wise Signatures', desc: 'Synchronizes seating assignments to build physically printable attendance sheets grouped by exact laboratory, containing student photos, reg numbers, and signature blocks.' },
+                { title: 'Remuneration Engine', subtitle: 'Invigilator Claims', desc: 'Post-exam mathematical processing to summarize hours and duties for all supervisors directly into a compliant financial Excel format.' }
+            ]
+        }
+    },
+    methods: {
+        startSeatingSim(e) {
+            const btn = e.currentTarget;
+            btn.innerHTML = 'ENGINE RUNNING...';
+            btn.classList.add('pulse-glow');
+            setTimeout(() => {
+                btn.innerHTML = 'MATRIX ALLOCATED SUCCESSFULLY';
+                btn.classList.remove('pulse-glow');
+                btn.classList.remove('from-blue-600', 'to-indigo-600');
+                btn.classList.add('bg-green-600');
+            }, 2500);
+        }
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
