@@ -404,7 +404,14 @@ createApp({
                     // Interleave C1 and C2 in the lab up to capacity
                     let toggle = true;
                     while (seatsAssigned < labCapacity) {
+                        
+                        // Condition to break: Both classes are completely empty
+                        if (class1.students.length === 0 && (!class2 || class2.students.length === 0)) {
+                            break;
+                        }
+                        
                         let placed = false;
+                        
                         if (toggle && class1 && class1.students.length > 0) {
                             let s = class1.students.shift();
                             s['Date'] = dateStr;
@@ -412,7 +419,6 @@ createApp({
                             s['Lab Room'] = lab.name;
                             s['Seat Number'] = seatsAssigned + 1;
                             allocated.push(s);
-                            seatsAssigned++;
                             placed = true;
                         } else if (!toggle && class2 && class2.students.length > 0) {
                             let s = class2.students.shift();
@@ -421,21 +427,15 @@ createApp({
                             s['Lab Room'] = lab.name;
                             s['Seat Number'] = seatsAssigned + 1;
                             allocated.push(s);
-                            seatsAssigned++;
                             placed = true;
                         }
                         
+                        if (placed) {
+                            seatsAssigned++;
+                        }
+                        
+                        // Always flip the toggle to check the other class next loop
                         toggle = !toggle;
-                        
-                        // If neither class has students left, break assignment for this lab early
-                        if (!placed && class1.students.length === 0 && (!class2 || class2.students.length === 0)) {
-                            break; 
-                        }
-                        
-                        // If one class drained completely, let's keep assigning the other but they will sit adjacently
-                        if (!placed && (class1.students.length > 0 || (class2 && class2.students.length > 0))) {
-                            toggle = !toggle; // flip back to the one that has students
-                        }
                     }
                     
                     // Cleanup exhausted classes from array
