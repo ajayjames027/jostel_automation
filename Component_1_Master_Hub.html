@@ -31,26 +31,24 @@
         .futuristic-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
         .btn-primary { background-color: #1e3a8a; color: white; font-weight: 600; border-radius: 8px; transition: all 0.2s; padding: 8px 16px; }
         .btn-primary:hover:not(:disabled) { background-color: #1e40af; }
+        .btn-secondary { background-color: #3b82f6; color: white; font-weight: 600; border-radius: 8px; transition: all 0.2s; padding: 8px 16px; }
+        .btn-secondary:hover:not(:disabled) { background-color: #2563eb; }
         
         .sidebar-item { padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; font-weight: 600; color: #64748b; cursor: pointer; }
         .sidebar-item:hover:not(.active) { background-color: #f1f5f9; color: #0f172a; }
         .sidebar-item.active { background-color: #1e3a8a; color: white; box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2); }
         
-        /* Table Styles */
         .table-container { overflow: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
         table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
         th { background-color: #f8fafc; color: #475569; font-weight: 600; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
         tr:hover td { background-color: #f8fafc; }
         
-        /* Seating Grid */
         .seat-grid { display: grid; gap: 8px; justify-content: center; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
         .seat { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; cursor: pointer; border: 2px solid #cbd5e1; background: white; transition: all 0.2s; }
         .seat.occupied { background: #dbeafe; border-color: #3b82f6; color: #1e3a8a; }
         .seat.selected { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 0 0 3px rgba(245,158,11,0.3); transform: scale(1.1); z-index: 10;}
-        .desk-row { display: flex; gap: 12px; }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -100,18 +98,14 @@
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4 px-2">Generation Engine</div>
             <div class="sidebar-item" :class="{'active': activeTab === 'timetable'}" @click="activeTab = 'timetable'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                Timetables & Conflicts
+                Timetables & Rules
             </div>
             <div class="sidebar-item" :class="{'active': activeTab === 'seating'}" @click="activeTab = 'seating'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                Visual Seating Planner
+                Visual Seating Map
             </div>
 
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4 px-2">Execution & Post</div>
-            <div class="sidebar-item" :class="{'active': activeTab === 'live'}" @click="activeTab = 'live'">
-                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                Live Control Panel
-            </div>
             <div class="sidebar-item" :class="{'active': activeTab === 'docs'}" @click="activeTab = 'docs'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Attendance & Claims
@@ -126,23 +120,14 @@
                 <div class="flex justify-between items-end">
                     <div>
                         <h2 class="text-2xl font-bold text-slate-800">Operational Overview</h2>
-                        <p class="text-slate-500 text-sm">Central command matrix for the complete Component I generation pipeline.</p>
+                        <p class="text-slate-500 text-sm">Central command matrix for the complete Component I pipeline.</p>
                     </div>
                 </div>
 
-                <!-- Live Master Stats -->
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
                     <div class="glass-panel p-4 text-center">
                         <div class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Students</div>
                         <div class="text-2xl font-black text-slate-800">{{ rosterStats.students || 0 }}</div>
-                    </div>
-                    <div class="glass-panel p-4 text-center">
-                        <div class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Courses</div>
-                        <div class="text-2xl font-black text-slate-800">{{ rosterStats.courses || 0 }}</div>
-                    </div>
-                    <div class="glass-panel p-4 text-center">
-                        <div class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Subjects</div>
-                        <div class="text-2xl font-black text-slate-800">{{ rosterStats.subjects || 0 }}</div>
                     </div>
                     <div class="glass-panel p-4 text-center">
                         <div class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Classes</div>
@@ -153,75 +138,34 @@
                         <div class="text-2xl font-black text-primary">{{ dynamicLabStats.count }}</div>
                     </div>
                     <div class="glass-panel p-4 text-center bg-blue-50/50 border-blue-100">
-                        <div class="text-[10px] uppercase font-bold text-blue-600 tracking-wider">Seats/Slot</div>
+                        <div class="text-[10px] uppercase font-bold text-blue-600 tracking-wider">Max Lab Cap.</div>
                         <div class="text-2xl font-black text-primary">{{ dynamicLabStats.capacity }}</div>
                     </div>
-                    <div class="glass-panel p-4 text-center bg-purple-50 border-purple-100">
-                        <div class="text-[10px] uppercase font-bold text-purple-700 tracking-wider">Req. Sessions</div>
-                        <div class="text-2xl font-black text-purple-700">{{ dynamicLabStats.reqSessions }}</div>
-                    </div>
-                </div>
-
-                <!-- Readiness Engine -->
-                <div class="glass-panel p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Phased Readiness Matrix
-                    </h3>
-                    
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between p-3 border rounded-lg" :class="flags.timetable ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'">
-                            <div class="flex items-center gap-3">
-                                <div class="w-3 h-3 rounded-full" :class="flags.timetable ? 'bg-green-500' : 'bg-gray-300'"></div>
-                                <span class="font-semibold text-gray-700">Timetable Matrix</span>
-                            </div>
-                            <span class="text-xs font-bold" :class="flags.timetable ? 'text-green-600' : 'text-gray-400'">{{ flags.timetable ? 'Configured & Generated' : 'Pending Upload' }}</span>
-                        </div>
-
-                        <div class="flex items-center justify-between p-3 border rounded-lg" :class="flags.seating ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'">
-                            <div class="flex items-center gap-3">
-                                <div class="w-3 h-3 rounded-full" :class="flags.seating ? 'bg-green-500' : 'bg-gray-300'"></div>
-                                <span class="font-semibold text-gray-700">Lab Physical Allocation</span>
-                            </div>
-                            <span class="text-xs font-bold" :class="flags.seating ? 'text-green-600' : 'text-gray-400'">{{ flags.seating ? 'Seats Allocated (0 Errors)' : 'Awaiting Engine' }}</span>
-                        </div>
-
-                        <div class="flex items-center justify-between p-3 border rounded-lg bg-yellow-50 border-yellow-200">
-                            <div class="flex items-center gap-3">
-                                <div class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse"></div>
-                                <span class="font-semibold text-gray-700">Moodle Quiz Readiness</span>
-                            </div>
-                            <span class="text-xs font-bold text-yellow-600">4 Quizzes Pending Content</span>
-                        </div>
-
-                        <div class="flex items-center justify-between p-3 border rounded-lg bg-green-50 border-green-200">
-                            <div class="flex items-center gap-3">
-                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                                <span class="font-semibold text-gray-700">Network IP Hardening</span>
-                            </div>
-                            <span class="text-xs font-bold text-green-600">Subnets Locked</span>
+                    <div class="lg:col-span-2 glass-panel p-4 flex flex-col justify-center items-center bg-green-50 border-green-200 shadow-inner">
+                        <div class="text-[10px] uppercase font-bold text-green-700 tracking-wider text-center">Engine Status</div>
+                        <div class="text-xl font-black text-green-700 mt-1">
+                             <span v-if="allocatedStudents.length > 0">SCHEDULE LIVE</span>
+                             <span v-else class="text-yellow-600">AWAITING RULES</span>
                         </div>
                     </div>
                 </div>
                 
-                <!-- VALIDATION ENGINE -->
                 <div class="glass-panel p-6 border-red-200 border-2">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-red-700 flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             Exam Validation Center
                         </h3>
-                        <button class="bg-red-50 text-red-700 text-xs font-bold px-3 py-1 rounded hover:bg-red-100 uppercase transition border border-red-200">Execute Auto-Fix</button>
                     </div>
                     
                     <div class="space-y-2">
-                        <div v-for="err in validationErrors" :key="err.msg" class="flex gap-3 text-sm p-2 rounded" :class="err.type === 'critical' ? 'text-red-700 bg-red-50' : 'text-yellow-700 bg-yellow-50'">
+                        <div v-for="err in validationErrors" :key="err.msg" class="flex gap-3 text-sm p-3 rounded" :class="err.type === 'critical' ? 'text-red-700 bg-red-50' : 'text-yellow-800 bg-yellow-50 font-medium'">
                             <span v-if="err.type==='critical'">🔴</span><span v-else>🟡</span>
-                            <span class="font-semibold w-24 uppercase truncate">{{ err.type }}</span>
+                            <span class="font-bold w-24 uppercase truncate">{{ err.type }}</span>
                             <span class="flex-1">{{ err.msg }}</span>
                         </div>
                         <div v-if="validationErrors.length === 0" class="text-center text-gray-500 py-4 font-semibold text-sm">
-                            System fully validated. No conflicts detected.
+                            System validation passed. No scheduling conflicts detected.
                         </div>
                     </div>
                 </div>
@@ -229,55 +173,42 @@
 
             <!-- LAB CONFIG TAB -->
             <div v-show="activeTab === 'labs'" class="space-y-6 max-w-5xl mx-auto pb-20">
-                <div class="flex justify-between flex-wrap gap-4 items-end mb-4">
+                <div class="flex justify-between flex-wrap gap-4 items-end mb-2">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-800">Physical Laboratory Management</h2>
-                        <p class="text-slate-500 text-sm">Add, remove, or physically re-map the grid structure of each laboratory.</p>
+                        <h2 class="text-2xl font-bold text-slate-800">Physical Laboratory Mapping</h2>
+                        <p class="text-slate-500 text-sm">Draw the physical network grid structure per lab for seating.</p>
                     </div>
                     <button @click="addLab" class="btn-primary text-sm flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Create New Lab
+                        + Create New Lab
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4">
-                    <div v-for="(lab, index) in customLabs" :key="index" class="glass-panel p-5 relative overflow-hidden transition-all" :class="!lab.active ? 'opacity-70 bg-gray-50' : ''">
-                        
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div v-for="(lab, index) in customLabs" :key="index" class="glass-panel p-5 relative overflow-hidden transition-all shadow-sm" :class="!lab.active ? 'opacity-60 bg-gray-100' : ''">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex items-center gap-3">
-                                <input type="checkbox" v-model="lab.active" class="w-5 h-5 text-blue-600 rounded">
+                                <input type="checkbox" v-model="lab.active" class="w-5 h-5 text-blue-600 rounded cursor-pointer">
                                 <div>
-                                    <input type="text" v-model="lab.name" class="font-bold text-lg bg-transparent border-b border-dashed border-gray-400 outline-none w-48 text-primary focus:border-blue-500 pb-0.5">
-                                    <div class="text-xs text-gray-500 mt-1 flex gap-2">
-                                        <input type="text" v-model="lab.building" class="bg-transparent border-b border-gray-300 w-24">
-                                        <input type="text" v-model="lab.room" class="bg-transparent border-b border-gray-300 w-24">
-                                    </div>
+                                    <input type="text" v-model="lab.name" class="font-bold text-lg bg-transparent border-b border-dashed border-gray-400 outline-none w-full text-primary focus:border-blue-500 pb-0.5" placeholder="Lab Name">
                                 </div>
                             </div>
-                            <div class="flex items-center gap-4">
-                                <div class="text-center p-2 bg-blue-50 rounded border border-blue-100">
-                                    <div class="text-xs font-bold text-blue-800">Computed Capacity</div>
-                                    <div class="font-black text-lg text-primary">{{ lab.rows * lab.cols }}</div>
+                            <div class="flex items-center gap-3">
+                                <div class="text-center px-3 py-1 bg-blue-50 rounded border border-blue-200">
+                                    <div class="text-[10px] font-bold text-blue-800 uppercase">Capacity</div>
+                                    <div class="font-black text-lg text-primary leading-none">{{ lab.rows * lab.cols }}</div>
                                 </div>
-                                <button @click="removeLab(index)" class="text-red-400 hover:text-red-600 px-2 py-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                <button @click="removeLab(index)" class="text-red-400 hover:text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-100 p-4 rounded-lg mt-2 text-sm border border-slate-200">
+                        <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg text-sm border border-slate-200">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">Grid Layout</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" v-model.number="lab.rows" class="futuristic-input" placeholder="Rows">
-                                    <span>×</span>
-                                    <input type="number" v-model.number="lab.cols" class="futuristic-input" placeholder="Cols">
-                                </div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Rows</label>
+                                <input type="number" v-model.number="lab.rows" class="futuristic-input font-bold" min="1">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">Network Switch / IP</label>
-                                <input type="text" v-model="lab.ip" class="futuristic-input font-mono text-xs" placeholder="192.168.1.0/24">
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block text-xs font-bold text-gray-500 mb-1">Hardware Remarks</label>
-                                <input type="text" v-model="lab.remarks" class="futuristic-input" placeholder="e.g., Row 1 PC 4 broken">
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Cols</label>
+                                <input type="number" v-model.number="lab.cols" class="futuristic-input font-bold" min="1">
                             </div>
                         </div>
                     </div>
@@ -288,87 +219,176 @@
             <div v-show="activeTab === 'timetable'" class="space-y-4 max-w-6xl mx-auto pb-20 h-full flex flex-col">
                 <div class="flex justify-between items-end shrink-0">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-800">Master Generating Engine</h2>
-                        <p class="text-slate-500 text-sm">Define rules, upload roster, and resolve concurrent session clashes.</p>
+                        <h2 class="text-2xl font-bold text-slate-800">Department Rules Engine</h2>
+                        <p class="text-slate-500 text-sm">Upload master student file to declare custom timeline boundaries for specific classes prior to crunching.</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
-                    <div class="md:col-span-2 glass-panel p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-primary">File Ingestion & Constraints</h3>
-                            <button @click="$refs.mainUpload.click()" class="btn-primary text-xs flex items-center gap-2 px-4 shadow">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg> Upload Roster
+                <!-- RULES UI (If raw classes extracted but not generated) -->
+                <div v-if="rawExtractedClasses.length > 0 && !allocatedStudents.length" class="flex-1 flex flex-col mt-2">
+                    <div class="glass-panel p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shrink-0 mb-4 flex justify-between items-center">
+                        <div class="flex gap-6">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase">Target Start Date</label>
+                                <input type="date" v-model="settings.startDate" class="text-sm font-semibold p-1 border rounded bg-white w-40">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase text-center w-full">Shift 1 (AM)</label>
+                                <div class="flex gap-1 items-center bg-white p-1 border rounded">
+                                    <input type="time" v-model="settings.s1Start" class="text-xs font-semibold outline-none text-blue-700 max-w-[65px]"><span>to</span>
+                                    <input type="time" v-model="settings.s1End" class="text-xs font-semibold outline-none text-blue-700 max-w-[65px]">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase text-center w-full">Shift 2 (PM)</label>
+                                <div class="flex gap-1 items-center bg-white p-1 border rounded">
+                                    <input type="time" v-model="settings.s2Start" class="text-xs font-semibold outline-none text-purple-700 max-w-[65px]"><span>to</span>
+                                    <input type="time" v-model="settings.s2End" class="text-xs font-semibold outline-none text-purple-700 max-w-[65px]">
+                                </div>
+                            </div>
+                        </div>
+                        <button @click="generateCoreEngine" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg text-lg ring-4 ring-green-600/30 transition-transform hover:scale-105">
+                            CRUNCH TIMETABLE
+                        </button>
+                    </div>
+
+                    <div class="flex-1 glass-panel flex flex-col overflow-hidden shadow-sm">
+                        <div class="p-4 bg-slate-100 border-b flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800">Class Constraints & Exclusions</h3>
+                            <span class="text-xs text-gray-500">{{rawExtractedClasses.length}} Unique classes detected from upload</span>
+                        </div>
+                        <div class="flex-1 overflow-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Class / Course Code</th>
+                                        <th>Students</th>
+                                        <th>Shift Preference</th>
+                                        <th>Blocked / Unavailable Date (Optional)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="cls in rawExtractedClasses" :key="cls.name">
+                                        <td class="font-bold text-primary">{{ cls.name }}</td>
+                                        <td class="font-medium text-gray-600">{{ cls.students.length }}</td>
+                                        <td>
+                                            <select v-model="cls.shift" class="futuristic-input w-48 text-xs font-semibold" :class="cls.shift === 'Shift 1' ? 'text-blue-700 bg-blue-50' : (cls.shift === 'Shift 2' ? 'text-purple-700 bg-purple-50' : 'text-gray-700')">
+                                                <option value="Any">Flexible (Any Shift)</option>
+                                                <option value="Shift 1">Shift 1 (Morning) ONLY</option>
+                                                <option value="Shift 2">Shift 2 (Afternoon) ONLY</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="date" v-model="cls.blockedDate" class="futuristic-input w-48 text-xs text-red-700">
+                                            <button v-if="cls.blockedDate" @click="cls.blockedDate=''" class="ml-2 text-xs text-gray-400 hover:text-red-500">×</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timetable Viewer (Finalized) -->
+                <div v-else-if="allocatedStudents.length > 0" class="flex-1 flex flex-col mt-2">
+                    <div class="glass-panel mb-4 p-4 flex gap-4 bg-white border-primary border-l-4">
+                         <div class="flex-1">
+                             <h4 class="font-bold text-gray-800 text-lg">Matrix Generated Successfully!</h4>
+                             <p class="text-xs text-gray-500">Constraint-engine solved matrix allocations.</p>
+                         </div>
+                         <button @click="resetEngine" class="btn-primary bg-gray-500 hover:bg-gray-600 text-xs h-fit py-2">Reset Engine</button>
+                    </div>
+
+                    <div class="flex-1 glass-panel flex flex-col overflow-hidden shadow-sm border border-gray-200">
+                        <div class="p-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center shrink-0">
+                            <div class="flex gap-4 items-center">
+                                <h3 class="font-bold text-gray-700 text-sm">Sort Output Layout View:</h3>
+                                <div class="flex bg-white rounded-md border text-sm overflow-hidden p-0.5">
+                                    <button @click="groupingMode = 'none'" class="px-3 py-1 font-semibold rounded-sm transition" :class="groupingMode === 'none' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-100'">Master Flat</button>
+                                    <button @click="groupingMode = 'lab'" class="px-3 py-1 font-semibold rounded-sm transition" :class="groupingMode === 'lab' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-100'">Lab-Wise</button>
+                                    <button @click="groupingMode = 'schedule'" class="px-3 py-1 font-semibold rounded-sm transition" :class="groupingMode === 'schedule' ? 'bg-blue-100 text-blue-800' : 'text-gray-500 hover:bg-gray-100'">Schedule-Wise</button>
+                                </div>
+                            </div>
+                            <button @click="exportTimetable" class="bg-blue-600 text-white font-bold px-4 py-1.5 rounded text-sm hover:bg-blue-700 shadow-sm transition flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                Generate Full Excel
                             </button>
-                            <input type="file" ref="mainUpload" @change="processRoster" class="hidden" accept=".xlsx,.csv">
                         </div>
-                        <div class="grid grid-cols-3 gap-3">
-                            <div class="bg-white p-3 border rounded shadow-sm">
-                                <label class="text-[10px] font-bold text-gray-400 block mb-1">START DATE</label>
-                                <input type="date" v-model="settings.startDate" class="w-full text-sm font-semibold outline-none text-slate-700">
-                            </div>
-                            <div class="bg-white p-3 border rounded shadow-sm">
-                                <label class="text-[10px] font-bold text-gray-400 block mb-1">SHIFT 1 BOUNDS</label>
-                                <div class="flex gap-1 items-center">
-                                    <input type="time" v-model="settings.s1Start" class="text-xs font-semibold outline-none text-blue-700 max-w-[70px]"> -
-                                    <input type="time" v-model="settings.s1End" class="text-xs font-semibold outline-none text-blue-700 max-w-[70px]">
-                                </div>
-                            </div>
-                            <div class="bg-white p-3 border rounded shadow-sm">
-                                <label class="text-[10px] font-bold text-gray-400 block mb-1">SHIFT 2 BOUNDS</label>
-                                <div class="flex gap-1 items-center">
-                                    <input type="time" v-model="settings.s2Start" class="text-xs font-semibold outline-none text-purple-700 max-w-[70px]"> -
-                                    <input type="time" v-model="settings.s2End" class="text-xs font-semibold outline-none text-purple-700 max-w-[70px]">
-                                </div>
-                            </div>
+                        
+                        <div class="flex-1 overflow-auto table-container border-0 rounded-none bg-white">
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <!-- Dynamic headers depending on group -->
+                                        <th v-if="groupingMode !== 'schedule'">Schedule Block</th>
+                                        <th v-if="groupingMode !== 'lab'">Lab Assigned</th>
+                                        <th>Reg No</th>
+                                        <th>Student</th>
+                                        <th>Class / Subject</th>
+                                        <th class="text-center">PC Seat No.</th>
+                                    </tr>
+                                </thead>
+                                
+                                <!-- Render grouped lists for structure clarity! -->
+                                <template v-if="groupingMode === 'lab'" v-for="(rows, labName) in groupedByLab" :key="labName">
+                                    <tr class="bg-indigo-50/70 border-y border-indigo-200">
+                                        <td colspan="5" class="py-2 px-4 shadow-sm">
+                                            <div class="font-black text-indigo-900 uppercase tracking-widest text-sm flex justify-between">
+                                                <span>{{ labName }}</span>
+                                                <span class="text-xs text-indigo-600 bg-indigo-100 px-2 rounded-full">{{rows.length}} Allocations</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr v-for="(row, idx) in rows.slice(0, 50)" :key="idx" class="hover:bg-slate-50">
+                                        <td class="font-bold text-gray-700 text-[11px] border-r whitespace-nowrap">{{ row.Date }} :: {{ row.Timing }}</td>
+                                        <td class="font-mono text-xs">{{ row['Reg No'] }}</td>
+                                        <td class="font-medium text-xs">{{ row['Name'] }}</td>
+                                        <td class="text-secondary text-[10px]">{{ row['Class'] }}</td>
+                                        <td class="font-black text-center text-primary text-sm">{{ row['Seat Number'] }}</td>
+                                    </tr>
+                                </template>
+
+                                <template v-else-if="groupingMode === 'schedule'" v-for="(rows, schedBlock) in groupedBySchedule" :key="schedBlock">
+                                    <tr class="bg-emerald-50/70 border-y border-emerald-200 mt-2 shadow-sm">
+                                        <td colspan="5" class="py-2 px-4">
+                                            <div class="font-black text-emerald-900 uppercase tracking-widest text-sm flex justify-between">
+                                                <span>{{ schedBlock }}</span>
+                                                <span class="text-xs text-emerald-700 bg-emerald-100 px-2 rounded-full">{{rows.length}} Allocations</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr v-for="(row, idx) in rows.slice(0, 50)" :key="idx" class="hover:bg-slate-50">
+                                        <td class="font-bold uppercase text-[11px] text-purple-800 border-r w-24">{{ row['Lab Room'] }}</td>
+                                        <td class="font-mono text-xs w-24">{{ row['Reg No'] }}</td>
+                                        <td class="font-medium text-xs truncate max-w-xs">{{ row['Name'] }}</td>
+                                        <td class="text-secondary text-[10px]">{{ row['Class'] }}</td>
+                                        <td class="font-black text-center text-primary text-sm w-20">{{ row['Seat Number'] }}</td>
+                                    </tr>
+                                </template>
+                                
+                                <tbody v-else>
+                                    <tr v-for="(row, idx) in allocatedStudents.slice(0, 100)" :key="idx">
+                                        <td class="font-bold text-gray-800 bg-slate-50 border-r text-[11px] whitespace-nowrap">{{ row['Date'] }}<br><span class="text-purple-700">{{ row['Timing'] }}</span></td>
+                                        <td class="font-bold uppercase text-xs text-gray-600">{{ row['Lab Room'] }}</td>
+                                        <td class="font-mono text-xs">{{ row['Reg No'] }}</td>
+                                        <td class="font-medium truncate max-w-[150px]">{{ row['Name'] }}</td>
+                                        <td class="text-secondary text-[11px]">{{ row['Class'] }}</td>
+                                        <td class="font-black text-center text-primary text-sm">{{ row['Seat Number'] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="text-center p-3 text-xs text-gray-400 font-bold bg-gray-50 border-t">Displaying preview limits. Click Export for entire matrix.</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Timetable Viewer -->
-                <div v-if="allocatedStudents.length > 0" class="flex-1 glass-panel flex flex-col overflow-hidden shadow-sm mt-2 border border-green-300">
-                    <div class="p-4 bg-green-50 border-b border-green-200 flex justify-between items-center shrink-0">
-                        <div class="flex gap-4 items-center">
-                            <h3 class="font-bold text-green-800">Master Component I Scheduled</h3>
-                            <select class="text-sm border-gray-300 rounded p-1">
-                                <option>Master View</option>
-                                <option>Class-wise</option>
-                                <option>Lab-wise</option>
-                                <option>Student-wise</option>
-                            </select>
-                        </div>
-                        <button class="bg-white text-green-700 font-bold border border-green-300 px-4 py-1 rounded text-sm hover:bg-green-100 shadow-sm transition">Export Views (Excel)</button>
-                    </div>
-                    <div class="flex-1 overflow-auto table-container border-0 rounded-none">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Session Timing</th>
-                                    <th>Reg No</th>
-                                    <th>Student</th>
-                                    <th>Class / Subject</th>
-                                    <th>Lab Room</th>
-                                    <th class="text-center">Seat</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(row, idx) in allocatedStudents.slice(0, 100)" :key="idx">
-                                    <td class="font-bold text-blue-900 bg-slate-50 border-r border-slate-100">{{ row['Date'] }}</td>
-                                    <td class="font-bold text-purple-800 bg-slate-50 border-r border-slate-100 text-[11px] whitespace-nowrap">{{ row['Timing'] }}</td>
-                                    <td class="font-mono text-xs">{{ row['Reg No'] }}</td>
-                                    <td class="font-medium truncate max-w-[150px]">{{ row['Name'] }}</td>
-                                    <td class="text-secondary text-[11px]">{{ row['Class'] }}</td>
-                                    <td class="font-bold uppercase text-xs">{{ row['Lab Room'] }}</td>
-                                    <td class="font-black text-center text-primary">{{ row['Seat Number'] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div v-else class="flex-1 flex flex-col items-center justify-center p-12 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
-                    <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    Awaiting Master Roster ingestion
+                <!-- Initial Upload State -->
+                <div v-else class="flex-1 flex flex-col items-center justify-center p-12 text-gray-400 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 cursor-pointer bg-white transition" @click="$refs.mainUpload.click()">
+                    <svg class="w-12 h-12 mb-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <h3 class="text-lg font-bold text-slate-700">Upload Component Roster to Begin</h3>
+                    <p class="text-sm mt-1 mb-4 text-center">Supports .xlsx containing Class, Name, and Reg No.</p>
+                    <button class="btn-primary">Browse File Array</button>
+                    <input type="file" ref="mainUpload" @change="parseUpload" class="hidden" accept=".xlsx,.xls,.csv">
                 </div>
             </div>
 
@@ -377,61 +397,65 @@
                 <div class="flex justify-between items-end shrink-0">
                     <div>
                         <h2 class="text-2xl font-bold text-slate-800">Visual Seating Blueprint</h2>
-                        <p class="text-slate-500 text-sm">Graphical representation of assignments. Select two seats to swap students dynamically.</p>
+                        <p class="text-slate-500 text-sm">Graphical representation of assignments. Verify seating gaps or click two boxes to enforce manual swaps.</p>
                     </div>
                 </div>
 
-                <div class="glass-panel p-4 flex gap-4 shrink-0">
-                    <select v-model="selectedViewSession" class="futuristic-input flex-1 font-bold">
-                        <option value="">Select Processed Session...</option>
+                <div class="glass-panel p-4 flex gap-4 shrink-0 bg-white">
+                    <select v-model="selectedViewSession" class="futuristic-input flex-1 font-bold text-blue-800 border-blue-200">
+                        <option value="">1. Filter Processed Schedule Block...</option>
                         <option v-for="s in uniqueSessions" :value="s">{{s}}</option>
                     </select>
-                    <select v-model="selectedViewLab" class="futuristic-input flex-1 font-bold">
-                        <option value="">Select Physical Lab...</option>
+                    <select v-model="selectedViewLab" class="futuristic-input flex-1 font-bold text-purple-800 border-purple-200">
+                        <option value="">2. Filter Target Physical Lab Room...</option>
                         <option v-for="l in customLabs" :value="l.name">{{l.name}}</option>
                     </select>
                 </div>
 
-                <div v-if="selectedViewSession && selectedViewLab" class="flex-1 glass-panel flex flex-col overflow-auto p-8 relative">
-                    <!-- Swap UI overlay -->
-                    <div v-if="swapBuffer.length > 0" class="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white font-bold px-6 py-2 rounded-full shadow-lg flex gap-4 items-center animate-bounce z-50">
-                        <span>Select a second seat to swap with {{swapBuffer[0].reg}}</span>
-                        <button @click="swapBuffer=[]" class="bg-black/20 hover:bg-black/30 w-6 h-6 rounded-full flex items-center justify-center">×</button>
+                <div v-if="selectedViewSession && selectedViewLab" class="flex-1 glass-panel flex flex-col overflow-auto p-4 md:p-8 relative bg-white">
+                    <div v-if="swapBuffer.length > 0" class="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white font-bold px-4 py-2 rounded shadow-lg flex gap-4 items-center animate-bounce z-50 text-sm">
+                        <span>Select a second seat to swap with PC-{{swapBuffer[0].seatIdx}} ({{swapBuffer[0].reg}})</span>
+                        <button @click="swapBuffer=[]" class="bg-black/20 hover:bg-black/30 w-5 h-5 rounded-full flex items-center justify-center text-xs">×</button>
                     </div>
 
                     <div class="text-center mb-6">
-                        <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ selectedViewLab }}</h3>
-                        <p class="text-blue-600 font-bold uppercase tracking-widest text-sm mt-1">{{ selectedViewSession }}</p>
+                        <h3 class="text-2xl font-black text-slate-800 tracking-tighter">{{ selectedViewLab }}</h3>
+                        <p class="text-primary font-bold uppercase tracking-wider text-xs mt-1">{{ selectedViewSession }}</p>
                     </div>
                     
-                    <div class="seat-grid mx-auto" :style="computedGridStyle">
+                    <div class="seat-grid mx-auto shadow-inner bg-slate-100" :style="computedGridStyle">
                         <div v-for="seatStr in labGrid" :key="seatStr" 
-                             class="seat" 
+                             class="seat shadow-sm" 
                              :class="{ 'occupied': isOccupied(seatStr), 'selected': isSelectedForSwap(seatStr) }"
                              @click="handleSeatClick(seatStr)"
                              :title="getSeatTooltip(seatStr)">
-                             {{ seatStr }}
+                             <div class="flex flex-col items-center">
+                                 <span class="text-[8px] text-gray-400 font-normal">PC</span>
+                                 <span>{{ seatStr }}</span>
+                             </div>
                         </div>
                     </div>
                     
-                    <!-- Legend -->
-                    <div class="flex justify-center gap-8 mt-8 border-t pt-4">
-                        <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-gray-300 rounded bg-white"></div> <span class="text-xs font-bold text-gray-500">Empty</span></div>
-                        <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-blue-400 rounded bg-blue-100"></div> <span class="text-xs font-bold text-blue-700">Occupied</span></div>
-                        <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-amber-500 rounded bg-amber-100"></div> <span class="text-xs font-bold text-amber-700">Swap Selected</span></div>
+                    <div class="flex justify-center gap-8 mt-auto pt-6">
+                        <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-gray-300 rounded bg-white"></div> <span class="text-xs font-bold text-gray-500">Unassigned Seat</span></div>
+                        <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-blue-400 rounded bg-blue-100"></div> <span class="text-xs font-bold text-blue-700">Occupied Seat</span></div>
+                        <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-amber-500 rounded bg-amber-100"></div> <span class="text-xs font-bold text-amber-700">Pending Swap</span></div>
                     </div>
                 </div>
                 <div v-else class="flex-1 glass-panel flex justify-center items-center text-gray-400 bg-gray-50/50">
-                    Select a Session and Lab above to render the physical grid constraints.
+                    <div class="text-center">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        Select Session & Lab above to render canvas
+                    </div>
                 </div>
             </div>
             
             <!-- STUB TABS -->
-            <div v-show="['checker', 'live', 'docs'].includes(activeTab)" class="flex-1 flex items-center justify-center h-[60vh]">
+            <div v-show="['checker', 'live', 'docs'].includes(activeTab)" class="flex-1 flex items-center justify-center h-[60vh] glass-panel bg-white">
                 <div class="text-center">
                     <svg class="w-16 h-16 text-gray-300 mb-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                    <h3 class="text-2xl font-bold text-gray-700 capitalize">Module: {{ activeTab }}</h3>
-                    <p class="text-gray-500 max-w-md mt-2 mx-auto">This UI component links seamlessly into the broader ecosystem, executing python-backend protocols for Readiness Checks, Live Surveillance, and Automated PDF Generation.</p>
+                    <h3 class="text-2xl font-bold text-gray-700 capitalize">Module Integration: {{ activeTab }}</h3>
+                    <p class="text-gray-500 max-w-md mt-2 mx-auto">Future integration layer mapping into Python-automated API endpoints for live status feeds and PDF Generation exports.</p>
                 </div>
             </div>
 
@@ -445,104 +469,98 @@ const { createApp } = Vue;
 createApp({
     data() {
         return {
-            activeTab: 'overview',
-            isProcessing: false,
-            allocatedStudents: [], // Master DB
+            activeTab: 'timetable',
+            rawExtractedClasses: [], // Storing classes pre-generation to set rules on them
+            allocatedStudents: [],
+            groupingMode: 'none', // none, lab, schedule
             
-            // Stats
             rosterStats: { students: 0, courses: 0, subjects: 0, classes: 0 },
-            flags: { timetable: false, seating: false },
-            validationErrors: [
-                { type: 'critical', msg: 'System awaiting master data ingestion. Cannot operate.' }
-            ],
             
             settings: {
                 startDate: new Date().toISOString().split('T')[0],
                 s1Start: "08:30", s1End: "13:20",
                 s2Start: "13:45", s2End: "18:30",
-                sessionLen: 60, strictTwoClassMode: true, skipWeekends: true
+                sessionLen: 60, skipWeekends: true
             },
             
-            // Modular Labs
             customLabs: [
-                { name: 'ECC Lab 1', building: 'Comp Block', room: '1', rows: 10, cols: 6, cap: 60, active: true },
-                { name: 'ECC Lab 2', building: 'Comp Block', room: '2', rows: 9, cols: 5, cap: 45, active: true },
-                { name: 'ECC Lab 3', building: 'Comp Block', room: '3', rows: 10, cols: 5, cap: 50, active: true },
+                { name: 'ECC Lab 1', building: 'Comp', room: '1', rows: 10, cols: 6, cap: 60, active: true },
+                { name: 'ECC Lab 2', building: 'Comp', room: '2', rows: 9, cols: 5, cap: 45, active: true },
+                { name: 'ECC Lab 3', building: 'Comp', room: '3', rows: 10, cols: 5, cap: 50, active: true },
                 { name: 'SCC Lab', building: 'Main', room: '4', rows: 10, cols: 6, cap: 60, active: true },
                 { name: 'Math Lab', building: 'Math', room: '5', rows: 10, cols: 5, cap: 50, active: true },
                 { name: 'JCICT Lab 1', building: 'Tech', room: '10', rows: 10, cols: 6, cap: 60, active: true },
                 { name: 'JCICT Lab 2', building: 'Tech', room: '11', rows: 10, cols: 6, cap: 60, active: true }
             ],
             
-            // Visual Grid Viewers
-            selectedViewSession: '',
-            selectedViewLab: '',
-            swapBuffer: [] // [{reg: '26X12', seatIdx: 12}]
+            selectedViewSession: '', selectedViewLab: '', swapBuffer: [],
+            
+            validationErrors: [ { type: 'warning', msg: 'Awaiting raw student list ingestion.' } ]
         }
     },
     computed: {
         dynamicLabStats() {
             let active = this.customLabs.filter(l => l.active);
             let cap = active.reduce((s, l) => s + (l.rows * l.cols), 0);
-            let req = cap > 0 && this.rosterStats.students > 0 ? Math.ceil(this.rosterStats.students / cap) : '-';
-            return { count: active.length, capacity: cap, reqSessions: req };
+            return { count: active.length, capacity: cap };
         },
         uniqueSessions() {
             if(!this.allocatedStudents.length) return [];
             let s = new Set();
             this.allocatedStudents.forEach(st => s.add(`${st.Date} :: ${st.Timing}`));
-            return Array.from(s);
+            return Array.from(s).sort();
         },
         labGrid() {
             if(!this.selectedViewLab) return [];
             let lab = this.customLabs.find(l => l.name === this.selectedViewLab);
             if(!lab) return [];
             let arr = [];
-            for(let border=1; border <= lab.rows*lab.cols; border++){
-                arr.push(border.toString().padStart(2, '0'));
-            }
+            for(let border=1; border <= lab.rows*lab.cols; border++){ arr.push(border.toString().padStart(2, '0')); }
             return arr;
         },
         computedGridStyle() {
             let lab = this.customLabs.find(l => l.name === this.selectedViewLab);
             if(!lab) return {};
-            return {
-                gridTemplateColumns: `repeat(${lab.cols}, minmax(0, 1fr))`
-            }
+            return { gridTemplateColumns: `repeat(${lab.cols}, minmax(0, 1fr))` }
         },
         viewLayoutData() {
-            // Extracts only the students for the currently selected session and lab view
             if(!this.selectedViewSession || !this.selectedViewLab) return [];
             let [d, t] = this.selectedViewSession.split(" :: ");
             return this.allocatedStudents.filter(s => s.Date === d && s.Timing === t && s['Lab Room'] === this.selectedViewLab);
+        },
+        
+        // Grouping Computers
+        groupedByLab() {
+            if(this.groupingMode !== 'lab') return {};
+            return this.allocatedStudents.reduce((acc, curr) => {
+                if(!acc[curr['Lab Room']]) acc[curr['Lab Room']] = [];
+                acc[curr['Lab Room']].push(curr);
+                return acc;
+            }, {});
+        },
+        groupedBySchedule() {
+            if(this.groupingMode !== 'schedule') return {};
+            return this.allocatedStudents.reduce((acc, curr) => {
+                let key = `${curr.Date} :: ${curr.Timing}`;
+                if(!acc[key]) acc[key] = [];
+                acc[key].push(curr);
+                return acc;
+            }, {});
         }
     },
     methods: {
-        addLab() {
-            this.customLabs.push({ name: 'New Lab', building: '', room: '', rows: 5, cols: 5, cap: 25, active: true });
-        },
-        removeLab(idx) {
-            this.customLabs.splice(idx, 1);
-        },
-        isOccupied(seatStr) {
-            let seatInt = parseInt(seatStr);
-            return this.viewLayoutData.some(s => s['Seat Number'] === seatInt);
-        },
-        isSelectedForSwap(seatStr) {
-            let seatInt = parseInt(seatStr);
-            return this.swapBuffer.some(b => b.seatIdx === seatInt);
-        },
+        addLab() { this.customLabs.push({ name: 'New Lab', building: '', room: '', rows: 5, cols: 5, cap: 25, active: true }); },
+        removeLab(idx) { this.customLabs.splice(idx, 1); },
+        isOccupied(seatStr) { return this.viewLayoutData.some(s => s['Seat Number'] === parseInt(seatStr)); },
+        isSelectedForSwap(seatStr) { return this.swapBuffer.some(b => b.seatIdx === parseInt(seatStr)); },
         getSeatTooltip(seatStr) {
-            let seatInt = parseInt(seatStr);
-            let stud = this.viewLayoutData.find(s => s['Seat Number'] === seatInt);
-            if(stud) return `${stud['Reg No']} - ${stud.Name} (${stud.Class})`;
-            return "Empty Seat";
+            let stud = this.viewLayoutData.find(s => s['Seat Number'] === parseInt(seatStr));
+            return stud ? `${stud['Reg No']} - ${stud.Name} (${stud.Class})` : "Empty Seat";
         },
         handleSeatClick(seatStr) {
             let seatInt = parseInt(seatStr);
             let stud = this.viewLayoutData.find(s => s['Seat Number'] === seatInt);
-            
-            if(!stud) return; // Cannot swap empty for now easily without complex data push
+            if(!stud) return; 
             
             if(this.swapBuffer.length === 0) {
                 this.swapBuffer.push({reg: stud['Reg No'], seatIdx: seatInt});
@@ -550,119 +568,197 @@ createApp({
                 let first = this.swapBuffer[0];
                 if(first.seatIdx === seatInt) { this.swapBuffer = []; return; } // cancel
                 
-                // Perform Swap Memory Injection
                 let stud1 = this.allocatedStudents.find(s => s['Reg No'] === first.reg);
                 let stud2 = this.allocatedStudents.find(s => s['Reg No'] === stud['Reg No']);
                 
-                let s1Mem = stud1['Seat Number'];
+                let temp = stud1['Seat Number'];
                 stud1['Seat Number'] = stud2['Seat Number'];
-                stud2['Seat Number'] = s1Mem;
+                stud2['Seat Number'] = temp;
                 
-                // Trigger Reactivity forcefully (vue 3 proxy trap might miss nested deep object arrays)
                 this.allocatedStudents = [...this.allocatedStudents];
-                
                 this.swapBuffer = [];
-                // Validation could rerun here!
             }
         },
-        processRoster(event) {
+        
+        resetEngine() {
+            this.allocatedStudents = [];
+            this.validationErrors = [{type: 'warning', msg: 'Re-configure class shift mappings and press crunch to re-generate.'}];
+        },
+
+        parseUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
+                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
                 
-                this.generateCoreEngine(rawJson);
+                if (data.length === 0) return;
+                
+                let classCol = Object.keys(data[0]).find(k => /class|course|program/i.test(k)) || Object.keys(data[0])[2];
+                
+                // Extract into classes
+                let pool = {};
+                data.forEach(s => { 
+                    let cStr = String(s[classCol]||'U').trim(); 
+                    if(!pool[cStr]) pool[cStr] = []; 
+                    let stu = {...s, _classColRef: classCol};
+                    pool[cStr].push(stu); 
+                });
+                
+                this.rawExtractedClasses = Object.keys(pool).map(k => ({
+                    name: k, 
+                    students: pool[k],
+                    shift: 'Any', // User manipulates this now before generation!
+                    blockedDate: '' // User manipulates this!
+                })).sort((a,b) => b.students.length - a.students.length);
+                
+                this.rosterStats.students = data.length;
+                this.rosterStats.classes = this.rawExtractedClasses.length;
+                this.validationErrors = [{type: 'info', msg: 'Roster mapped. Define Class Shift rules and generate matrix.'}];
             };
             reader.readAsArrayBuffer(file);
         },
-        // Reusable basic time tools
-        parseTime(t) { if(!t) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; },
-        formatTime(mins) { let h = Math.floor(mins/60); let m = mins%60; let a = h>=12?'PM':'AM'; return `${h%12||12}:${m.toString().padStart(2,'0')} ${a}`; },
         
-        generateCoreEngine(data) {
-            // Master Core - Processes Data and Allocates globally
-            let classCol = Object.keys(data[0]).find(k => /class|course|program/i.test(k)) || Object.keys(data[0])[2];
-            
-            // Build Statistics
-            let classSet = new Set();
-            data.forEach(s => classSet.add(s[classCol]));
-            this.rosterStats.students = data.length;
-            this.rosterStats.classes = classSet.size;
-            this.rosterStats.courses = Math.ceil(classSet.size / 2); // mockup projection
-            
-            // Sort classes by size
-            let cPool = {};
-            data.forEach(s => { let c=String(s[classCol]||'U'); if(!cPool[c])cPool[c]=[]; cPool[c].push(s); });
-            let available = Object.keys(cPool).map(k => ({name:k, students:cPool[k]})).filter(c=>c.students.length>0).sort((a,b)=>b.students.length-a.students.length);
+        parseTime(t) { if(!t) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; },
+        formatTime(mins) { let h = Math.floor(mins/60); let m = mins%60; return `${h%12||12}:${m.toString().padStart(2,'0')} ${h>=12?'PM':'AM'}`; },
+        
+        generateCoreEngine() {
+            let activeLabs = this.customLabs.filter(l=>l.active);
+            if(activeLabs.length === 0) { alert("Enable at least one Lab layout."); return; }
+
+            // Deep clone because generator mutates students arrays
+            let available = JSON.parse(JSON.stringify(this.rawExtractedClasses));
             
             let allocated = [];
-            let activeLabs = this.customLabs.filter(l=>l.active);
-            
             let currentDay = new Date(this.settings.startDate);
+            
             let s1Start = this.parseTime(this.settings.s1Start); let s1End = this.parseTime(this.settings.s1End);
             let s2Start = this.parseTime(this.settings.s2Start); let s2End = this.parseTime(this.settings.s2End);
             let cursorMins = s1Start; let shift = 1;
 
             const nextSlot = () => {
-                cursorMins += this.settings.sessionLen + 15;
-                if (shift === 1 && (cursorMins + this.settings.sessionLen > s1End)) { cursorMins = s2Start; shift = 2; }
+                cursorMins += this.settings.sessionLen + 10;
+                
+                if (shift === 1 && (cursorMins + this.settings.sessionLen > s1End)) { 
+                    cursorMins = s2Start; shift = 2; 
+                }
                 if (shift === 2 && (cursorMins + this.settings.sessionLen > s2End)) {
                     cursorMins = s1Start; shift = 1; currentDay.setDate(currentDay.getDate() + 1);
                     if (this.settings.skipWeekends) while (currentDay.getDay()===0 || currentDay.getDay()===6) currentDay.setDate(currentDay.getDate() + 1);
                 }
             };
 
-            // Filling loop with Fix for Max 2 Classes
-            while(available.length > 0) {
+            // Loop until all students are scheduled
+            // Failsafe limit for looping issues
+            let failsafeCount = 0;
+            while(available.length > 0 && failsafeCount < 1000) {
+                failsafeCount++;
+                
                 let timingStr = `${this.formatTime(cursorMins)} to ${this.formatTime(cursorMins + this.settings.sessionLen)}`;
+                
+                // Adjust Date string for timezone offset prevention
+                let tzHackDay = new Date(currentDay);
+                tzHackDay.setMinutes(tzHackDay.getMinutes() - tzHackDay.getTimezoneOffset());
+                let rawIsoDate = tzHackDay.toISOString().split('T')[0];
                 let dateStr = currentDay.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                let currentShiftCode = shift === 1 ? 'Shift 1' : 'Shift 2';
 
+                // Find valid classes that match rules (Shift & Blocked Date)
+                let permittedClasses = available.filter(c => {
+                    if(c.shift !== 'Any' && c.shift !== currentShiftCode) return false;
+                    if(c.blockedDate && c.blockedDate === rawIsoDate) return false;
+                    return true;
+                });
+
+                // If NO classes are permitted to take tests during this slot block, skip time forward
+                if(permittedClasses.length === 0) {
+                    nextSlot();
+                    continue;
+                }
+
+                // Fill sequence for active labs
                 for(let lab of activeLabs) {
-                    if(available.length === 0) break;
-                    let seatsTotal = lab.rows * lab.cols; // Computed physically based on rows/cols math
+                    if(permittedClasses.length === 0) break;
+                    let cap = lab.rows * lab.cols;
                     let assigned = 0;
                     
-                    let c1 = available[0]; let c2 = available[1] || null;
-                    let flip = true;
+                    let c1 = permittedClasses[0]; 
+                    let c2 = permittedClasses[1] || null;
+                    let toggle = true;
                     
-                    while(assigned < seatsTotal) {
+                    while(assigned < cap) {
                         if(c1.students.length === 0 && (!c2 || c2.students.length === 0)) break;
                         let placed = false;
-                        let popAndPlace = (cls) => {
-                            let s = cls.students.shift();
+                        
+                        let placeMe = (clsObj) => {
+                            let s = clsObj.students.shift();
                             allocated.push({
-                                'Date': dateStr, 'Timing': timingStr, 'Reg No': s['Reg No']||s['reg']||s[0]||'N/A', 
-                                'Name': s['Name']||s['name']||s[1], 'Class': s[classCol], 'Lab Room': lab.name, 'Seat Number': assigned + 1
+                                'Date': dateStr, 'Timing': timingStr, 
+                                'Reg No': s['Reg No']||s['reg']||s['RegNo']||s['Register No']||s[0]||'NA', 
+                                'Name': s['Name']||s['name']||s[1], 
+                                'Class': s[s._classColRef], 
+                                'Lab Room': lab.name, 
+                                'Seat Number': assigned + 1
                             });
                             placed = true;
                         };
-                        
-                        if(flip && c1.students.length > 0) popAndPlace(c1);
-                        else if(!flip && c2 && c2.students.length > 0) popAndPlace(c2);
+
+                        if(toggle && c1.students.length > 0) placeMe(c1);
+                        else if(!toggle && c2 && c2.students.length > 0) placeMe(c2);
                         
                         if(placed) assigned++;
-                        flip = !flip;
+                        toggle = !toggle;
                     }
+                    
+                    // Filter arrays, removing empty
+                    permittedClasses = permittedClasses.filter(c => c.students.length > 0);
+                    // update main array memory for next checks
                     available = available.filter(c => c.students.length > 0);
                 }
+                
                 nextSlot();
             }
 
             this.allocatedStudents = allocated;
             
-            // Post Validation Checks
-            this.flags.timetable = true;
-            this.flags.seating = true;
-            this.validationErrors = []; // Cleared critical errors!
-            
-            // Create a fake student conflict to demonstrate engine!
-            if(data.length > 50) {
-                 this.validationErrors.push({type: 'warning', msg: 'Multiple adjacent seats detected strictly among single class instances on edge boundaries. Optimization suggested.'});
+            // Post Validation Checks (Checking for generic conflicts)
+            this.validationErrors = [];
+            if (failsafeCount >= 1000) {
+                this.validationErrors.push({type: 'critical', msg: 'Engine constraint deadlock detected. The rules created unfillable gaps.'});
             }
+            if (this.allocatedStudents.length < this.rosterStats.students) {
+                 this.validationErrors.push({type: 'critical', msg: 'Some constraints (blocked dates/shifts) completely prevented students from generating tables. Matrix incomplete.'});
+            }
+        },
+        
+        exportTimetable() {
+            if(this.allocatedStudents.length === 0) return;
+            // Depending on group mode visualize
+            
+            let sourceArr = this.allocatedStudents;
+            const wb = XLSX.utils.book_new();
+
+            // Dump Master Sheet
+            const wsMaster = XLSX.utils.json_to_sheet(sourceArr);
+            XLSX.utils.book_append_sheet(wb, wsMaster, "Master Component I");
+
+            // Build Lab-Wise sheets
+            let structLabs = {};
+            sourceArr.forEach(s => {
+                if(!structLabs[s['Lab Room']]) structLabs[s['Lab Room']] = [];
+                structLabs[s['Lab Room']].push(s);
+            });
+            Object.keys(structLabs).forEach(key => {
+                let ws = XLSX.utils.json_to_sheet(structLabs[key]);
+                let shortKey = String(key).substring(0, 31).trim(); // excel cap
+                XLSX.utils.book_append_sheet(wb, ws, shortKey);
+            });
+
+            const dd = new Date();
+            XLSX.writeFile(wb, `Component_I_Schedule_Export_${dd.getTime()}.xlsx`);
         }
     }
 }).mount('#app');
