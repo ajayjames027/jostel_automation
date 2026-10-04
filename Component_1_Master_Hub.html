@@ -537,8 +537,73 @@
                 </div>
             </div>
             
+            <!-- DOCS TAB (Attendance & Claims) -->
+            <div v-show="activeTab === 'docs'" class="space-y-6 max-w-5xl mx-auto pb-20 h-full">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Print Operations Hub</h2>
+                    <p class="text-slate-500 text-sm">Generate mass attendance logs and process invigilator financial claims.</p>
+                </div>
+
+                <div v-if="allocatedStudents.length === 0" class="glass-panel p-12 text-center text-red-500 font-bold bg-white">
+                    <svg class="w-12 h-12 text-red-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Crunch the timetable matrix first before generating attendance forms.
+                </div>
+                
+                <div v-else class="grid md:grid-cols-2 gap-6">
+                    <!-- Attendance -->
+                    <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-blue-500">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-2">Mass Attendance Generator</h3>
+                        <p class="text-sm text-gray-500 mb-6">Automatically builds an Excel workbook containing signature-ready physical attendance sheets formatted precisely for every session and lab combination.</p>
+                        
+                        <div class="bg-blue-50 p-3 rounded text-xs font-bold text-blue-800 mb-4 flex justify-between">
+                            <span>Ready to Print:</span>
+                            <span>{{ uniqueSessions.length * customLabs.filter(l=>l.active).length }} Sheet Combinations</span>
+                        </div>
+                        <button @click="exportAttendanceSheets" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
+                            Download Attendance Pack (.xlsx)
+                        </button>
+                    </div>
+
+                    <!-- Claims -->
+                    <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-green-500 flex flex-col">
+                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-2">Invigilator Remuneration</h3>
+                        <p class="text-sm text-gray-500 mb-6">Generate standardized financial claim receipts for faculty compensation.</p>
+                        
+                        <div class="space-y-3 mb-6 flex-1">
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Invigilator Name</label>
+                                <input type="text" v-model="claimForm.name" class="futuristic-input" placeholder="e.g. Dr. John Doe">
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex-1">
+                                    <label class="text-xs font-bold text-gray-500 uppercase">Sessions Assigned</label>
+                                    <input type="number" v-model.number="claimForm.sessions" class="futuristic-input">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="text-xs font-bold text-gray-500 uppercase">Rate per session (₹)</label>
+                                    <input type="number" v-model.number="claimForm.rate" class="futuristic-input">
+                                </div>
+                            </div>
+                            <div class="text-right text-lg font-black text-green-700 mt-2">
+                                Total: ₹{{ claimForm.sessions * claimForm.rate }}
+                            </div>
+                        </div>
+                        
+                        <button @click="exportClaimForm" :disabled="!claimForm.name" class="w-full bg-green-600 disabled:opacity-50 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
+                            Generate Claim Receipt
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- STUB TABS -->
-            <div v-show="['checker', 'live', 'docs'].includes(activeTab)" class="flex-1 flex items-center justify-center h-[60vh] glass-panel bg-white">
+            <div v-show="['checker', 'live'].includes(activeTab)" class="flex-1 flex items-center justify-center h-[60vh] glass-panel bg-white">
                 <div class="text-center">
                     <h3 class="text-2xl font-bold text-gray-700 capitalize">Module Integration: {{ activeTab }}</h3>
                 </div>
@@ -580,6 +645,8 @@ createApp({
             ],
             
             selectedViewSession: '', selectedViewLab: '', swapBuffer: [],
+            
+            claimForm: { name: '', sessions: 1, rate: 250 },
             
             validationErrors: [ { type: 'warning', msg: 'Awaiting raw student list ingestion.' } ]
         }
@@ -883,6 +950,80 @@ createApp({
 
             const dd = new Date();
             XLSX.writeFile(wb, `Exam_${mode.toUpperCase()}_Export_${dd.getTime()}.xlsx`);
+        },
+        
+        exportAttendanceSheets() {
+            if(this.allocatedStudents.length === 0) return;
+            const wb = XLSX.utils.book_new();
+            let grouped = this.groupedBySchedule;
+            
+            Object.keys(grouped).forEach(sessionKey => {
+                let sessionStudents = grouped[sessionKey];
+                let labGroups = {};
+                sessionStudents.forEach(s => {
+                    if(!labGroups[s['Lab Room']]) labGroups[s['Lab Room']] = [];
+                    labGroups[s['Lab Room']].push(s);
+                });
+                
+                Object.keys(labGroups).forEach(labName => {
+                    let students = labGroups[labName];
+                    if(students.length === 0) return;
+                    
+                    let sheetData = [
+                        ['EXAM ATTENDANCE SHEET', '', '', '', '', ''],
+                        ['Session:', sessionKey, '', 'Lab Room:', labName, ''],
+                        ['', '', '', '', '', ''],
+                        ['S.No', 'Register Number', 'Student Name', 'Class / Course', 'PC Number', 'Student Signature']
+                    ];
+                    
+                    students.forEach((s, i) => {
+                        sheetData.push([
+                            i + 1,
+                            s['Reg No'],
+                            s['Name'],
+                            s['Class'],
+                            'PC - ' + s['Seat Number'],
+                            '' 
+                        ]);
+                    });
+                    
+                    let ws = XLSX.utils.aoa_to_sheet(sheetData);
+                    ws['!cols'] = [{wch: 6}, {wch: 18}, {wch: 35}, {wch: 25}, {wch: 15}, {wch: 25}];
+                    
+                    // Create safe tab name avoiding colon/slashes and length constraints
+                    let safeSess = sessionKey.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '');
+                    let safeLab = labName.replace(/[^a-zA-Z0-9]/g, '');
+                    let tabName = `${safeSess}_${safeLab}`.substring(0, 31);
+                    
+                    XLSX.utils.book_append_sheet(wb, ws, tabName);
+                });
+            });
+            
+            XLSX.writeFile(wb, `Mass_Attendance_Pack.xlsx`);
+        },
+
+        exportClaimForm() {
+            let total = this.claimForm.sessions * this.claimForm.rate;
+            const wb = XLSX.utils.book_new();
+            let data = [
+                ['INVIGILATOR CLAIM NOTIFICATION'],
+                [],
+                ['Invigilator computed identity:', this.claimForm.name],
+                ['Exam Component Type:', 'Component I'],
+                ['Total Sessions Appointed:', this.claimForm.sessions],
+                ['Rate Configured Per Session:', `Rs. ${this.claimForm.rate}`],
+                [],
+                ['TOTAL CLAIM AMOUNT CALCULATED:', `Rs. ${total}`],
+                [],
+                ['', ''],
+                ['', ''],
+                ['Signature of Invigilator', '', 'Signature of Chief Superintendent']
+            ];
+            let ws = XLSX.utils.aoa_to_sheet(data);
+            ws['!cols'] = [{wch: 35}, {wch: 10}, {wch: 35}];
+            
+            XLSX.utils.book_append_sheet(wb, ws, 'Claim Remuneration Docs');
+            XLSX.writeFile(wb, `Claim_Form_${this.claimForm.name.replace(/ /g,'_')}.xlsx`);
         }
     }
 }).mount('#app');
