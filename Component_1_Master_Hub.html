@@ -604,8 +604,35 @@
                 </div>
             </div>
 
+            <!-- MOODLE BOT INTEGRATION TAB -->
+            <div v-show="activeTab === 'live'" class="space-y-6 max-w-4xl mx-auto pb-20 h-full">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Moodle Bot Live Deployment</h2>
+                    <p class="text-slate-500 text-sm">Automate physical Selenium environment provisioning natively.</p>
+                </div>
+                
+                <div class="glass-panel p-8 bg-white border-l-4 border-amber-500 shadow-sm relative overflow-hidden">
+                    <h3 class="text-xl font-black text-gray-800 mb-2 mt-2">Generate Python Bot Directives (CSV)</h3>
+                    <p class="text-sm text-gray-600 mb-6">The built-in Python framework active locally (`Moodle_Super_Bot.py`) utilizes automated pipeline instructions. Clicking the export below automatically translates your current visual schedule into rigid raw Selenium logic.</p>
+                    
+                    <button @click="exportBotTasksCSV" class="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition">
+                        Compile moodle_bot_tasks.csv
+                    </button>
+                    
+                    <div class="mt-8 space-y-3 text-xs font-bold text-gray-500 bg-slate-50 p-5 border rounded-lg shadow-inner">
+                        <div class="text-amber-600 uppercase tracking-widest text-[10px] mb-3 border-b border-amber-200 pb-2">Bot Pipeline Active Protocols (V1 Stack)</div>
+                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">1</span> Category mapping & Cloud Directory hierarchies.</p>
+                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">2</span> Dynamic Course structural builds via Subject mapping.</p>
+                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">3</span> Search bypass Enrolment for Faculty accounts (Editing Teacher flags).</p>
+                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">4</span> Raw Date/Time timestamp injections bypassing native interfaces.</p>
+                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">5</span> Isolated physical Subnet lockdown configurations applied globally.</p>
+                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">6</span> Verification parsing detecting empty banks safely before execution.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- STUB TABS -->
-            <div v-show="['checker', 'live'].includes(activeTab)" class="flex-1 flex items-center justify-center h-[60vh] glass-panel bg-white">
+            <div v-show="['checker'].includes(activeTab)" class="flex-1 flex items-center justify-center h-[60vh] glass-panel bg-white">
                 <div class="text-center">
                     <h3 class="text-2xl font-bold text-gray-700 capitalize">Module Integration: {{ activeTab }}</h3>
                 </div>
@@ -1040,6 +1067,52 @@ createApp({
             
             XLSX.utils.book_append_sheet(wb, ws, 'Claim Remuneration Docs');
             XLSX.writeFile(wb, `Claim_Form_${this.claimForm.name.replace(/ /g,'_')}.xlsx`);
+        },
+        
+        exportBotTasksCSV() {
+            if(!this.allocatedStudents.length) { alert("Generate timetable layout first!"); return; }
+            let csvRows = [
+                ['Year_Category', 'Course_Shortname', 'Course_Name', 'Faculty_Email', 'Quiz_Start', 'Quiz_End', 'Subnet_IP']
+            ];
+            
+            let classGroups = this.groupedByClass;
+            Object.keys(classGroups).forEach(cName => {
+                let sGroup = classGroups[cName];
+                let firstRecord = sGroup[0];
+                 
+                let timeStrings = firstRecord.Timing.split(' to '); // e.g. "08:30 AM to 09:30 AM"
+                // Construct pseudo SQL timestamps for python Bot tracking if needed cleanly
+                let startStr = `${firstRecord.Date} ${timeStrings[0]}`;
+                let endStr = `${firstRecord.Date} ${timeStrings[1] || 'END'}`;
+                
+                let catGuess = 'Unknown';
+                let rawMatch = this.rawExtractedClasses.find(rc => rc.name === cName);
+                if(rawMatch) catGuess = rawMatch.computedLevel;
+                
+                csvRows.push([
+                    catGuess,
+                    cName,
+                    cName,
+                    'faculty@example.sjctni.edu',
+                    startStr,
+                    endStr,
+                    '192.168.1.0/24'
+                ]);
+            });
+            
+            // Build CSV Native format avoiding lib collisions inherently
+            let csvContent = csvRows.map(e => e.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(",")).join("\n");
+            
+            let bom = new Uint8Array([0xEF, 0xBB, 0xBF]); // UTF-8 BOM
+            let blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+            let url = URL.createObjectURL(blob);
+            
+            let link = document.createElement("a");
+            link.href = url;
+            link.download = "moodle_bot_tasks.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     }
 }).mount('#app');
