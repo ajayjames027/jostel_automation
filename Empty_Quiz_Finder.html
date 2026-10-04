@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JosTEL - Missing Question Paper Finder</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        primary: '#1e3a8a',
+                        secondary: '#3b82f6',
+                        bglight: '#f1f5f9',
+                        danger: '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f1f5f9; color: #1e293b; }
+        .glass-panel {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+        input[type="text"], input[type="password"] {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            outline: none;
+            width: 100%;
+        }
+        input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+        
+        table { border-collapse: collapse; width: 100%; border-radius: 8px; overflow: hidden; }
+        th { background-color: #1e3a8a; color: white; font-weight: 600; text-align: left; padding: 12px; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="p-4 md:p-8 relative">
+
+<div id="app" class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-primary tracking-tight">JosTEL Missing QP Finder</h1>
+        <p class="text-gray-600 mt-2">Identify quizzes where faculty have not uploaded question papers.</p>
+    </div>
+
+    <!-- Connection Setup -->
+    <div v-if="!isConnected" class="glass-panel p-6 max-w-xl mx-auto border-t-4 border-t-primary">
+        <h2 class="text-xl font-semibold mb-4 text-center">Connect to Moodle</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold mb-1">Moodle Base URL</label>
+                <input v-model="moodleUrl" type="text" placeholder="https://service.sjctni.edu/jostel/moodle">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">API Token</label>
+                <input v-model="apiToken" type="password" placeholder="Moodle Token">
+            </div>
+            <button @click="connect" :disabled="isLoading" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50">
+                {{ isLoading ? 'Connecting...' : 'Connect & Scan Quizzes' }}
+            </button>
+            <p v-if="status" class="text-sm text-center text-red-500 mt-2">{{ status }}</p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div v-if="isConnected" class="space-y-6">
+        
+        <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Scan Results</h2>
+                <p class="text-sm text-gray-500">Found {{ quizzes.length }} total quizzes across all courses.</p>
+            </div>
+            <div class="flex gap-4">
+                <button @click="rescan" :disabled="isLoading" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded shadow-sm font-semibold text-sm transition-colors disabled:opacity-50">
+                    {{ isLoading ? 'Scanning...' : 'Rescan All' }}
+                </button>
+                <button @click="exportCSV" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow-sm font-semibold text-sm transition-colors disabled:opacity-50" :disabled="emptyQuizzes.length === 0">
+                    Export Empty Quizzes
+                </button>
+            </div>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass-panel p-4 text-center border-l-4 border-l-blue-500">
+                <p class="text-xs text-gray-500 font-bold uppercase">Total Quizzes Scanned</p>
+                <p class="text-3xl font-bold text-primary mt-2">{{ quizzes.length }}</p>
+            </div>
+            <div class="glass-panel p-4 text-center border-l-4 border-l-green-500">
+                <p class="text-xs text-gray-500 font-bold uppercase">Quizzes With Questions</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">{{ quizzes.length - emptyQuizzes.length }}</p>
+            </div>
+            <div class="glass-panel p-4 text-center border-l-4 border-l-red-500">
+                <p class="text-xs text-gray-500 font-bold uppercase">Empty Quizzes (No QP)</p>
+                <p class="text-3xl font-bold text-red-500 mt-2">{{ emptyQuizzes.length }}</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex gap-4 mb-4">
+            <input v-model="searchQuery" type="text" placeholder="Search by course or quiz name..." class="flex-1">
+        </div>
+
+        <p v-if="status && isLoading" class="text-center text-blue-600 font-medium my-4">{{ status }}</p>
+
+        <!-- Main Table -->
+        <div class="glass-panel overflow-x-auto shadow-sm">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Quiz Name</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Details</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody v-if="filteredEmptyQuizzes.length > 0">
+                    <tr v-for="q in filteredEmptyQuizzes" :key="q.id">
+                        <td class="font-medium text-gray-800">
+                            <div>{{ getCourseName(q.course) }}</div>
+                            <div class="text-xs text-gray-400">Course ID: {{ q.course }}</div>
+                        </td>
+                        <td>
+                            <div class="font-semibold">{{ q.name }}</div>
+                            <div class="text-xs text-gray-500" v-if="q.timeclose">Closes: {{ formatDate(q.timeclose) }}</div>
+                        </td>
+                        <td class="text-center">
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide">
+                                NO QUESTIONS
+                            </span>
+                        </td>
+                        <td class="text-center text-sm text-gray-600">
+                            <div v-if="q.sumgrades !== undefined">Total Grades: {{ q.sumgrades }}</div>
+                            <div v-if="q.hasquestions !== undefined">Has Questions: {{ q.hasquestions == 1 ? 'Yes' : 'No' }}</div>
+                        </td>
+                        <td class="text-right">
+                            <a :href="`${moodleUrl}/mod/quiz/view.php?id=${q.coursemodule}`" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-semibold underline">
+                                View in Moodle
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody v-else-if="!isLoading">
+                    <tr>
+                        <td colspan="5" class="text-center py-12 text-gray-400 font-medium">
+                            <div v-if="emptyQuizzes.length === 0" class="text-green-500 text-lg mb-2">🎉 All quizzes have questions uploaded!</div>
+                            <div v-else>No empty quizzes match your search.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            apiToken: '20346d2c25c71285ffc0f147a3f9eab8',
+            moodleUrl: 'https://service.sjctni.edu/jostel/moodle',
+            isConnected: false,
+            isLoading: false,
+            status: '',
+            
+            courses: [],
+            quizzes: [],
+            searchQuery: ''
+        }
+    },
+    computed: {
+        apiUrl() {
+            return `${this.moodleUrl.replace(/\/$/, "")}/webservice/rest/server.php`;
+        },
+        emptyQuizzes() {
+            return this.quizzes.filter(q => {
+                // Rule 1: 'hasquestions' flag (most reliable if present)
+                if (q.hasquestions !== undefined) {
+                    return q.hasquestions == 0;
+                }
+                // Rule 2: 'sumgrades' is 0 or null (often means no questions added yet)
+                if (q.sumgrades !== undefined) {
+                    return parseFloat(q.sumgrades) === 0 || q.sumgrades === null;
+                }
+                return false; // Fallback
+            });
+        },
+        filteredEmptyQuizzes() {
+            if (!this.searchQuery) return this.emptyQuizzes;
+            const term = this.searchQuery.toLowerCase();
+            return this.emptyQuizzes.filter(q => {
+                const cname = this.getCourseName(q.course).toLowerCase();
+                return q.name.toLowerCase().includes(term) || cname.includes(term);
+            });
+        }
+    },
+    methods: {
+        async request(fn, params="") {
+            const url = `${this.apiUrl}?wstoken=${this.apiToken}&wsfunction=${fn}&moodlewsrestformat=json${params}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.exception) throw new Error(data.message);
+            return data;
+        },
+        async connect() {
+            if (!this.apiToken || !this.moodleUrl) {
+                this.status = 'Fields required'; return;
+            }
+            this.isConnected = true;
+            await this.rescan();
+        },
+        async rescan() {
+            this.isLoading = true;
+            this.status = 'Scanning courses and quizzes...';
+            this.quizzes = [];
+            
+            try {
+                // Fetch Courses
+                try {
+                    const crs = await this.request('core_course_get_courses');
+                    this.courses = Array.isArray(crs) ? crs : []; 
+                } catch(e) { this.courses = []; }
+                
+                // Fetch all visible Quizzes
+                const qzs = await this.request('mod_quiz_get_quizzes_by_courses');
+                if (qzs && qzs.quizzes) {
+                    this.quizzes = qzs.quizzes;
+                }
+
+                this.status = '';
+            } catch (error) {
+                this.status = `Connection failed: ${error.message}`;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+        getCourseName(courseId) {
+            const c = this.courses.find(c => c.id == courseId);
+            return c ? c.fullname : `Course ID: ${courseId}`;
+        },
+        formatDate(timestamp) {
+            if (!timestamp) return 'No close date';
+            const d = new Date(timestamp * 1000);
+            return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        },
+        exportCSV() {
+            let csv = "Course Name,Course ID,Quiz Name,Quiz ID,Total Grades,Has Questions,Close Date\n";
+            this.filteredEmptyQuizzes.forEach(q => {
+                const cname = this.getCourseName(q.course).replace(/"/g, '""');
+                const qname = q.name.replace(/"/g, '""');
+                const closedate = q.timeclose ? this.formatDate(q.timeclose) : 'None';
+                csv += `"${cname}",${q.course},"${qname}",${q.id},${q.sumgrades || 0},${q.hasquestions !== undefined ? q.hasquestions : 'Unknown'},"${closedate}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Missing_Question_Papers.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
