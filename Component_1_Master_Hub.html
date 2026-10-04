@@ -625,7 +625,7 @@ createApp({
                 if (data.length === 0) return;
                 
                 let classCol = Object.keys(data[0]).find(k => /class|course|program/i.test(k)) || Object.keys(data[0])[2];
-                let regCol = Object.keys(data[0]).find(k => /reg|register/i.test(k)) || Object.keys(data[0])[0];
+                let regCol = Object.keys(data[0]).find(k => /reg|register|roll/i.test(k)) || Object.keys(data[0])[0];
                 
                 let pool = {};
                 data.forEach(s => { 
