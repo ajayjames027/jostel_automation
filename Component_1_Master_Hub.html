@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -563,7 +565,7 @@
                             <span>{{ uniqueSessions.length * customLabs.filter(l=>l.active).length }} Sheet Combinations</span>
                         </div>
                         <button @click="exportAttendanceSheets" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
-                            Download Attendance Pack (.xlsx)
+                            Download Attendance Pack (.pdf)
                         </button>
                     </div>
 
@@ -954,8 +956,11 @@ createApp({
         
         exportAttendanceSheets() {
             if(this.allocatedStudents.length === 0) return;
-            const wb = XLSX.utils.book_new();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
             let grouped = this.groupedBySchedule;
+            let isFirstPage = true;
             
             Object.keys(grouped).forEach(sessionKey => {
                 let sessionStudents = grouped[sessionKey];
@@ -969,37 +974,48 @@ createApp({
                     let students = labGroups[labName];
                     if(students.length === 0) return;
                     
-                    let sheetData = [
-                        ['EXAM ATTENDANCE SHEET', '', '', '', '', ''],
-                        ['Session:', sessionKey, '', 'Lab Room:', labName, ''],
-                        ['', '', '', '', '', ''],
-                        ['S.No', 'Register Number', 'Student Name', 'Class / Course', 'PC Number', 'Student Signature']
-                    ];
+                    if(!isFirstPage) {
+                        doc.addPage();
+                    }
+                    isFirstPage = false;
                     
-                    students.forEach((s, i) => {
-                        sheetData.push([
-                            i + 1,
-                            s['Reg No'],
-                            s['Name'],
-                            s['Class'],
-                            'PC - ' + s['Seat Number'],
-                            '' 
-                        ]);
+                    doc.setFontSize(16);
+                    doc.setFont("helvetica", "bold");
+                    doc.text("EXAM ATTENDANCE SHEET", 105, 20, { align: "center" });
+                    
+                    doc.setFontSize(11);
+                    doc.text(`SESSION: ${sessionKey}`, 14, 30);
+                    doc.text(`LAB ROOM: ${labName}`, 140, 30);
+                    
+                    let tableData = students.map((s, i) => [
+                        i + 1,
+                        s['Reg No'],
+                        s['Name'],
+                        s['Class'],
+                        'PC - ' + s['Seat Number'],
+                        '' 
+                    ]);
+                    
+                    doc.autoTable({
+                        startY: 35,
+                        head: [['S.No', 'Register Number', 'Student Name', 'Class / Course', 'PC Number', 'Student Signature']],
+                        body: tableData,
+                        theme: 'grid',
+                        headStyles: { fillColor: [30, 58, 138] }, // Matches primary blue
+                        columnStyles: {
+                            0: { cellWidth: 12 },
+                            1: { cellWidth: 35 },
+                            2: { cellWidth: 'auto' }, 
+                            3: { cellWidth: 35 },
+                            4: { cellWidth: 25 },
+                            5: { cellWidth: 35 } // signature box needs space
+                        },
+                        styles: { fontSize: 9, cellPadding: 4, valign: 'middle' }
                     });
-                    
-                    let ws = XLSX.utils.aoa_to_sheet(sheetData);
-                    ws['!cols'] = [{wch: 6}, {wch: 18}, {wch: 35}, {wch: 25}, {wch: 15}, {wch: 25}];
-                    
-                    // Create safe tab name avoiding colon/slashes and length constraints
-                    let safeSess = sessionKey.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '');
-                    let safeLab = labName.replace(/[^a-zA-Z0-9]/g, '');
-                    let tabName = `${safeSess}_${safeLab}`.substring(0, 31);
-                    
-                    XLSX.utils.book_append_sheet(wb, ws, tabName);
                 });
             });
             
-            XLSX.writeFile(wb, `Mass_Attendance_Pack.xlsx`);
+            doc.save("Mass_Attendance_Pack.pdf");
         },
 
         exportClaimForm() {
