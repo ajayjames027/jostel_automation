@@ -480,7 +480,7 @@
                     <h3 class="text-lg font-bold text-slate-700">Upload Component Roster to Begin</h3>
                     <p class="text-sm mt-1 mb-4 text-center">Supports .xlsx containing Class, Name, and Reg No.</p>
                     <button class="btn-primary">Browse Master Roster</button>
-                    <input type="file" ref="mainUpload" @change="parseUpload" class="hidden" accept=".xlsx,.xls,.csv">
+                    <input type="file" ref="mainUpload" @change="parseUpload" class="hidden" accept=".xlsx,.xls,.csv" multiple>
                 </div>
             </div>
 
@@ -698,65 +698,76 @@ createApp({
         },
 
         parseUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const files = event.target.files;
+            if (files.length === 0) return;
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
-                if (data.length === 0) return;
-                
-                let classCol = Object.keys(data[0]).find(k => /class|course|program/i.test(k)) || Object.keys(data[0])[2];
-                let regCol = Object.keys(data[0]).find(k => /reg|register|roll/i.test(k)) || Object.keys(data[0])[0];
-                
-                let pool = {};
-                data.forEach(s => { 
-                    let cStr = String(s[classCol]||'U').trim(); 
-                    if(!pool[cStr]) pool[cStr] = []; 
-                    let stu = {...s, _classColRef: classCol, _regColRef: regCol};
-                    pool[cStr].push(stu); 
+            let combinedData = [];
+            let filesRead = 0;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const data = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+                    
+                    combinedData = combinedData.concat(data);
+                    filesRead++;
+                    
+                    if (filesRead === files.length) {
+                        this.processCombinedUpload(combinedData);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        },
+        
+        processCombinedUpload(data) {
+            if (data.length === 0) return;
+            
+            let classCol = Object.keys(data[0]).find(k => /class|course|program/i.test(k)) || Object.keys(data[0])[2];
+            let regCol = Object.keys(data[0]).find(k => /reg|register|roll/i.test(k)) || Object.keys(data[0])[0];
+            
+            let pool = {};
+            data.forEach(s => { 
+                let cStr = String(s[classCol]||'U').trim(); 
+                if(!pool[cStr]) pool[cStr] = []; 
+                let stu = {...s, _classColRef: classCol, _regColRef: regCol};
+                pool[cStr].push(stu); 
+            });
+            
+            this.rawExtractedClasses = Object.keys(pool).map(k => {
+                let academicLevelStr = 'Mixed/Unknown Level';
+                let validStudent = pool[k].find(st => {
+                    let reg = String(st[st._regColRef]||'').toUpperCase();
+                    return reg && !reg.includes('NA');
                 });
                 
-                this.rawExtractedClasses = Object.keys(pool).map(k => {
-                    let academicLevelStr = 'Mixed/Unknown Level';
-                    // Deep inspection algorithm to determine Academic Level
-                    // Finding the first non-"NA" reg number!
-                    let validStudent = pool[k].find(st => {
-                        let reg = String(st[st._regColRef]||'').toUpperCase();
-                        return reg && !reg.includes('NA');
-                    });
-                    
-                    if (validStudent) {
-                        let rStr = String(validStudent[validStudent._regColRef]).toUpperCase();
-                        // Expected: "26U1234", "25P432", etc.
-                        let yearMatch = rStr.match(/^(\d{2})([UP])/);
-                        if (yearMatch) {
-                            let prefixYear = parseInt(yearMatch[1], 10);
-                            let degType = yearMatch[2] === 'U' ? 'UG' : 'PG';
-                            // Logic: (2026 - (2000+26)) + 1 = 1st year!
-                            let levelNum = (this.settings.academicStartYear - (2000 + prefixYear)) + 1;
-                            
-                            const romanMap = {1: 'I', 2:'II', 3:'III', 4:'IV', 5:'V'};
-                            let rmn = romanMap[levelNum] || levelNum;
-                            academicLevelStr = `${rmn} ${degType}`;
-                        }
+                if (validStudent) {
+                    let rStr = String(validStudent[validStudent._regColRef]).toUpperCase();
+                    let yearMatch = rStr.match(/^(\d{2})([UP])/);
+                    if (yearMatch) {
+                        let prefixYear = parseInt(yearMatch[1], 10);
+                        let degType = yearMatch[2] === 'U' ? 'UG' : 'PG';
+                        let levelNum = (this.settings.academicStartYear - (2000 + prefixYear)) + 1;
+                        const romanMap = {1: 'I', 2:'II', 3:'III', 4:'IV', 5:'V'};
+                        let rmn = romanMap[levelNum] || levelNum;
+                        academicLevelStr = `${rmn} ${degType}`;
                     }
+                }
 
-                    return {
-                        name: k, 
-                        students: pool[k],
-                        shift: 'Any',
-                        blockedDate: '',
-                        computedLevel: academicLevelStr
-                    }
-                }).sort((a,b) => b.students.length - a.students.length);
-                
-                this.rosterStats.students = data.length;
-                this.rosterStats.classes = this.rawExtractedClasses.length;
-                this.validationErrors = [{type: 'info', msg: 'Roster mapped via Registry Analysis ('+this.settings.academicStartYear+'). Configure Shifts carefully before generating.'}];
-            };
-            reader.readAsArrayBuffer(file);
+                return {
+                    name: k, 
+                    students: pool[k],
+                    shift: 'Any',
+                    blockedDate: '',
+                    computedLevel: academicLevelStr
+                }
+            }).sort((a,b) => b.students.length - a.students.length);
+            
+            this.rosterStats.students = data.length;
+            this.rosterStats.classes = this.rawExtractedClasses.length;
+            this.validationErrors = [{type: 'info', msg: `Multi-file batch processed (${data.length} students across ${this.rawExtractedClasses.length} distinct classes).`}];
         },
         
         parseTime(t) { if(!t) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; },
