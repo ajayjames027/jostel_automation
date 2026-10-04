@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Orchestrator Master Hub</title>
-    <!-- Tailwind CSS -->
+    <title>Exam Automation Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Vue.js & SheetJS -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -27,49 +25,21 @@
     </script>
     <style>
         body { background-color: #f1f5f9; color: #1e293b; }
-        .glass-panel {
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            border-radius: 12px;
-        }
-        .btn-primary {
-            background-color: #1e3a8a;
-            color: white;
-            font-weight: 600;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
+        .glass-panel { background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-radius: 12px; }
+        .btn-primary { background-color: #1e3a8a; color: white; font-weight: 600; border-radius: 6px; transition: all 0.2s; }
         .btn-primary:hover:not(:disabled) { background-color: #1e40af; }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        .sidebar-btn {
-            text-align: left;
-            padding: 12px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: background 0.2s, color 0.2s;
-            font-weight: 600;
-            color: #475569;
-        }
+        .sidebar-btn { text-align: left; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; transition: background 0.2s, color 0.2s; font-weight: 600; color: #475569; }
         .sidebar-btn:hover { background-color: #e2e8f0; }
         .sidebar-btn.active { background-color: #1e3a8a; color: white; }
         
-        table { border-collapse: collapse; width: 100%; font-size: 0.875rem;}
-        th { background-color: #f8fafc; color: #475569; font-weight: 600; text-align: left; padding: 12px; border-bottom: 2px solid #cbd5e1;}
-        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        table { border-collapse: collapse; width: 100%; font-size: 0.85rem;}
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; text-align: left; padding: 10px; border-bottom: 2px solid #cbd5e1;}
+        td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
         tr:hover { background-color: #f1f5f9; }
         
-        .futuristic-input {
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            padding: 6px 10px;
-            outline: none;
-            width: 100%;
-            font-size: 0.875rem;
-        }
+        .futuristic-input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; outline: none; width: 100%; font-size: 0.875rem; }
         .futuristic-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
     </style>
 </head>
@@ -78,9 +48,8 @@
 <div id="app" class="max-w-7xl mx-auto space-y-6">
 
     <!-- Header -->
-    <div class="text-center mb-8">
-        <img src="./jostel_logo.png" alt="Logo" class="h-16 mx-auto mb-3" onerror="this.style.display='none'">
-        <h1 class="text-3xl font-bold text-primary tracking-tight">EXAM ORCHESTRATOR HUB</h1>
+    <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-primary tracking-tight uppercase">Exam Automation Hub</h1>
         <p class="text-gray-500 font-medium tracking-wide mt-1">Component I Protocol</p>
     </div>
 
@@ -88,21 +57,21 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         
         <!-- Sidebar Menu  -->
-        <div class="glass-panel p-4 md:col-span-1 space-y-2 self-start h-[calc(100vh-200px)] overflow-y-auto hidden md:block">
+        <div class="glass-panel p-4 md:col-span-1 space-y-2 self-start h-[calc(100vh-160px)] overflow-y-auto hidden md:block">
             <h3 class="font-bold text-sm text-gray-400 uppercase tracking-wider mb-4 px-2">Workflows</h3>
             
             <button v-for="(step, i) in steps" :key="i" @click="currentStep = i" 
                     class="sidebar-btn w-full" :class="{ 'active': currentStep === i }">
-                <span class="text-sm border-2 rounded-full w-6 h-6 flex items-center justify-center font-bold" 
+                <span class="text-sm border-2 rounded-full min-w-[24px] h-6 flex items-center justify-center font-bold" 
                       :class="currentStep === i ? 'border-blue-300' : 'border-gray-300 text-gray-500'">{{ i+1 }}</span>
                 <div>
-                    <div class="text-sm">{{ step.title }}</div>
+                    <div class="text-sm leading-tight">{{ step.title }}</div>
                 </div>
             </button>
         </div>
 
         <!-- Main Workspace -->
-        <div class="md:col-span-3 h-[calc(100vh-200px)] overflow-y-auto glass-panel p-6 flex flex-col">
+        <div class="md:col-span-3 h-[calc(100vh-160px)] overflow-y-auto glass-panel p-6 flex flex-col">
             
             <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ steps[currentStep].title }}</h2>
             <p class="text-gray-500 text-sm mb-6 border-b pb-4">{{ steps[currentStep].desc }}</p>
@@ -110,95 +79,111 @@
             <!-- STEP 1: Seating Alogrithm -->
             <div v-if="currentStep === 0" class="flex-1 flex flex-col space-y-6">
                 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     
                     <!-- Config Box: Realistic Timetable Conditions -->
-                    <div class="lg:col-span-2 bg-gray-50 border border-gray-200 p-5 rounded-lg space-y-4">
-                        <h4 class="font-bold text-primary mb-1 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Realistic Timetable Constraints
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg space-y-3 shadow-sm">
+                        <h4 class="font-bold text-primary mb-1 flex items-center justify-between">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Pre-Creation Conditions
+                            </span>
                         </h4>
                         
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Exam Start Date</label>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Start Date</label>
                                 <input v-model="settings.startDate" type="date" class="futuristic-input">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Daily Start Limit</label>
-                                <input v-model="settings.dailyStart" type="time" class="futuristic-input" step="900">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Daily End Limit</label>
-                                <input v-model="settings.dailyEnd" type="time" class="futuristic-input" step="900">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Session Length (mins)</label>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Session Duration (mins)</label>
                                 <input v-model.number="settings.sessionLen" type="number" class="futuristic-input" placeholder="60">
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Break Gap (mins)</label>
-                                <input v-model.number="settings.gapLen" type="number" class="futuristic-input" placeholder="15">
+                            
+                            <!-- Shift 1 Config -->
+                            <div class="bg-blue-50/50 p-2 rounded border border-blue-100">
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-1">Shift 1 Bounds</label>
+                                <div class="flex gap-2">
+                                    <input v-model="settings.s1Start" type="time" class="futuristic-input text-xs" title="Start">
+                                    <input v-model="settings.s1End" type="time" class="futuristic-input text-xs" title="End">
+                                </div>
                             </div>
-                            <div class="flex items-end">
-                                <label class="flex items-center gap-2 cursor-pointer pt-2">
-                                    <input v-model="settings.skipWeekends" type="checkbox" class="w-4 h-4 text-primary">
-                                    <span class="text-xs font-bold text-gray-600">Skip Weekends</span>
-                                </label>
+                            
+                            <!-- Shift 2 Config -->
+                            <div class="bg-purple-50/50 p-2 rounded border border-purple-100">
+                                <label class="block text-[10px] font-bold text-purple-700 uppercase mb-1">Shift 2 Bounds</label>
+                                <div class="flex gap-2">
+                                    <input v-model="settings.s2Start" type="time" class="futuristic-input text-xs" title="Start">
+                                    <input v-model="settings.s2End" type="time" class="futuristic-input text-xs" title="End">
+                                </div>
                             </div>
+                        </div>
+
+                        <div class="flex items-center gap-4 mt-2 bg-yellow-50 border border-yellow-200 p-2 rounded">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input v-model="settings.strictTwoClassMode" type="checkbox" class="w-4 h-4 text-primary">
+                                <span class="text-xs font-bold text-yellow-800">Mix Max 2 Classes Per Lab</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input v-model="settings.skipWeekends" type="checkbox" class="w-4 h-4 text-primary">
+                                <span class="text-xs font-bold text-gray-700">Skip Weekends</span>
+                            </label>
                         </div>
                     </div>
 
                     <!-- Lab Details Box -->
-                    <div class="col-span-1 bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                        <h4 class="font-bold text-gray-700 mb-3 text-sm flex justify-between border-b border-blue-200 pb-2">
-                            <span>Lab Capacities</span> 
-                            <span class="text-secondary">{{ totalCapacity }} seats</span>
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg shadow-sm flex flex-col">
+                        <h4 class="font-bold text-gray-800 mb-2 text-sm flex justify-between border-b border-blue-200 pb-2">
+                            <span>Dynamic Lab Capacities</span> 
+                            <span class="text-secondary bg-blue-100 px-2 py-0.5 rounded">{{ activeCapacity }} seats total</span>
                         </h4>
-                        <div class="space-y-1 text-xs overflow-y-auto max-h-[120px] pr-2">
-                            <div v-for="lab in labs" class="flex justify-between py-1 border-b border-blue-100 last:border-0">
-                                <span class="font-medium text-gray-600">{{ lab.name }}</span>
-                                <span class="font-bold text-primary">{{ lab.cap }}</span>
+                        <div class="space-y-1 text-xs overflow-y-auto flex-1 pr-2 mt-1">
+                            <div v-for="(lab, idx) in labs" :key="idx" class="flex items-center justify-between py-1 border-b border-blue-100 last:border-0 hover:bg-blue-100/50 rounded px-1">
+                                <label class="flex items-center gap-2 cursor-pointer flex-1">
+                                    <input type="checkbox" v-model="lab.active" class="w-3 h-3 text-secondary">
+                                    <span class="font-medium" :class="lab.active ? 'text-gray-700' : 'text-gray-400 line-through'">{{ lab.name }}</span>
+                                </label>
+                                <input type="number" v-model.number="lab.cap" :disabled="!lab.active" class="futuristic-input w-16 text-center py-0.5" title="Capacity">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Upload Section -->
-                <div class="bg-white border-2 border-dashed border-gray-300 p-8 rounded-lg flex flex-col justify-center items-center text-center hover:border-blue-500 transition-colors cursor-pointer"
+                <div class="bg-white border-2 border-dashed border-gray-300 p-6 rounded-lg flex flex-col justify-center items-center text-center hover:border-blue-500 transition-colors cursor-pointer"
                      @click="$refs.fileInput.click()">
-                    <svg class="w-10 h-10 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    <h4 class="font-bold text-primary mb-2 text-lg">Execute Scatter Algorithm</h4>
-                    <p class="text-sm text-gray-500 mb-4 max-w-md">Upload the master student list. The AI will distribute all students utilizing specific lab capacities, strictly adhering to your exact timing constraints & preventing adjacent classmates.</p>
+                    <svg class="w-8 h-8 text-secondary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <h4 class="font-bold text-primary mb-1">Execute Scatter Algorithm</h4>
+                    <p class="text-xs text-gray-500 mb-3 max-w-sm">Upload master student list (XLSX). Adheres strictly to the conditions set above to allocate specific physical seats.</p>
                     
                     <input type="file" ref="fileInput" @change="handleFileUpload" class="hidden" accept=".xlsx, .xls, .csv">
-                    <button class="btn-primary px-8 py-3 shadow-md">BROWSE MASTER LEDGER (XLSX)</button>
+                    <button class="btn-primary px-6 py-2 shadow-md text-sm">UPLOAD MASTER LEDGER</button>
                 </div>
 
                 <!-- Processing Feedback & Download -->
-                <div v-if="isProcessing" class="p-8 text-center text-primary font-bold animate-pulse">
-                    Calculating realistic timestamps... Enforcing lab constraints...
+                <div v-if="isProcessing" class="py-4 text-center text-primary font-bold animate-pulse text-sm">
+                    Processing 2-Class Mix Constraints... Scheduling Shifts...
                 </div>
 
-                <div v-if="allocatedStudents.length > 0" class="flex-1 flex flex-col mt-4">
-                    <div class="flex justify-between items-end mb-3">
+                <div v-if="allocatedStudents.length > 0" class="flex-1 flex flex-col mt-2">
+                    <div class="flex justify-between items-end mb-2">
                         <div>
-                            <h4 class="font-bold text-gray-800 text-lg">Allocation Master Roster</h4>
-                            <p class="text-sm text-gray-500">Processed {{ allocatedStudents.length }} students into realistic exam timings.</p>
+                            <h4 class="font-bold text-gray-800 text-sm">Allocation Master Roster</h4>
+                            <p class="text-xs text-gray-500">Processed {{ allocatedStudents.length }} students into realistic exam timings.</p>
                         </div>
-                        <button @click="downloadAllocation" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2 rounded transition-colors shadow">
-                            DOWNLOAD FINAL EXCEL
+                        <button @click="downloadAllocation" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-1.5 text-sm rounded transition-colors shadow">
+                            DOWNLOAD EXCEL
                         </button>
                     </div>
 
-                    <div class="overflow-y-auto border border-gray-200 rounded-lg flex-1 min-h-[300px]">
+                    <div class="overflow-y-auto border border-gray-200 rounded flex-1 max-h-[300px]">
                         <table>
-                            <thead class="sticky top-0 bg-gray-50 shadow-sm z-10">
+                            <thead class="sticky top-0 bg-gray-100 shadow-sm z-10 text-xs">
                                 <tr>
                                     <th>Reg No</th>
                                     <th>Name</th>
                                     <th>Class</th>
-                                    <th>Exam Date</th>
+                                    <th>Date</th>
                                     <th>Session Timing</th>
                                     <th>Lab Room</th>
                                     <th class="text-center">Seat</th>
@@ -206,18 +191,18 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(row, idx) in allocatedStudents.slice(0, 50)" :key="idx">
-                                    <td class="font-medium font-mono text-xs">{{ row['Reg No'] || row.reg || row[0] || 'N/A' }}</td>
+                                    <td class="font-medium font-mono text-[11px]">{{ row['Reg No'] || row.reg || row[0] || 'N/A' }}</td>
                                     <td class="font-medium text-gray-800">{{ row['Name'] || row.name || row[1] || 'N/A' }}</td>
-                                    <td class="text-secondary font-semibold text-xs">{{ row['Class'] || row['Course Code'] || row.class || 'N/A' }}</td>
-                                    <td class="font-bold text-blue-900 bg-blue-50/50">{{ row['Date'] }}</td>
-                                    <td class="font-bold text-purple-700 bg-purple-50/50">{{ row['Timing'] }}</td>
-                                    <td class="font-bold text-gray-700 uppercase">{{ row['Lab Room'] }}</td>
+                                    <td class="text-secondary font-semibold text-[11px]">{{ row['Class'] || row['Course Code'] || row.class || 'N/A' }}</td>
+                                    <td class="font-bold text-gray-700 bg-gray-50 text-[11px]">{{ row['Date'] }}</td>
+                                    <td class="font-bold text-blue-800 bg-blue-50/50 text-[11px]">{{ row['Timing'] }}</td>
+                                    <td class="font-bold text-purple-800 text-[11px]">{{ row['Lab Room'] }}</td>
                                     <td class="font-black text-center text-primary">{{ row['Seat Number'] }}</td>
                                 </tr>
                             </tbody>
                         </table>
-                        <div v-if="allocatedStudents.length > 50" class="text-center py-4 bg-gray-50 text-xs text-gray-500 border-t font-semibold">
-                            Showing first 50 rows only. Download Excel for the full 7,500+ student matrix.
+                        <div v-if="allocatedStudents.length > 50" class="text-center py-2 bg-gray-50 text-[10px] text-gray-500 border-t font-semibold">
+                            Showing first 50 rows. Download Excel for full matrix.
                         </div>
                     </div>
                 </div>
@@ -225,12 +210,15 @@
             </div>
 
             <!-- OTHER DEMO STEPS -->
-            <div v-else class="flex-1 flex flex-col items-center justify-center text-center p-12 text-gray-500 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-                <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                <h3 class="text-xl font-bold text-gray-700">{{ steps[currentStep].title }} Endpoint</h3>
-                <p class="text-sm mt-3 max-w-md">This workflow integrates directly with your Python bots arrays on the backend to execute safely on the Moodle network.</p>
-                <button v-if="currentStep === 4" @click="window.open('Empty_Quiz_Finder.html', '_blank')" class="mt-6 btn-primary px-6 py-2 shadow border-blue-700 border">
-                    Open Dashboard Scanner
+            <div v-else class="flex-1 flex flex-col items-center justify-center text-center p-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                <h3 class="text-lg font-bold text-gray-700 mb-2">{{ steps[currentStep].title }} Module</h3>
+                <p class="text-sm mt-1 max-w-sm text-gray-500">
+                    <span class="font-semibold text-secondary">Note:</span> This web-interface acts as the central dashboard. Operations like Moodle Course Creation, Automation bots, and PDF compilation are executed via backend Python endpoints scripts linking to this UI.
+                </p>
+                
+                <button v-if="currentStep === 4" @click="window.open('Empty_Quiz_Finder.html', '_blank')" class="mt-6 bg-red-600 text-white font-bold px-6 py-2 rounded-lg shadow-md hover:bg-red-700 transition">
+                    Launch Real Empty Quiz Scanner
                 </button>
             </div>
 
@@ -248,39 +236,41 @@ createApp({
             isProcessing: false,
             allocatedStudents: [],
             
-            // Default Realistic Constraints
+            // Editable Timetable Constraints
             settings: {
                 startDate: new Date().toISOString().split('T')[0],
-                dailyStart: "08:30",
-                dailyEnd: "16:30",
+                s1Start: "08:30",
+                s1End: "13:20",
+                s2Start: "13:45",
+                s2End: "18:30",
                 sessionLen: 60,
-                gapLen: 15,
+                strictTwoClassMode: true,
                 skipWeekends: true
             },
             
             labs: [
-                { name: 'ECC Lab 1', cap: 60 },
-                { name: 'ECC Lab 2', cap: 45 },
-                { name: 'ECC Lab 3', cap: 50 },
-                { name: 'SCC Lab', cap: 60 },
-                { name: 'Math Lab', cap: 50 },
-                { name: 'JCICT Lab 1', cap: 60 },
-                { name: 'JCICT Lab 2', cap: 60 }
+                { name: 'ECC Lab 1', cap: 60, active: true },
+                { name: 'ECC Lab 2', cap: 45, active: true },
+                { name: 'ECC Lab 3', cap: 50, active: true },
+                { name: 'SCC Lab', cap: 60, active: true },
+                { name: 'Math Lab', cap: 50, active: true },
+                { name: 'JCICT Lab 1', cap: 60, active: true },
+                { name: 'JCICT Lab 2', cap: 60, active: true }
             ],
             steps: [
-                { title: 'Intelligent Seating Generator', desc: 'Distributes 7,500 students intelligently utilizing the Round-Robin array to avoid neighbor cheating, while respecting strict daily hour constraints and gap times between sessions.' },
-                { title: 'Moodle Hierarchy Orchestrator', desc: 'Bulk-controls Categories and clones blank Quiz template courses directly into the system.' },
-                { title: 'Staff Privilege Linker', desc: 'Enrolls professors and invigilators into their respective courses instantly.' },
-                { title: 'Security & Timing Automation', desc: 'Sets IP subnet blocks & executes python scripts to clamp Open/Close timings.' },
-                { title: 'Pre-Flight Readiness Check', desc: 'Utilizes the Empty Quiz Finder to verify every teacher attached the component documents.' },
-                { title: 'PDF Signature Attendance', desc: 'Generates print-ready PDFs mirroring the actual physical lab capacities exactly.' },
-                { title: 'Financial Claim Export', desc: 'Calculates workload matrices to generate final invigilator payroll Excel reports.' }
+                { title: 'Intelligent Seating Generator', desc: 'Configures daily dual-shifts and specific physical lab availabilities prior to generating the anti-adjacency placement matrix.' },
+                { title: 'Moodle Hierarchy Builder (Hook)', desc: 'Backend integration hook for auto-creating Categories and cloning template courses directly into the Moodle server.' },
+                { title: 'Staff Privilege Linker (Hook)', desc: 'Backend integration hook for assigning Invigilators to specific course modules in bulk.' },
+                { title: 'Security & Timing Automation (Hook)', desc: 'Backend integration hook to execute the Python Selenium script locking Open/Close constraints.' },
+                { title: 'Pre-Flight Readiness Check', desc: 'Verifies that all Moodle courses correctly contain their designated Component I exam files.' },
+                { title: 'PDF Signature Sheets (Hook)', desc: 'Backend integration hook to convert seating allocations into printable PDF lab manifests.' },
+                { title: 'Financial Claim Engine (Hook)', desc: 'Backend integration hook generating total assigned hour calculations per invigilator into Excel.' }
             ]
         }
     },
     computed: {
-        totalCapacity() {
-            return this.labs.reduce((sum, lab) => sum + lab.cap, 0);
+        activeCapacity() {
+            return this.labs.filter(l=>l.active).reduce((sum, lab) => sum + lab.cap, 0);
         }
     },
     methods: {
@@ -299,15 +289,21 @@ createApp({
                 const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: "" });
                 
                 setTimeout(() => {
-                    this.processAllocation(rawJson);
-                }, 500); // Visual processing feedback
+                    if (this.settings.strictTwoClassMode) {
+                        this.processTwoClassAllocation(rawJson);
+                    } else {
+                        // Fallback logic for basic round-robin could be here if toggled off
+                        this.processTwoClassAllocation(rawJson); 
+                    }
+                }, 400); 
             };
             reader.readAsArrayBuffer(file);
         },
         
         parseTime(timeStr) {
+            if(!timeStr) return 0;
             let [h, m] = timeStr.split(':').map(Number);
-            return h * 60 + m; // returns minutes since midnight
+            return h * 60 + m; 
         },
         
         formatTime(mins) {
@@ -319,7 +315,7 @@ createApp({
             return `${formattedH}:${formattedM} ${ampm}`;
         },
         
-        processAllocation(data) {
+        processTwoClassAllocation(data) {
             let classCol = null;
             if(data.length > 0) {
                 const keys = Object.keys(data[0]);
@@ -327,91 +323,128 @@ createApp({
                 if(!classCol) classCol = keys[2]; 
             }
 
-            // Scatter Grouping
-            const groups = {};
+            // Extract students into class groups
+            let classPool = {};
             data.forEach(student => {
                 const cName = String(student[classCol] || 'UnknownClass').trim();
-                if (!groups[cName]) groups[cName] = [];
-                groups[cName].push(student);
+                if (!classPool[cName]) classPool[cName] = [];
+                classPool[cName].push(student);
             });
 
-            // Sort & Round-Robin
-            let sortedClasses = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
-            const roundRobinList = [];
-            let stillPulling = true;
-            while (stillPulling) {
-                stillPulling = false;
-                for (let cName of sortedClasses) {
-                    if (groups[cName].length > 0) {
-                        roundRobinList.push(groups[cName].shift());
-                        stillPulling = true;
-                    }
-                }
+            // Convert to array of { name, students[] }
+            let availableClasses = Object.keys(classPool)
+                .map(className => ({ name: className, students: classPool[className] }))
+                .filter(c => c.students.length > 0);
+            
+            // Sort to ensure we parse largest classes first
+            availableClasses.sort((a,b) => b.students.length - a.students.length);
+
+            let allocated = [];
+            let activeLabsList = this.labs.filter(l => l.active);
+            if(activeLabsList.length === 0) {
+                alert("Please enable at least one Lab!");
+                this.isProcessing = false;
+                return;
             }
 
-            // Realistic Timetable Variables
-            let allocated = [];
-            let currentLabIdx = 0;
-            let currentSeatInLab = 1;
-
+            // Time Management Engine
             let currentDay = new Date(this.settings.startDate);
-            let startLimit = this.parseTime(this.settings.dailyStart);
-            let endLimit = this.parseTime(this.settings.dailyEnd);
-            let currentCursorMins = startLimit;
+            let s1Start = this.parseTime(this.settings.s1Start);
+            let s1End = this.parseTime(this.settings.s1End);
+            let s2Start = this.parseTime(this.settings.s2Start);
+            let s2End = this.parseTime(this.settings.s2End);
+            
+            let cursorMins = s1Start;
+            // Shift Context: 1 or 2
+            let activeShift = 1;
 
-            // Generate Slot timing helper
-            const getSessionTiming = () => {
-                let sessionStart = this.formatTime(currentCursorMins);
-                let sessionEnd = this.formatTime(currentCursorMins + this.settings.sessionLen);
-                return `${sessionStart} to ${sessionEnd}`;
-            };
-
-            const advanceTimeSlot = () => {
-                // If we move to next slot, add duration + gap
-                currentCursorMins += (this.settings.sessionLen + this.settings.gapLen);
+            const incrementSlotTime = () => {
+                cursorMins += this.settings.sessionLen + 10; // add session + 10m switch gap minimum
                 
-                // If the new slot EXCEEDS our daily end boundary, roll over to the next valid day
-                if (currentCursorMins + this.settings.sessionLen > endLimit) {
-                    currentDay.setDate(currentDay.getDate() + 1);
+                if (activeShift === 1 && (cursorMins + this.settings.sessionLen > s1End)) {
+                    // Out of Shift 1 time, jump to Shift 2
+                    cursorMins = s2Start;
+                    activeShift = 2;
+                }
+                
+                if (activeShift === 2 && (cursorMins + this.settings.sessionLen > s2End)) {
+                    // Out of Shift 2 time, jump to next day Shift 1
+                    cursorMins = s1Start;
+                    activeShift = 1;
                     
+                    currentDay.setDate(currentDay.getDate() + 1);
                     if (this.settings.skipWeekends) {
                         while (currentDay.getDay() === 0 || currentDay.getDay() === 6) {
                             currentDay.setDate(currentDay.getDate() + 1);
                         }
                     }
-                    currentCursorMins = startLimit;
                 }
             };
 
-            let currentTimingString = getSessionTiming();
-            let currentDateString = currentDay.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const getSessionTimingStr = () => {
+                return `${this.formatTime(cursorMins)} to ${this.formatTime(cursorMins + this.settings.sessionLen)}`;
+            };
 
-            roundRobinList.forEach(student => {
-                let enrichedStudent = { ...student };
-                
-                enrichedStudent['Date'] = currentDateString;
-                enrichedStudent['Timing'] = currentTimingString;
-                enrichedStudent['Lab Room'] = this.labs[currentLabIdx].name;
-                enrichedStudent['Seat Number'] = currentSeatInLab;
-                
-                allocated.push(enrichedStudent);
-                
-                currentSeatInLab++;
-                
-                // Lab is full, move horizontally across campus
-                if (currentSeatInLab > this.labs[currentLabIdx].cap) {
-                    currentSeatInLab = 1;
-                    currentLabIdx++;
+            // Main Fill Logic
+            while (availableClasses.length > 0) {
+                let sessionTiming = getSessionTimingStr();
+                let dateStr = currentDay.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                // Fill each available lab in the current slot
+                for (let lab of activeLabsList) {
+                    if (availableClasses.length === 0) break;
                     
-                    // All labs concurrently running are now full -> Advance Clock to Next Session!
-                    if (currentLabIdx >= this.labs.length) {
-                        currentLabIdx = 0;
-                        advanceTimeSlot();
-                        currentTimingString = getSessionTiming();
-                        currentDateString = currentDay.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                    let labCapacity = lab.cap;
+                    let seatsAssigned = 0;
+                    
+                    // We pick EXACTLY UP TO TWO CLASSES to put in this Lab
+                    let class1 = availableClasses[0];
+                    let class2 = availableClasses.length > 1 ? availableClasses[1] : null;
+
+                    // Interleave C1 and C2 in the lab up to capacity
+                    let toggle = true;
+                    while (seatsAssigned < labCapacity) {
+                        let placed = false;
+                        if (toggle && class1 && class1.students.length > 0) {
+                            let s = class1.students.shift();
+                            s['Date'] = dateStr;
+                            s['Timing'] = sessionTiming;
+                            s['Lab Room'] = lab.name;
+                            s['Seat Number'] = seatsAssigned + 1;
+                            allocated.push(s);
+                            seatsAssigned++;
+                            placed = true;
+                        } else if (!toggle && class2 && class2.students.length > 0) {
+                            let s = class2.students.shift();
+                            s['Date'] = dateStr;
+                            s['Timing'] = sessionTiming;
+                            s['Lab Room'] = lab.name;
+                            s['Seat Number'] = seatsAssigned + 1;
+                            allocated.push(s);
+                            seatsAssigned++;
+                            placed = true;
+                        }
+                        
+                        toggle = !toggle;
+                        
+                        // If neither class has students left, break assignment for this lab early
+                        if (!placed && class1.students.length === 0 && (!class2 || class2.students.length === 0)) {
+                            break; 
+                        }
+                        
+                        // If one class drained completely, let's keep assigning the other but they will sit adjacently
+                        if (!placed && (class1.students.length > 0 || (class2 && class2.students.length > 0))) {
+                            toggle = !toggle; // flip back to the one that has students
+                        }
                     }
+                    
+                    // Cleanup exhausted classes from array
+                    availableClasses = availableClasses.filter(c => c.students.length > 0);
                 }
-            });
+                
+                // Advance the time cursor after scheduling the suite of labs concurrently!
+                incrementSlotTime();
+            }
 
             this.allocatedStudents = allocated;
             this.isProcessing = false;
@@ -419,13 +452,10 @@ createApp({
         
         downloadAllocation() {
             if(this.allocatedStudents.length === 0) return;
-            
             const ws = XLSX.utils.json_to_sheet(this.allocatedStudents);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Master Schedule Matrix");
-            
-            const dd = new Date();
-            XLSX.writeFile(wb, `Component_I_Master_Schedule_${dd.getTime()}.xlsx`);
+            XLSX.writeFile(wb, `Exam_Master_Schedule_${new Date().getTime()}.xlsx`);
         }
     }
 }).mount('#app');
