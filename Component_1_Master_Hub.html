@@ -1076,7 +1076,7 @@ createApp({
         exportBotTasksCSV() {
             if(!this.allocatedStudents.length) { alert("Generate timetable layout first!"); return; }
             let csvRows = [
-                ['Year_Category', 'Course_Shortname', 'Course_Name', 'Faculty_Email', 'Quiz_Start', 'Quiz_End', 'Subnet_IP']
+                ['Year_Category', 'Course_Shortname', 'Course_Name', 'Quiz_Name', 'Faculty_Email', 'Quiz_Start', 'Quiz_End', 'Subnet_IP']
             ];
             
             let classGroups = this.groupedByClass;
@@ -1085,7 +1085,6 @@ createApp({
                 let firstRecord = sGroup[0];
                  
                 let timeStrings = firstRecord.Timing.split(' to '); // e.g. "08:30 AM to 09:30 AM"
-                // Construct pseudo SQL timestamps for python Bot tracking if needed cleanly
                 let startStr = `${firstRecord.Date} ${timeStrings[0]}`;
                 let endStr = `${firstRecord.Date} ${timeStrings[1] || 'END'}`;
                 
@@ -1093,10 +1092,13 @@ createApp({
                 let rawMatch = this.rawExtractedClasses.find(rc => rc.name === cName);
                 if(rawMatch) catGuess = rawMatch.computedLevel;
                 
+                let dynamicQuizName = `${firstRecord.Date}_${cName}`;
+                
                 csvRows.push([
                     catGuess,
                     cName,
                     cName,
+                    dynamicQuizName,
                     'faculty@example.sjctni.edu',
                     startStr,
                     endStr,
@@ -1104,7 +1106,6 @@ createApp({
                 ]);
             });
             
-            // Build CSV Native format avoiding lib collisions inherently
             let csvContent = csvRows.map(e => e.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(",")).join("\n");
             
             let bom = new Uint8Array([0xEF, 0xBB, 0xBF]); // UTF-8 BOM
