@@ -90,10 +90,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11v9h-2v-9h2zm-6 9h-2v-6h2v6zm-6 0H5v-4h2v4z"></path></svg>
                 Physical Lab Editor
             </div>
-            <div class="sidebar-item" :class="{'active': activeTab === 'checker'}" @click="activeTab = 'checker'">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Readiness Scanner
-            </div>
+
 
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4 px-2">Generation Engine</div>
             <div class="sidebar-item" :class="{'active': activeTab === 'timetable'}" @click="activeTab = 'timetable'">
@@ -110,15 +107,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Attendance & Claims
             </div>
-            <div class="sidebar-item" :class="{'active': activeTab === 'live'}" @click="activeTab = 'live'">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                Live Control Panel
-            </div>
-            
-            <div class="sidebar-item" :class="{'active': activeTab === 'helpdesk'}" @click="activeTab = 'helpdesk'">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                Student Help Desk
-            </div>
+
         </div>
 
         <!-- Dynamic Content Pane -->
@@ -721,60 +710,6 @@
                 </div>
             </div>
 
-            <!-- MOODLE BOT INTEGRATION TAB -->
-            <div v-show="activeTab === 'live'" class="space-y-6 max-w-4xl mx-auto pb-20 h-full">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Moodle Bot Live Deployment</h2>
-                    <p class="text-slate-500 text-sm">Automate physical Selenium environment provisioning natively.</p>
-                </div>
-                
-                <div class="glass-panel p-8 bg-white border-l-4 border-amber-500 shadow-sm relative overflow-hidden">
-                    <h3 class="text-xl font-black text-gray-800 mb-2 mt-2">Generate Python Bot Directives (CSV)</h3>
-                    <p class="text-sm text-gray-600 mb-6">The built-in Python framework active locally (`Moodle_Super_Bot.py`) utilizes automated pipeline instructions. Clicking the export below automatically translates your current visual schedule into rigid raw Selenium logic.</p>
-                    
-                    <button @click="exportBotTasksCSV" class="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition">
-                        Compile moodle_bot_tasks.csv
-                    </button>
-                    
-                    <div class="mt-8 space-y-3 text-xs font-bold text-gray-500 bg-slate-50 p-5 border rounded-lg shadow-inner">
-                        <div class="text-amber-600 uppercase tracking-widest text-[10px] mb-3 border-b border-amber-200 pb-2">Bot Pipeline Active Protocols (V1 Stack)</div>
-                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">1</span> Category mapping & Cloud Directory hierarchies.</p>
-                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">2</span> Dynamic Course structural builds via Subject mapping.</p>
-                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">3</span> Search bypass Enrolment for Faculty accounts (Editing Teacher flags).</p>
-                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">4</span> Raw Date/Time timestamp injections bypassing native interfaces.</p>
-                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">5</span> Isolated physical Subnet lockdown configurations applied globally.</p>
-                        <p class="flex items-center gap-3"><span class="bg-amber-100 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center">6</span> Verification parsing detecting empty banks safely before execution.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- HELPDESK TAB -->
-            <div v-show="activeTab === 'helpdesk'" class="space-y-6 max-w-4xl mx-auto pb-20 h-full">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Student Help Desk Console</h2>
-                    <p class="text-slate-500 text-sm">Real-time emergency operational commands during live exams.</p>
-                </div>
-                
-                <div class="glass-panel p-8 bg-white border-l-4 border-rose-500 shadow-sm relative overflow-hidden">
-                    <h3 class="text-xl font-black text-gray-800 mb-2 mt-2">Force Password Reset API</h3>
-                    <p class="text-sm text-gray-600 mb-6">Instantly force a student's cloud portal password to reset to <code>12345</code> and mandate a security rotation on their next login bypass.</p>
-                    
-                    <div class="flex gap-4">
-                        <input type="text" v-model="resetRegNo" class="w-full md:w-auto bg-gray-50 border border-gray-300 text-gray-900 font-bold px-4 py-3 rounded-lg focus:ring-rose-500 focus:border-rose-500 block" placeholder="e.g. 26UCO34">
-                        <button @click="triggerPasswordReset" :disabled="!resetRegNo" class="bg-rose-500 hover:bg-rose-600 disabled:opacity-50 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            Execute Reset
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- STUB TABS -->
-            <div v-show="['checker'].includes(activeTab)" class="flex-1 flex items-center justify-center h-[60vh] glass-panel bg-white">
-                <div class="text-center">
-                    <h3 class="text-2xl font-bold text-gray-700 capitalize">Module Integration: {{ activeTab }}</h3>
-                </div>
-            </div>
 
         </div>
     </div>
