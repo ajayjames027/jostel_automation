@@ -1351,13 +1351,17 @@ createApp({
             let total = this.claimForm.sessions * this.claimForm.rate;
             const wb = XLSX.utils.book_new();
             
+            let examTitle = this.websiteTimetable.examType || 'Target Exam';
+            let dates = this.settings.examDates.filter(d=>d).map(d => {
+                let p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d;
+            }).join(', ') || 'N/A';
+            
             // Build Institutional Grade Form Matching Standard Project Template
             let data = [
-                ['ST. JOSEPH\'S COLLEGE (AUTONOMOUS)'],
-                ['TIRUCHIRAPPALLI - 620 002'],
+                ['JosTEL - Joseph\'s Technology Enhanced Learning'],
+                [`Exam Name: ${examTitle}   |   Date: ${dates}`],
                 [],
                 ['EXAMINATION REMUNERATION CLAIM NOTIFICATION'],
-                ['Exam Component / Nature of Exam: Component I'],
                 [],
                 ['S.No.', 'Name of the Staff', 'Account No.', 'Bank', 'IFSC Code', 'Remuneration (Rs.)'],
                 ['1', this.claimForm.name, this.claimForm.acc || 'TBA', this.claimForm.ifsc || 'TBA', this.claimForm.ifsc ? this.claimForm.ifsc.substring(0,4) : 'TBA', total],
@@ -1594,11 +1598,7 @@ createApp({
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            doc.setFontSize(18);
-            doc.setFont("helvetica", "bold");
-            doc.text("COLLEGE EXAMINATION TIMETABLE", 105, 20, { align: "center" });
-            doc.setFontSize(12);
-            doc.text(`${this.websiteTimetable.examType || 'Component I'} - Computer Based Test`, 105, 27, { align: "center" });
+            this.injectJosTelBranding(doc);
             
             let tableData = [];
             let classGroups = this.groupedByClass;
