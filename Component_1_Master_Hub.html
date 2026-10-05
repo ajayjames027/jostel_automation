@@ -839,6 +839,15 @@ createApp({
             if(localStorage.getItem('jostel_settings')) this.settings = JSON.parse(localStorage.getItem('jostel_settings'));
             if(localStorage.getItem('jostel_stats')) this.rosterStats = JSON.parse(localStorage.getItem('jostel_stats'));
             
+            // Self-Healing Cache Sanitization
+            if(this.rawExtractedClasses.length === 0) {
+                this.rosterStats.students = 0;
+                this.rosterStats.classes = 0;
+            } else {
+                this.rosterStats.classes = this.rawExtractedClasses.length;
+                this.rosterStats.students = this.rawExtractedClasses.reduce((sum, cls) => sum + cls.students.length, 0);
+            }
+            
             if(this.allocatedStudents.length > 0) {
                 this.validationErrors = [{ type: 'success', msg: 'Previous exam seating state recovered flawlessly from browser cache.' }];
             }
