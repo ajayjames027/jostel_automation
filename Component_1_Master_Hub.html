@@ -395,12 +395,13 @@
                                     <button @click="groupingMode = 'audit'" class="px-3 py-1 font-bold rounded-sm transition border-l" :class="groupingMode === 'audit' ? 'bg-amber-100 text-amber-800' : 'text-amber-600 hover:bg-amber-50'">Audit & Vacancies</button>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2">Export Excel Arrays:</span>
                                 <button @click="exportTimetable('lab')" class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-blue-700 shadow-sm transition">
                                     [Lab-Wise] Export
                                 </button>
-                                <button @click="exportTimetable('class')" class="bg-teal-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-teal-700 shadow-sm transition">
+                                <button @click="exportTimetablePDF('lab')" class="bg-red-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-red-700 shadow-sm transition">
+                                    [Lab-Wise] PDF
+                                </button>
+                                <button @click="exportTimetable('class')" class="bg-teal-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-teal-700 shadow-sm transition ml-2">
                                     [Class-Wise] Export
                                 </button>
                             </div>
@@ -1217,6 +1218,69 @@ createApp({
             XLSX.writeFile(wb, `Exam_${mode.toUpperCase()}_Export_${dd.getTime()}.xlsx`);
         },
         
+        injectJosTelBranding(doc) {
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 0);
+            doc.text("JosTEL - Joseph's Technology Enhanced Learning", 105, 12, { align: "center" });
+            
+            doc.setFontSize(11);
+            doc.setTextColor(30, 58, 138);
+            let examTitle = this.websiteTimetable.examType || 'Target Exam';
+            doc.text(`${examTitle}`, 105, 18, { align: "center" });
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            let dates = this.settings.examDates.filter(d=>d).join(', ') || 'N/A';
+            doc.text(`Exam Constraint Target Dates: ${dates}`, 105, 23, { align: "center" });
+            
+            doc.setDrawColor(200, 200, 200);
+            doc.line(14, 26, 196, 26);
+        },
+
+        exportTimetablePDF(mode) {
+            if(this.allocatedStudents.length === 0) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            let structDataset = mode === 'class' ? this.groupedByClass : this.groupedByLab;
+            let keys = Object.keys(structDataset);
+            if(keys.length === 0) return;
+            
+            keys.forEach((key, index) => {
+                if(index > 0) doc.addPage();
+                
+                this.injectJosTelBranding(doc);
+                doc.setFontSize(14);
+                doc.setFont("helvetica", "bold");
+                doc.text(`Graphical Report: ${key} Allocation Tracker`, 105, 33, { align: "center" });
+                
+                let students = structDataset[key];
+                let tableData = students.map((s, i) => [
+                    i + 1,
+                    s['Date'] + '\n' + s['Timing'],
+                    s['Lab Room'],
+                    s['Reg No'],
+                    s['Name'],
+                    s['Class'],
+                    s['Seat Number']
+                ]);
+                
+                doc.autoTable({
+                    startY: 38,
+                    head: [['S.No', 'Schedule Block', 'Lab Room', 'Register Number', 'Student Name', 'Class / Course', 'Seat ID']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [40, 40, 40] },
+                    styles: { fontSize: 8, cellPadding: 2, valign: 'middle' },
+                    columnStyles: { 0: {cellWidth:10}, 1:{cellWidth:25}, 2:{cellWidth:20}, 3:{cellWidth:25}, 6:{cellWidth:15, halign:'center'} }
+                });
+            });
+            const dd = new Date();
+            doc.save(`Exam_${mode.toUpperCase()}_Export_${dd.getTime()}.pdf`);
+        },
+        
         exportAttendanceSheets() {
             if(this.allocatedStudents.length === 0) return;
             const { jsPDF } = window.jspdf;
@@ -1242,13 +1306,15 @@ createApp({
                     }
                     isFirstPage = false;
                     
-                    doc.setFontSize(16);
-                    doc.setFont("helvetica", "bold");
-                    doc.text("EXAM ATTENDANCE SHEET", 105, 20, { align: "center" });
+                    this.injectJosTelBranding(doc);
                     
-                    doc.setFontSize(11);
-                    doc.text(`SESSION: ${sessionKey}`, 14, 30);
-                    doc.text(`LAB ROOM: ${labName}`, 140, 30);
+                    doc.setFontSize(14);
+                    doc.setFont("helvetica", "bold");
+                    doc.text("EXAM ATTENDANCE SHEET CORE", 105, 33, { align: "center" });
+                    
+                    doc.setFontSize(10);
+                    doc.text(`SESSION BLOCK: ${sessionKey}`, 14, 42);
+                    doc.text(`TARGET LAB: ${labName}`, 140, 42);
                     
                     let tableData = students.map((s, i) => [
                         i + 1,
@@ -1260,7 +1326,7 @@ createApp({
                     ]);
                     
                     doc.autoTable({
-                        startY: 35,
+                        startY: 47,
                         head: [['S.No', 'Register Number', 'Student Name', 'Class / Course', 'PC Number', 'Student Signature']],
                         body: tableData,
                         theme: 'grid',
@@ -1320,25 +1386,22 @@ createApp({
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            doc.setFontSize(22);
-            doc.setFont("helvetica", "bold");
-            doc.text("Official College Timetable", 105, 20, { align: "center" });
+            this.injectJosTelBranding(doc);
             
-            let examTitle = this.websiteTimetable.examType === 'Other' ? this.websiteTimetable.customExamName : this.websiteTimetable.examType;
-            doc.setFontSize(14);
-            doc.setTextColor(30, 58, 138);
-            doc.text(`Exam Type: ${this.websiteTimetable.examType.toUpperCase()}`, 105, 30, { align: "center" });
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(107, 33, 168);
+            doc.text("Departmental Public Examination Timeline", 105, 36, { align: "center" });
             
             doc.setTextColor(0, 0, 0);
-            doc.setFontSize(11);
+            doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
             
-            doc.text(`Exam Dates: ${this.websiteTimetable.startDate} to ${this.websiteTimetable.endDate}`, 14, 45);
-            doc.text(`Shift Timing: Shift 1 (${this.websiteTimetable.shift1}) | Shift 2 (${this.websiteTimetable.shift2})`, 14, 52);
-            doc.text(`Break Time: ${this.websiteTimetable.breakTime || 'N/A'}`, 14, 59);
+            doc.text(`Global Shift Protocols: First Shift (${this.settings.s1Start} - ${this.settings.s1End}) | Second Shift (${this.settings.s2Start} - ${this.settings.s2End})`, 14, 46);
+            doc.text(`Enforced Transition Break Interval: ${this.settings.breakTime || 'N/A'} Mins`, 14, 52);
             if (this.websiteTimetable.extra) {
                 doc.setFont("helvetica", "italic");
-                doc.text(`Note: ${this.websiteTimetable.extra}`, 14, 66);
+                doc.text(`Admin Notice: ${this.websiteTimetable.extra}`, 14, 58);
                 doc.setFont("helvetica", "normal");
             }
             
@@ -1358,11 +1421,11 @@ createApp({
                  });
                  
                  doc.autoTable({
-                    startY: this.websiteTimetable.extra ? 75 : 68,
-                    head: [['Date', 'Morning Session (Shift 1)', 'Afternoon Session (Shift 2)']],
+                    startY: this.websiteTimetable.extra ? 64 : 58,
+                    head: [['Date (Scheduled)', 'Morning Session', 'Afternoon Session']],
                     body: tableData,
                     theme: 'grid',
-                    headStyles: { fillColor: [107, 33, 168] },
+                    headStyles: { fillColor: [40, 40, 40] },
                     styles: { fontSize: 10, cellPadding: 4, halign: 'center', valign: 'middle' },
                     columnStyles: {
                         0: { cellWidth: 40, halign: 'center', fontStyle: 'bold' },
