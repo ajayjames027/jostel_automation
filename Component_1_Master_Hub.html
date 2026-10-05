@@ -406,6 +406,8 @@
                                     <button @click="groupingMode = 'audit'" class="px-3 py-1 font-bold rounded-sm transition border-l" :class="groupingMode === 'audit' ? 'bg-amber-100 text-amber-800' : 'text-amber-600 hover:bg-amber-50'">Audit & Vacancies</button>
                                 </div>
                             </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2">Export Excel Arrays:</span>
                                 <button @click="exportTimetable('lab')" class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-blue-700 shadow-sm transition">
                                     [Lab-Wise] Export
                                 </button>
