@@ -257,7 +257,7 @@
                 <!-- RULES UI (If raw classes extracted but not generated) -->
                 <div v-if="rawExtractedClasses.length > 0 && !allocatedStudents.length" class="flex-1 flex flex-col mt-2">
                     <div class="glass-panel p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shrink-0 mb-4 flex justify-between items-center">
-                        <div class="flex gap-4">
+                        <div class="flex gap-4 flex-wrap w-full items-end pb-3 mb-2 border-b border-indigo-100/50 border-dashed">
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase">A.Y. Start Year</label>
                                 <input type="number" v-model.number="settings.academicStartYear" class="text-sm font-bold p-1 border rounded bg-white w-20 text-center text-primary" placeholder="2026">
@@ -268,7 +268,15 @@
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase">Target Start Date</label>
-                                <input type="date" v-model="settings.startDate" class="text-sm font-semibold p-1 border rounded bg-white w-36">
+                                <input type="date" v-model="settings.startDate" class="text-sm font-semibold p-1 border rounded bg-white w-32">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase text-center w-full">Session (Mins)</label>
+                                <input type="number" v-model.number="settings.sessionLen" class="text-sm font-bold p-1 border rounded bg-white w-16 text-center text-blue-700" placeholder="60">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase text-center w-full">Break Gap</label>
+                                <input type="number" v-model.number="settings.breakTime" class="text-sm font-bold p-1 border rounded bg-white w-16 text-center text-amber-600" placeholder="10">
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase text-center w-full">Shift 1 (AM)</label>
@@ -789,7 +797,7 @@ createApp({
                 startDate: new Date().toISOString().split('T')[0],
                 s1Start: "08:30", s1End: "13:20",
                 s2Start: "13:45", s2End: "18:30",
-                sessionLen: 60, skipWeekends: true
+                sessionLen: 60, breakTime: 10, skipWeekends: true
             },
             
             customLabs: [
@@ -1078,7 +1086,7 @@ createApp({
             let cursorMins = s1Start; let shift = 1;
 
             const nextSlot = () => {
-                cursorMins += this.settings.sessionLen + 10;
+                cursorMins += this.settings.sessionLen + this.settings.breakTime;
                 if (shift === 1 && (cursorMins + this.settings.sessionLen > s1End)) { cursorMins = s2Start; shift = 2; }
                 if (shift === 2 && (cursorMins + this.settings.sessionLen > s2End)) {
                     cursorMins = s1Start; shift = 1; currentDay.setDate(currentDay.getDate() + 1);
