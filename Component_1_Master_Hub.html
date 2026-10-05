@@ -429,7 +429,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr v-for="(row, idx) in rows.slice(0, 50)" :key="idx" class="hover:bg-slate-50">
+                                    <tr v-for="(row, idx) in rows" :key="idx" class="hover:bg-slate-50">
                                         <td class="font-bold text-gray-700 text-[11px] border-r whitespace-nowrap">{{ row.Date }} :: {{ row.Timing }}</td>
                                         <td class="text-secondary text-[11px] font-semibold">{{ row['Class'] }}</td>
                                         <td class="font-mono text-xs">{{ row['Reg No'] }}</td>
@@ -447,7 +447,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr v-for="(row, idx) in rows.slice(0, 50)" :key="idx" class="hover:bg-slate-50">
+                                    <tr v-for="(row, idx) in rows" :key="idx" class="hover:bg-slate-50">
                                         <td class="font-bold uppercase text-[11px] text-purple-800 border-r w-24">{{ row['Lab Room'] }}</td>
                                         <td class="text-secondary text-[10px] w-24 font-semibold">{{ row['Class'] }}</td>
                                         <td class="font-mono text-xs w-24">{{ row['Reg No'] }}</td>
@@ -465,7 +465,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr v-for="(row, idx) in rows.slice(0, 50)" :key="idx" class="hover:bg-slate-50">
+                                    <tr v-for="(row, idx) in rows" :key="idx" class="hover:bg-slate-50">
                                         <td class="font-bold text-gray-700 text-[11px] border-r whitespace-nowrap">{{ row.Date }} :: {{ row.Timing }}</td>
                                         <td class="font-bold uppercase text-xs text-cyan-800">{{ row['Lab Room'] }}</td>
                                         <td class="font-mono text-xs">{{ row['Reg No'] }}</td>
@@ -533,7 +533,7 @@
                                 </template>
                                 
                                 <tbody v-else>
-                                    <tr v-for="(row, idx) in allocatedStudents.slice(0, 100)" :key="idx">
+                                    <tr v-for="(row, idx) in allocatedStudents" :key="idx">
                                         <td class="font-bold text-gray-800 bg-slate-50 border-r text-[11px] whitespace-nowrap">{{ row['Date'] }}<br><span class="text-purple-700">{{ row['Timing'] }}</span></td>
                                         <td class="font-bold uppercase text-xs text-gray-600">{{ row['Lab Room'] }}</td>
                                         <td class="text-secondary text-[11px] font-semibold">{{ row['Class'] }}</td>
@@ -839,10 +839,15 @@ createApp({
     },
     mounted() {
         try {
+            if(localStorage.getItem('jostel_labs')) this.customLabs = JSON.parse(localStorage.getItem('jostel_labs'));
             if(localStorage.getItem('jostel_classes')) this.rawExtractedClasses = JSON.parse(localStorage.getItem('jostel_classes'));
             if(localStorage.getItem('jostel_alloc')) this.allocatedStudents = JSON.parse(localStorage.getItem('jostel_alloc'));
-            if(localStorage.getItem('jostel_labs')) this.customLabs = JSON.parse(localStorage.getItem('jostel_labs'));
-            if(localStorage.getItem('jostel_settings')) this.settings = JSON.parse(localStorage.getItem('jostel_settings'));
+            if(localStorage.getItem('jostel_settings')) {
+                this.settings = JSON.parse(localStorage.getItem('jostel_settings'));
+                if(!this.settings.examDates) {
+                    this.settings.examDates = [this.settings.startDate || new Date().toISOString().split('T')[0]];
+                }
+            }
             if(localStorage.getItem('jostel_stats')) this.rosterStats = JSON.parse(localStorage.getItem('jostel_stats'));
             
             // Self-Healing Cache Sanitization
