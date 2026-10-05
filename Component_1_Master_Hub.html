@@ -1247,10 +1247,12 @@ createApp({
             const wb = XLSX.utils.book_new();
 
             let examTitle = this.websiteTimetable.examType || 'Target Exam';
-            let dates = this.settings.examDates.filter(d=>d).join(', ') || 'N/A';
+            let dates = this.settings.examDates.filter(d=>d).map(d => {
+                let p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d;
+            }).join(', ') || 'N/A';
             let headerData = [
                 ["JosTEL - Joseph's Technology Enhanced Learning"],
-                [`Exam Name: ${examTitle}   |   Dates: ${dates}`]
+                [`Exam Name: ${examTitle}   |   Date: ${dates}`]
             ];
 
             // Dump Master Sheet securely
@@ -1292,8 +1294,10 @@ createApp({
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(9);
             doc.setFont("helvetica", "normal");
-            let dates = this.settings.examDates.filter(d=>d).join(', ') || 'N/A';
-            doc.text(`Exam Constraint Target Dates: ${dates}`, 105, 23, { align: "center" });
+            let dates = this.settings.examDates.filter(d=>d).map(d => {
+                let p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d;
+            }).join(', ') || 'N/A';
+            doc.text(`Date: ${dates}`, 105, 23, { align: "center" });
             
             doc.setDrawColor(200, 200, 200);
             doc.line(14, 26, 196, 26);
@@ -1314,7 +1318,8 @@ createApp({
                 this.injectJosTelBranding(doc);
                 doc.setFontSize(14);
                 doc.setFont("helvetica", "bold");
-                doc.text(`Graphical Report: ${key} Allocation Tracker`, 105, 33, { align: "center" });
+                let docLabel = mode === 'class' ? 'Class Theme: ' : 'Venue: ';
+                doc.text(`${docLabel}${key}`, 105, 33, { align: "center" });
                 
                 let students = structDataset[key];
                 let tableData = students.map((s, i) => [
