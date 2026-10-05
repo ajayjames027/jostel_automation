@@ -605,6 +605,64 @@
                             Generate Claim Receipt
                         </button>
                     </div>
+
+                    <!-- Website Timetable Exporter -->
+                    <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-purple-500 flex flex-col md:col-span-2 mt-2">
+                        <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-2">College Website Timetable Generator</h3>
+                        <p class="text-sm text-gray-500 mb-6">Generate official PDF timetables ready to be uploaded and displayed on the college website for students.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Type of Exam</label>
+                                <select v-model="websiteTimetable.examType" class="futuristic-input font-bold text-gray-700">
+                                    <option value="Component I">Component I</option>
+                                    <option value="SPL End Sem">SPL End Sem</option>
+                                    <option value="Semester">Semester</option>
+                                    <option value="Other">Any Other (Custom)</option>
+                                </select>
+                            </div>
+                            <div v-if="websiteTimetable.examType === 'Other'">
+                                <label class="text-xs font-bold text-gray-500 uppercase">Custom Exam Title</label>
+                                <input type="text" v-model="websiteTimetable.customExamName" class="futuristic-input" placeholder="e.g. Special Practical Exam">
+                            </div>
+                            <div v-else></div>
+                            
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Start Date</label>
+                                <input type="date" v-model="websiteTimetable.startDate" class="futuristic-input">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">End Date</label>
+                                <input type="date" v-model="websiteTimetable.endDate" class="futuristic-input">
+                            </div>
+                            
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Shift 1 Timing</label>
+                                <input type="time" v-model="websiteTimetable.shift1" class="futuristic-input">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Shift 2 Timing</label>
+                                <input type="time" v-model="websiteTimetable.shift2" class="futuristic-input">
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase">Break Duration & Timings</label>
+                                <input type="text" v-model="websiteTimetable.breakTime" class="futuristic-input" placeholder="e.g. 13:20 to 13:45 (25 minutes break)">
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase">Extra Instructions (Optional)</label>
+                                <input type="text" v-model="websiteTimetable.extra" class="futuristic-input" placeholder="e.g. ID Card is mandatory for entry.">
+                            </div>
+                        </div>
+
+                        <button @click="generateWebsiteTimetable" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg shadow transition mt-auto">
+                            Generate PDF for College Website
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -646,12 +704,29 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getFirestore, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyB2qCkUx6DMCD-xLoyKVGcT8mNTfTITPOE",
+    authDomain: "jostel-e8b17.firebaseapp.com",
+    projectId: "jostel-e8b17",
+    storageBucket: "jostel-e8b17.firebasestorage.app",
+    messagingSenderId: "811645548918",
+    appId: "1:811645548918:web:06648aad3ab2dc13d56257",
+    measurementId: "G-ZPM6WM2M7Q"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
 const { createApp } = Vue;
 
 createApp({
     data() {
         return {
+            isSyncing: false,
             activeTab: 'timetable',
             rawExtractedClasses: [], 
             allocatedStudents: [],
@@ -681,10 +756,46 @@ createApp({
             
             claimForm: { name: '', sessions: 1, rate: 250 },
             
+            websiteTimetable: {
+                examType: 'Component I',
+                customExamName: '',
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date().toISOString().split('T')[0],
+                shift1: '08:30',
+                shift2: '13:45',
+                breakTime: '13:20 to 13:45',
+                extra: ''
+            },
+            
             validationErrors: [ { type: 'warning', msg: 'Awaiting raw student list ingestion.' } ]
         }
     },
+    mounted() {
+        onSnapshot(doc(db, 'exam_operations', 'core_state'), (docSnap) => {
+            if (docSnap.exists()) {
+                const d = docSnap.data();
+                this.isSyncing = true;
+                if(d.customLabs) this.customLabs = d.customLabs;
+                if(d.rawExtractedClasses) this.rawExtractedClasses = d.rawExtractedClasses;
+                if(d.allocatedStudents) this.allocatedStudents = d.allocatedStudents;
+                if(d.rosterStats) this.rosterStats = d.rosterStats;
+                if(d.settings) this.settings = d.settings;
+                if(d.websiteTimetable) this.websiteTimetable = d.websiteTimetable;
+                this.$nextTick(() => { this.isSyncing = false; });
+            }
+        });
+    },
     computed: {
+        syncableState() {
+            return {
+                customLabs: this.customLabs,
+                rawExtractedClasses: this.rawExtractedClasses,
+                allocatedStudents: this.allocatedStudents,
+                rosterStats: this.rosterStats,
+                settings: this.settings,
+                websiteTimetable: this.websiteTimetable
+            };
+        },
         dynamicLabStats() {
             let active = this.customLabs.filter(l => l.active);
             let cap = active.reduce((s, l) => s + (l.rows * l.cols), 0);
@@ -761,6 +872,15 @@ createApp({
                 report.push({ session: sess, totalStudents: sessStudents.length,  labStats, totalFree });
             });
             return report;
+        }
+    },
+    watch: {
+        syncableState: {
+            handler: function(newVal) {
+                if (this.isSyncing) return;
+                setDoc(doc(db, 'exam_operations', 'core_state'), JSON.parse(JSON.stringify(newVal)));
+            },
+            deep: true
         }
     },
     methods: {
@@ -1071,6 +1191,69 @@ createApp({
             
             XLSX.utils.book_append_sheet(wb, ws, 'Claim Remuneration Docs');
             XLSX.writeFile(wb, `Claim_Form_${this.claimForm.name.replace(/ /g,'_')}.xlsx`);
+        },
+
+        generateWebsiteTimetable() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            doc.setFontSize(22);
+            doc.setFont("helvetica", "bold");
+            doc.text("Official College Timetable", 105, 20, { align: "center" });
+            
+            let examTitle = this.websiteTimetable.examType === 'Other' ? this.websiteTimetable.customExamName : this.websiteTimetable.examType;
+            doc.setFontSize(14);
+            doc.setTextColor(30, 58, 138);
+            doc.text(`Exam Type: ${examTitle.toUpperCase()}`, 105, 30, { align: "center" });
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            
+            doc.text(`Exam Dates: ${this.websiteTimetable.startDate} to ${this.websiteTimetable.endDate}`, 14, 45);
+            doc.text(`Shift Timing: Shift 1 (${this.websiteTimetable.shift1}) | Shift 2 (${this.websiteTimetable.shift2})`, 14, 52);
+            doc.text(`Break Time: ${this.websiteTimetable.breakTime || 'N/A'}`, 14, 59);
+            if (this.websiteTimetable.extra) {
+                doc.setFont("helvetica", "italic");
+                doc.text(`Note: ${this.websiteTimetable.extra}`, 14, 66);
+                doc.setFont("helvetica", "normal");
+            }
+            
+            let sortedDates = this.uniqueSessions.map(s => s.split(" :: ")[0]).filter((v,i,a) => a.indexOf(v)===i);
+            
+            if (sortedDates.length === 0) {
+                 doc.setFont("helvetica", "italic");
+                 doc.setTextColor(255, 0, 0);
+                 doc.text("No schedule generated yet. Please crunch the timetable matrix first.", 14, 85);
+            } else {
+                 let tableData = [];
+                 sortedDates.forEach(date => {
+                    let dateStudents = this.allocatedStudents.filter(s => s.Date === date);
+                    let morningClasses = [...new Set(dateStudents.filter(s => s.Timing.includes("AM")).map(s => s.Class))].join(', ');
+                    let afternoonClasses = [...new Set(dateStudents.filter(s => s.Timing.includes("PM")).map(s => s.Class))].join(', ');
+                    tableData.push([date, morningClasses || '-', afternoonClasses || '-']);
+                 });
+                 
+                 doc.autoTable({
+                    startY: this.websiteTimetable.extra ? 75 : 68,
+                    head: [['Date', 'Morning Session (Shift 1)', 'Afternoon Session (Shift 2)']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [107, 33, 168] },
+                    styles: { fontSize: 10, cellPadding: 4, halign: 'center', valign: 'middle' },
+                    columnStyles: {
+                        0: { cellWidth: 40, halign: 'center', fontStyle: 'bold' },
+                        1: { cellWidth: 'auto', halign: 'center' },
+                        2: { cellWidth: 'auto', halign: 'center' }
+                    }
+                 });
+                 
+                 let finalY = doc.lastAutoTable.finalY || 100;
+                 doc.setFontSize(10);
+                 doc.text("Generated by JosTEL Exam Operations Platform", 105, finalY + 15, { align: "center" });
+            }
+            
+            doc.save(`Website_Timetable_${examTitle.replace(/ /g, '_')}.pdf`);
         },
         
         exportBotTasksCSV() {

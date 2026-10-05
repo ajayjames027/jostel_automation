@@ -560,7 +560,23 @@
     </div>
 </div>
 
-<script>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getFirestore, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB2qCkUx6DMCD-xLoyKVGcT8mNTfTITPOE",
+        authDomain: "jostel-e8b17.firebaseapp.com",
+        projectId: "jostel-e8b17",
+        storageBucket: "jostel-e8b17.firebasestorage.app",
+        messagingSenderId: "811645548918",
+        appId: "1:811645548918:web:06648aad3ab2dc13d56257",
+        measurementId: "G-ZPM6WM2M7Q"
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getFirestore(firebaseApp);
+
     const { createApp } = Vue;
 
     createApp({
@@ -569,6 +585,7 @@
             const monthsNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
             return {
+                isSyncing: false,
                 currentView: 'list', // 'list', 'hours', 'letter', 'summary'
                 ratePerHour: 40.00,
                 
@@ -586,13 +603,17 @@
                 
                 newStudent: { regNo: '', name: '', department: '', account: '' },
                 
-                students: [
-                    { 
-                        regNo: '23PD001', name: 'Ajay James', department: 'Computer Science', account: 'SBI A/c 9876543210\nIFSC: SBIN001', month: `${monthsNames[date.getMonth()]} ${date.getFullYear()}`,
-                        logs: [ { date: this.getTodayDateInput(), in: '10:00', out: '12:30', work: 'Data entry', hours: 2.5 } ]
-                    }
-                ]
+                students: []
             }
+        },
+        mounted() {
+            onSnapshot(doc(db, 'earn_while_you_learn', 'students_data'), (docSnap) => {
+                if (docSnap.exists()) {
+                    this.isSyncing = true;
+                    this.students = docSnap.data().students || [];
+                    this.$nextTick(() => { this.isSyncing = false; });
+                }
+            });
         },
         computed: {
             filteredStudents() {
@@ -616,6 +637,15 @@
                 } else {
                     this.logForm.in = ''; this.logForm.out = '';
                 }
+            },
+            students: {
+                handler: function(newVal) {
+                    if (this.isSyncing) return;
+                    setDoc(doc(db, 'earn_while_you_learn', 'students_data'), {
+                        students: JSON.parse(JSON.stringify(newVal))
+                    });
+                },
+                deep: true
             }
         },
         methods: {
