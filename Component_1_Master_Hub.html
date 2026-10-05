@@ -241,6 +241,17 @@
                                 <input type="number" v-model.number="lab.cols" class="futuristic-input font-bold" min="1">
                             </div>
                         </div>
+
+                        <div class="mt-4 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                            <label class="block text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-2">Constrain Lab Availability Dates</label>
+                            <div class="flex flex-wrap gap-2">
+                                <label v-for="(edate, di) in validExamDates" :key="di" class="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2 py-1 rounded cursor-pointer hover:bg-slate-100 transition">
+                                    <input type="checkbox" :value="edate" v-model="lab.activeDates" class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                                    {{ edate.split('-').reverse().join('-') }}
+                                </label>
+                                <span v-if="validExamDates.length === 0" class="text-[10px] text-red-500 font-bold italic">Define constraints in Rules Engine first.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -840,15 +851,20 @@ createApp({
     },
     mounted() {
         try {
-            if(localStorage.getItem('jostel_labs')) this.customLabs = JSON.parse(localStorage.getItem('jostel_labs'));
             if(localStorage.getItem('jostel_classes')) this.rawExtractedClasses = JSON.parse(localStorage.getItem('jostel_classes'));
-            if(localStorage.getItem('jostel_alloc')) this.allocatedStudents = JSON.parse(localStorage.getItem('jostel_alloc'));
             if(localStorage.getItem('jostel_settings')) {
                 this.settings = JSON.parse(localStorage.getItem('jostel_settings'));
                 if(!this.settings.examDates) {
                     this.settings.examDates = [this.settings.startDate || new Date().toISOString().split('T')[0]];
                 }
             }
+            if(localStorage.getItem('jostel_labs')) {
+                this.customLabs = JSON.parse(localStorage.getItem('jostel_labs'));
+                this.customLabs.forEach(l => { 
+                    if(!l.activeDates) l.activeDates = (this.settings.examDates || []).filter(Boolean);
+                });
+            }
+            if(localStorage.getItem('jostel_alloc')) this.allocatedStudents = JSON.parse(localStorage.getItem('jostel_alloc'));
             if(localStorage.getItem('jostel_stats')) this.rosterStats = JSON.parse(localStorage.getItem('jostel_stats'));
             
             // Self-Healing Cache Sanitization
@@ -961,10 +977,13 @@ createApp({
                 report.push({ session: sess, totalStudents: sessStudents.length,  labStats, totalFree });
             });
             return report;
+        },
+        validExamDates() {
+            return (this.settings.examDates || []).filter(d => Boolean(d)).sort();
         }
     },
     methods: {
-        addLab() { this.customLabs.push({ name: 'New Lab', building: '', room: '', rows: 5, cols: 5, cap: 25, active: true }); },
+        addLab() { this.customLabs.push({ name: 'New Lab', building: '', room: '', rows: 5, cols: 5, cap: 25, active: true, activeDates: [...this.validExamDates] }); },
         removeLab(idx) { this.customLabs.splice(idx, 1); },
         isOccupied(seatStr) { return this.viewLayoutData.some(s => s['Seat Number'] === parseInt(seatStr)); },
         isSelectedForSwap(seatStr) { return this.swapBuffer.some(b => b.seatIdx === parseInt(seatStr)); },
@@ -1146,7 +1165,13 @@ createApp({
 
                 if(permittedClasses.length === 0) { nextSlot(); continue; }
 
-                for(let lab of activeLabs) {
+                let activeLabsToday = activeLabs.filter(l => !l.activeDates || l.activeDates.length === 0 || l.activeDates.includes(currentDayStr));
+                if(activeLabsToday.length === 0 && permittedClasses.length > 0) {
+                    this.validationErrors.push({type: 'critical', msg: `No enabled labs explicitly mapped to date (${currentDayStr}). Skipping day.`});
+                    nextSlot(); continue;
+                }
+
+                for(let lab of activeLabsToday) {
                     if(permittedClasses.length === 0) break;
                     let cap = lab.rows * lab.cols;
                     let assigned = 0;
