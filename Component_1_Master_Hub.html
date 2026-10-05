@@ -266,9 +266,15 @@
                                 <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase">Exam Target Name</label>
                                 <input type="text" v-model="websiteTimetable.examType" class="text-sm font-bold p-1 border rounded bg-white w-32 text-primary" placeholder="e.g. Component I">
                             </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase">Target Start Date</label>
-                                <input type="date" v-model="settings.startDate" class="text-sm font-semibold p-1 border rounded bg-white w-32">
+                            <div class="flex flex-col">
+                                <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase">Constrain Exam Dates</label>
+                                <div class="flex gap-1 flex-wrap max-w-sm">
+                                    <div v-for="(d, i) in settings.examDates" :key="i" class="flex items-center gap-0">
+                                        <input type="date" v-model="settings.examDates[i]" class="text-[11px] font-bold p-1 border border-r-0 rounded-l bg-white w-28 h-8 focus:outline-blue-500">
+                                        <button v-if="settings.examDates.length > 1" @click="settings.examDates.splice(i, 1)" class="bg-red-100 text-red-600 hover:bg-red-200 px-1 border border-red-200 border-l-0 rounded-r h-8 font-black text-xs" title="Remove Date">×</button>
+                                    </div>
+                                    <button @click="settings.examDates.push('')" class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 rounded border border-indigo-200 hover:bg-indigo-100 h-8">+ Date</button>
+                                </div>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase text-center w-full">Session (Mins)</label>
@@ -794,7 +800,7 @@ createApp({
             
             settings: {
                 academicStartYear: 2026,  // Dynamic reference for parsing NA / Year levels
-                startDate: new Date().toISOString().split('T')[0],
+                examDates: [new Date().toISOString().split('T')[0]],
                 s1Start: "08:30", s1End: "13:20",
                 s2Start: "13:45", s2End: "18:30",
                 sessionLen: 60, breakTime: 10, skipWeekends: true
@@ -1088,7 +1094,10 @@ createApp({
 
             let available = JSON.parse(JSON.stringify(this.rawExtractedClasses));
             let allocated = [];
-            let currentDay = new Date(this.settings.startDate);
+            
+            let validDates = this.settings.examDates.filter(d => Boolean(d)).sort();
+            if(validDates.length === 0) { alert("Please provide at least one valid Exam Date."); return; }
+            let dateIndex = 0;
             
             let s1Start = this.parseTime(this.settings.s1Start); let s1End = this.parseTime(this.settings.s1End);
             let s2Start = this.parseTime(this.settings.s2Start); let s2End = this.parseTime(this.settings.s2End);
@@ -1098,19 +1107,28 @@ createApp({
                 cursorMins += this.settings.sessionLen + this.settings.breakTime;
                 if (shift === 1 && (cursorMins + this.settings.sessionLen > s1End)) { cursorMins = s2Start; shift = 2; }
                 if (shift === 2 && (cursorMins + this.settings.sessionLen > s2End)) {
-                    cursorMins = s1Start; shift = 1; currentDay.setDate(currentDay.getDate() + 1);
-                    if (this.settings.skipWeekends) while (currentDay.getDay()===0 || currentDay.getDay()===6) currentDay.setDate(currentDay.getDate() + 1);
+                    cursorMins = s1Start; shift = 1; 
+                    dateIndex++;
+                    
+                    // Fallback auto-appending algorithm if rules run out of explicit constrained dates natively
+                    if(dateIndex >= validDates.length) {
+                        let lastDate = new Date(validDates[validDates.length - 1]);
+                        lastDate.setDate(lastDate.getDate() + 1);
+                        if (this.settings.skipWeekends) while (lastDate.getDay()===0 || lastDate.getDay()===6) lastDate.setDate(lastDate.getDate() + 1);
+                        validDates.push(lastDate.toISOString().split('T')[0]);
+                    }
                 }
             };
 
             let failsafeCount = 0;
             while(available.length > 0 && failsafeCount < 1500) {
                 failsafeCount++;
-                let timingStr = `${this.formatTime(cursorMins)} to ${this.formatTime(cursorMins + this.settings.sessionLen)}`;
+                let currentDayStr = validDates[dateIndex];
+                let currentDayObj = new Date(currentDayStr);
                 
-                let tzHackDay = new Date(currentDay); tzHackDay.setMinutes(tzHackDay.getMinutes() - tzHackDay.getTimezoneOffset());
-                let rawIsoDate = tzHackDay.toISOString().split('T')[0];
-                let dateStr = currentDay.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                let timingStr = `${this.formatTime(cursorMins)} to ${this.formatTime(cursorMins + this.settings.sessionLen)}`;
+                let rawIsoDate = currentDayStr;
+                let dateStr = currentDayObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                 
                 let currentShiftCode = shift === 1 ? 'Shift 1' : 'Shift 2';
 
