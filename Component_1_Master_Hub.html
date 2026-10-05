@@ -522,8 +522,11 @@
                     <h3 class="text-lg font-bold text-slate-700">Upload Component Roster to Begin</h3>
                     <p class="text-sm mt-1 mb-4 text-center">Supports .xlsx containing Class, Name, and Reg No.</p>
                     <button class="btn-primary">Browse Master Roster</button>
-                    <input type="file" ref="mainUpload" @change="parseUpload" class="hidden" accept=".xlsx,.xls,.csv" multiple>
+                    
                 </div>
+                
+                <!-- Permanent Input Node (Outside v-if/v-else DOM removal scope) -->
+                <input type="file" ref="mainUpload" @change="parseUpload" class="hidden" accept=".xlsx,.xls,.csv" multiple>
             </div>
 
             <!-- VISUAL SEATING PLANNER -->
@@ -968,6 +971,7 @@ createApp({
                     
                     if (filesRead === files.length) {
                         this.processCombinedUpload(combinedData);
+                        event.target.value = null; // Clear physical target to allow duplicate re-uploads
                     }
                 };
                 reader.readAsArrayBuffer(file);
