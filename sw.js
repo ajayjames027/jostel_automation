@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jostel-cache-v4';
+const CACHE_NAME = 'jostel-cache-v5';
 const urlsToCache = [
   '/jostel_automation/',
   '/jostel_automation/index.html',
@@ -13,6 +13,7 @@ const urlsToCache = [
 
 // Install Event
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -21,22 +22,30 @@ self.addEventListener('install', event => {
   );
 });
 
-// Fetch Event
+// Fetch Event (Network First, fallback to Cache)
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
+        // Automatically cache the fresh response to keep things updated
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        return fetch(event.request);
+        return response;
+      })
+      .catch(() => {
+        // If network fails, serve from cache
+        return caches.match(event.request);
       })
   );
 });
 
-// Activate Event (Cleanup old caches)
+// Activate Event (Cleanup old caches instantly)
 self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim());
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
