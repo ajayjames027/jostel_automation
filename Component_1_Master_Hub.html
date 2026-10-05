@@ -798,19 +798,26 @@ createApp({
         }
     },
     mounted() {
-        onSnapshot(doc(db, 'exam_operations', 'core_state'), (docSnap) => {
-            if (docSnap.exists()) {
-                const d = docSnap.data();
-                this.isSyncing = true;
-                if(d.customLabs) this.customLabs = d.customLabs;
-                if(d.rawExtractedClasses) this.rawExtractedClasses = d.rawExtractedClasses;
-                if(d.allocatedStudents) this.allocatedStudents = d.allocatedStudents;
-                if(d.rosterStats) this.rosterStats = d.rosterStats;
-                if(d.settings) this.settings = d.settings;
-                if(d.websiteTimetable) this.websiteTimetable = d.websiteTimetable;
-                this.$nextTick(() => { this.isSyncing = false; });
+        try {
+            if(localStorage.getItem('jostel_classes')) this.rawExtractedClasses = JSON.parse(localStorage.getItem('jostel_classes'));
+            if(localStorage.getItem('jostel_alloc')) this.allocatedStudents = JSON.parse(localStorage.getItem('jostel_alloc'));
+            if(localStorage.getItem('jostel_labs')) this.customLabs = JSON.parse(localStorage.getItem('jostel_labs'));
+            if(localStorage.getItem('jostel_settings')) this.settings = JSON.parse(localStorage.getItem('jostel_settings'));
+            if(localStorage.getItem('jostel_stats')) this.rosterStats = JSON.parse(localStorage.getItem('jostel_stats'));
+            
+            if(this.allocatedStudents.length > 0) {
+                this.validationErrors = [{ type: 'success', msg: 'Previous exam seating state recovered flawlessly from browser cache.' }];
             }
-        });
+        } catch(e) {
+            console.error('State Hydration Failed', e);
+        }
+    },
+    watch: {
+        rawExtractedClasses: { deep: true, handler(val) { localStorage.setItem('jostel_classes', JSON.stringify(val)); } },
+        allocatedStudents: { deep: true, handler(val) { localStorage.setItem('jostel_alloc', JSON.stringify(val)); } },
+        customLabs: { deep: true, handler(val) { localStorage.setItem('jostel_labs', JSON.stringify(val)); } },
+        settings: { deep: true, handler(val) { localStorage.setItem('jostel_settings', JSON.stringify(val)); } },
+        rosterStats: { deep: true, handler(val) { localStorage.setItem('jostel_stats', JSON.stringify(val)); } }
     },
     computed: {
         syncableState() {
@@ -1351,11 +1358,13 @@ createApp({
                 let rawMatch = this.rawExtractedClasses.find(rc => rc.name === cName);
                 if(rawMatch) level = rawMatch.computedLevel;
                 
+                let assignedLabs = [...new Set(classGroups[cName].map(s => s['Lab Room']))].join(', ');
                 tableData.push([
                     level,
                     cName,
                     firstRecord.Date,
                     firstRecord.Timing,
+                    assignedLabs,
                     classGroups[cName].length + " Students"
                 ]);
             });
@@ -1365,7 +1374,7 @@ createApp({
             
             doc.autoTable({
                 startY: 35,
-                head: [['Academic Level', 'Department / Class Name', 'Exam Date', 'Scheduled Timing', 'Strength']],
+                head: [['Academic Level', 'Department / Class Name', 'Exam Date', 'Scheduled Timing', 'Assigned Lab(s)', 'Strength']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [44, 62, 80] },
