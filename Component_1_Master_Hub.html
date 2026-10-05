@@ -410,7 +410,7 @@
                                     [Class-Wise] Export
                                 </button>
                                 <button @click="exportAuditData" class="bg-amber-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-amber-700 shadow-sm transition ml-2 tracking-wide">
-                                    [Audit] Export
+                                    [Audit] PDF
                                 </button>
                             </div>
                         </div>
@@ -1183,46 +1183,61 @@ createApp({
         exportAuditData() {
             let auditStats = this.utilizationAudit;
             if(!auditStats || auditStats.length === 0) return;
-            const wb = XLSX.utils.book_new();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
 
-            let examTitle = this.websiteTimetable.examType || 'Target Exam';
-            let dates = this.settings.examDates.filter(d=>d).map(d => {
-                let p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d;
-            }).join(', ') || 'N/A';
-            let headerData = [
-                ["JosTEL - Joseph's Technology Enhanced Learning"],
-                [`Exam Name: ${examTitle}   |   Date: ${dates}`],
-                [],
-                ["Lab Vacancy & Utilization Audit Report"]
+            this.injectJosTelBranding(doc);
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("Lab Vacancy & Utilization Audit Report", 105, 33, { align: "center" });
+
+            let dropped = this.rosterStats.students - this.allocatedStudents.length;
+
+            let integrityData = [
+                ["Total Uploaded Students", this.rosterStats.students],
+                ["Total Successfully Allocated", this.allocatedStudents.length],
+                ["Dropped / Unallocated Students", dropped]
             ];
 
-            let rowData = [];
-            let dropped = this.rosterStats.students - this.allocatedStudents.length;
-            rowData.push({ "Metric": "Total Uploaded Students", "Count": this.rosterStats.students, "Status": "" });
-            rowData.push({ "Metric": "Total Successfully Allocated", "Count": this.allocatedStudents.length, "Status": "System Ready" });
-            rowData.push({ "Metric": "Dropped / Unallocated Students", "Count": dropped, "Status": dropped === 0 ? "Integrity Passed" : "Critical: Data Loss" });
-            rowData.push({});
-            rowData.push({});
+            doc.autoTable({
+                startY: 40,
+                head: [['Student Integrity Matrix', 'Count']],
+                body: integrityData,
+                theme: 'grid',
+                headStyles: { fillColor: [44, 62, 80] },
+                styles: { fontSize: 10, cellPadding: 3 }
+            });
 
+            let finalY = doc.lastAutoTable.finalY + 10;
+
+            let auditTableData = [];
             auditStats.forEach(sess => {
-                rowData.push({ "Metric": `--- SESSION: ${sess.session} ---`, "Count": "", "Status": "" });
-                rowData.push({ "Metric": "Total Students Scheduled", "Count": sess.totalStudents, "Status": "" });
+                auditTableData.push([{ content: sess.session, colSpan: 3, styles: { halign: 'center', fillColor: [240, 240, 240], fontStyle: 'bold', textColor: [0, 0, 0] } }]);
                 
                 sess.labStats.forEach(lab => {
                     let st = lab.free === 0 ? 'Full' : (lab.free === lab.cap ? 'Empty' : 'Partially Used');
-                    rowData.push({ "Metric": `Venue: ${lab.name}`, "Count": `${lab.used} / ${lab.cap}`, "Status": `Free: ${lab.free} Seats (${st})` });
+                    let statusColor = lab.free === 0 ? [22, 163, 74] : (lab.free === lab.cap ? [220, 38, 38] : [217, 119, 6]);
+                    auditTableData.push([
+                        `Venue: ${lab.name}`,
+                        `${lab.used} / ${lab.cap} Seats Used`,
+                        { content: `Free: ${lab.free} Seats (${st})`, styles: { textColor: statusColor, fontStyle: 'bold' } }
+                    ]);
                 });
-                rowData.push({ "Metric": "Total Unused/Vacant Seats", "Count": sess.totalFree, "Status": "" });
-                rowData.push({});
+                auditTableData.push([{ content: `Total Scheduled: ${sess.totalStudents} | Total Vacant Seats: ${sess.totalFree}`, colSpan: 3, styles: { halign: 'right', fontStyle: 'italic', fillColor: [250, 250, 250] } }]);
             });
 
-            let ws = XLSX.utils.json_to_sheet(rowData, { origin: "A6" });
-            XLSX.utils.sheet_add_aoa(ws, headerData, { origin: "A1" });
-            ws['!cols'] = [{wch: 35}, {wch: 25}, {wch: 30}];
-            
-            XLSX.utils.book_append_sheet(wb, ws, "Vacancy Audit");
+            doc.autoTable({
+                startY: finalY,
+                head: [['Target Lab / Venue', 'Allocation Usage', 'Vacancy Status']],
+                body: auditTableData,
+                theme: 'grid',
+                headStyles: { fillColor: [217, 119, 6] },
+                styles: { fontSize: 9, cellPadding: 3 }
+            });
+
             const dd = new Date();
-            XLSX.writeFile(wb, `Exam_Audit_Export_${dd.getTime()}.xlsx`);
+            doc.save(`Exam_Audit_Export_${dd.getTime()}.pdf`);
         },
         exportTimetable(mode = 'lab') {
             if(this.allocatedStudents.length === 0) return;
