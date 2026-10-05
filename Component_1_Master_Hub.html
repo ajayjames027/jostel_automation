@@ -1682,8 +1682,13 @@ createApp({
                 ]);
             });
             
-            // Sort by Date then strictly by Time
-            tableData.sort((a,b) => (a[2]+a[3]).localeCompare(b[2]+b[3]));
+            // Sort by Date then strictly by chronological Time
+            tableData.sort((a,b) => {
+                if (a[2] !== b[2]) return a[2].localeCompare(b[2]);
+                let timeA = new Date("1970/01/01 " + a[3].split(' to ')[0]).getTime();
+                let timeB = new Date("1970/01/01 " + b[3].split(' to ')[0]).getTime();
+                return timeA - timeB;
+            });
             
             doc.autoTable({
                 startY: 35,
