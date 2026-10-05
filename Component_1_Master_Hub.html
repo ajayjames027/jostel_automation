@@ -1246,9 +1246,17 @@ createApp({
             if(this.allocatedStudents.length === 0) return;
             const wb = XLSX.utils.book_new();
 
+            let examTitle = this.websiteTimetable.examType || 'Target Exam';
+            let dates = this.settings.examDates.filter(d=>d).join(', ') || 'N/A';
+            let headerData = [
+                ["JosTEL - Joseph's Technology Enhanced Learning"],
+                [`Exam Name: ${examTitle}   |   Dates: ${dates}`]
+            ];
+
             // Dump Master Sheet securely
             let shallowClone = this.allocatedStudents.map(s => { return {'Date':s.Date, 'Timing':s.Timing, 'Lab Room':s['Lab Room'], 'Seat Number':s['Seat Number'], 'Reg No':s['Reg No'], 'Name':s.Name, 'Class':s.Class} });
-            const wsMaster = XLSX.utils.json_to_sheet(shallowClone);
+            const wsMaster = XLSX.utils.json_to_sheet(shallowClone, { origin: "A4" });
+            XLSX.utils.sheet_add_aoa(wsMaster, headerData, { origin: "A1" });
             XLSX.utils.book_append_sheet(wb, wsMaster, "Master Component I");
 
             // Build Sub-sheets generically based on param 'mode'
@@ -1261,7 +1269,8 @@ createApp({
                 
                 let shallowSubArr = structDataset[key].map(s => ({'Date':s.Date, 'Timing':s.Timing, 'Lab Room':s['Lab Room'], 'Seat Number':s['Seat Number'], 'Reg No':s['Reg No'], 'Name':s.Name, 'Class':s.Class}));
                 
-                let ws = XLSX.utils.json_to_sheet(shallowSubArr);
+                let ws = XLSX.utils.json_to_sheet(shallowSubArr, { origin: "A4" });
+                XLSX.utils.sheet_add_aoa(ws, headerData, { origin: "A1" });
                 XLSX.utils.book_append_sheet(wb, ws, safeKey);
             });
 
