@@ -409,6 +409,9 @@
                                 <button @click="exportTimetable('class')" class="bg-teal-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-teal-700 shadow-sm transition ml-2">
                                     [Class-Wise] Export
                                 </button>
+                                <button @click="exportAuditData" class="bg-amber-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-amber-700 shadow-sm transition ml-2 tracking-wide">
+                                    [Audit] Export
+                                </button>
                             </div>
                         </div>
                         
@@ -1177,6 +1180,50 @@ createApp({
             if (failsafeCount >= 1499) this.validationErrors.push({type: 'critical', msg: 'Engine constraint deadlock detected.'});
         },
         
+        exportAuditData() {
+            let auditStats = this.utilizationAudit;
+            if(!auditStats || auditStats.length === 0) return;
+            const wb = XLSX.utils.book_new();
+
+            let examTitle = this.websiteTimetable.examType || 'Target Exam';
+            let dates = this.settings.examDates.filter(d=>d).map(d => {
+                let p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d;
+            }).join(', ') || 'N/A';
+            let headerData = [
+                ["JosTEL - Joseph's Technology Enhanced Learning"],
+                [`Exam Name: ${examTitle}   |   Date: ${dates}`],
+                [],
+                ["Lab Vacancy & Utilization Audit Report"]
+            ];
+
+            let rowData = [];
+            let dropped = this.rosterStats.students - this.allocatedStudents.length;
+            rowData.push({ "Metric": "Total Uploaded Students", "Count": this.rosterStats.students, "Status": "" });
+            rowData.push({ "Metric": "Total Successfully Allocated", "Count": this.allocatedStudents.length, "Status": "System Ready" });
+            rowData.push({ "Metric": "Dropped / Unallocated Students", "Count": dropped, "Status": dropped === 0 ? "Integrity Passed" : "Critical: Data Loss" });
+            rowData.push({});
+            rowData.push({});
+
+            auditStats.forEach(sess => {
+                rowData.push({ "Metric": `--- SESSION: ${sess.session} ---`, "Count": "", "Status": "" });
+                rowData.push({ "Metric": "Total Students Scheduled", "Count": sess.totalStudents, "Status": "" });
+                
+                sess.labStats.forEach(lab => {
+                    let st = lab.free === 0 ? 'Full' : (lab.free === lab.cap ? 'Empty' : 'Partially Used');
+                    rowData.push({ "Metric": `Venue: ${lab.name}`, "Count": `${lab.used} / ${lab.cap}`, "Status": `Free: ${lab.free} Seats (${st})` });
+                });
+                rowData.push({ "Metric": "Total Unused/Vacant Seats", "Count": sess.totalFree, "Status": "" });
+                rowData.push({});
+            });
+
+            let ws = XLSX.utils.json_to_sheet(rowData, { origin: "A6" });
+            XLSX.utils.sheet_add_aoa(ws, headerData, { origin: "A1" });
+            ws['!cols'] = [{wch: 35}, {wch: 25}, {wch: 30}];
+            
+            XLSX.utils.book_append_sheet(wb, ws, "Vacancy Audit");
+            const dd = new Date();
+            XLSX.writeFile(wb, `Exam_Audit_Export_${dd.getTime()}.xlsx`);
+        },
         exportTimetable(mode = 'lab') {
             if(this.allocatedStudents.length === 0) return;
             const wb = XLSX.utils.book_new();
