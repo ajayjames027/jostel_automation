@@ -285,9 +285,14 @@
                                 </div>
                             </div>
                         </div>
-                        <button @click="generateCoreEngine" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg text-lg ring-4 ring-green-600/30 transition-transform hover:scale-105">
-                            CRUNCH TIMETABLE
-                        </button>
+                        <div class="flex gap-2 items-stretch">
+                            <button @click="$refs.mainUpload.click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition-transform hover:scale-105 flex items-center justify-center mb-0 mt-auto h-11" title="Append additional Excel/CSV files without overwriting">
+                                ➕ Append CSV
+                            </button>
+                            <button @click="generateCoreEngine" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg text-lg ring-4 ring-green-600/30 transition-transform hover:scale-105 mb-0 mt-auto h-11">
+                                CRUNCH TIMETABLE
+                            </button>
+                        </div>
                     </div>
 
                     <div class="flex-1 glass-panel flex flex-col overflow-hidden shadow-sm">
@@ -304,19 +309,16 @@
                                         <th>Students</th>
                                         <th>Shift Preference</th>
                                         <th>Blocked / Unavailable Date</th>
+                                        <th class="w-16">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="cls in rawExtractedClasses" :key="cls.name">
-                                        <td class="font-bold text-primary">{{ cls.name }}</td>
+                                    <tr v-for="(cls, index) in rawExtractedClasses" :key="cls.name">
+                                        <td class="font-bold text-gray-800 text-sm whitespace-nowrap">{{ cls.name }}</td>
+                                        <td><span class="text-xs font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">{{ cls.computedLevel }}</span></td>
+                                        <td class="font-mono text-sm">{{ cls.students.length }}</td>
                                         <td>
-                                            <span class="text-xs font-black uppercase text-teal-800 bg-teal-100 px-2 py-0.5 rounded border border-teal-200">
-                                                {{ cls.computedLevel }}
-                                            </span>
-                                        </td>
-                                        <td class="font-medium text-gray-600">{{ cls.students.length }}</td>
-                                        <td>
-                                            <select v-model="cls.shift" class="futuristic-input w-48 text-xs font-semibold" :class="cls.shift === 'Shift 1' ? 'text-blue-700 bg-blue-50' : (cls.shift === 'Shift 2' ? 'text-purple-700 bg-purple-50' : 'text-gray-700')">
+                                            <select v-model="cls.shift" class="futuristic-input font-bold text-blue-800 bg-white">
                                                 <option value="Any">Flexible (Any Shift)</option>
                                                 <option value="Shift 1">Shift 1 (Morning) ONLY</option>
                                                 <option value="Shift 2">Shift 2 (Afternoon) ONLY</option>
@@ -327,6 +329,11 @@
                                                 <input type="date" v-model="cls.blockedDate" class="futuristic-input w-40 text-xs text-red-700">
                                                 <button v-if="cls.blockedDate" @click="cls.blockedDate=''" class="ml-2 text-xs font-black text-gray-400 hover:text-red-500" title="Clear Date">×</button>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button @click="rawExtractedClasses.splice(index, 1); rosterStats.classes--" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 p-1 rounded transition" title="Delete this Class from configuration matrix">
+                                                <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -981,38 +988,58 @@ createApp({
                 pool[cStr].push(stu); 
             });
             
-            this.rawExtractedClasses = Object.keys(pool).map(k => {
-                let academicLevelStr = 'Mixed/Unknown Level';
-                let validStudent = pool[k].find(st => {
-                    let reg = String(st[st._regColRef]||'').toUpperCase();
-                    return reg && !reg.includes('NA');
-                });
-                
-                if (validStudent) {
-                    let rStr = String(validStudent[validStudent._regColRef]).toUpperCase();
-                    let yearMatch = rStr.match(/^(\d{2})([UP])/);
-                    if (yearMatch) {
-                        let prefixYear = parseInt(yearMatch[1], 10);
-                        let degType = yearMatch[2] === 'U' ? 'UG' : 'PG';
-                        let levelNum = (this.settings.academicStartYear - (2000 + prefixYear)) + 1;
-                        const romanMap = {1: 'I', 2:'II', 3:'III', 4:'IV', 5:'V'};
-                        let rmn = romanMap[levelNum] || levelNum;
-                        academicLevelStr = `${rmn} ${degType}`;
-                    }
-                }
-
-                return {
-                    name: k, 
-                    students: pool[k],
-                    shift: 'Any',
-                    blockedDate: '',
-                    computedLevel: academicLevelStr
-                }
-            }).sort((a,b) => b.students.length - a.students.length);
+            let additions = 0;
             
-            this.rosterStats.students = data.length;
+            Object.keys(pool).forEach(k => {
+                let existingClass = this.rawExtractedClasses.find(rc => rc.name === k);
+                
+                if (existingClass) {
+                    // Merge uniquely by Register Number
+                    let existingRegs = new Set(existingClass.students.map(s => s[s._regColRef]));
+                    pool[k].forEach(stu => {
+                        let r = stu[stu._regColRef];
+                        if(!existingRegs.has(r)) {
+                            existingClass.students.push(stu);
+                            additions++;
+                        }
+                    });
+                } else {
+                    let academicLevelStr = 'Mixed/Unknown Level';
+                    let validStudent = pool[k].find(st => {
+                        let reg = String(st[st._regColRef]||'').toUpperCase();
+                        return reg && !reg.includes('NA');
+                    });
+                    
+                    if (validStudent) {
+                        let rStr = String(validStudent[validStudent._regColRef]).toUpperCase();
+                        let yearMatch = rStr.match(/^(\d{2})([UP])/);
+                        if (yearMatch) {
+                            let prefixYear = parseInt(yearMatch[1], 10);
+                            let degType = yearMatch[2] === 'U' ? 'UG' : 'PG';
+                            let levelNum = (this.settings.academicStartYear - (2000 + prefixYear)) + 1;
+                            const romanMap = {1: 'I', 2:'II', 3:'III', 4:'IV', 5:'V'};
+                            let rmn = romanMap[levelNum] || levelNum;
+                            academicLevelStr = `${rmn} ${degType}`;
+                        }
+                    }
+
+                    this.rawExtractedClasses.push({
+                        name: k, 
+                        students: pool[k],
+                        shift: 'Any',
+                        blockedDate: '',
+                        computedLevel: academicLevelStr
+                    });
+                    additions += pool[k].length;
+                }
+            });
+            
+            // Re-sort classes by size
+            this.rawExtractedClasses.sort((a,b) => b.students.length - a.students.length);
+            
+            this.rosterStats.students += additions;
             this.rosterStats.classes = this.rawExtractedClasses.length;
-            this.validationErrors = [{type: 'info', msg: `Multi-file batch processed (${data.length} students across ${this.rawExtractedClasses.length} distinct classes).`}];
+            this.validationErrors = [{type: 'info', msg: `Batch merged successfully. Added/Updated ${additions} students across the matrix.`}];
         },
         
         parseTime(t) { if(!t) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; },
