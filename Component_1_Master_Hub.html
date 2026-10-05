@@ -243,13 +243,16 @@
                         </div>
 
                         <div class="mt-4 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
-                            <label class="block text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-2">Constrain Lab Availability Dates</label>
+                            <label class="block text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-2">Constrain Session Availability</label>
                             <div class="flex flex-wrap gap-2">
-                                <label v-for="(edate, di) in validExamDates" :key="di" class="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2 py-1 rounded cursor-pointer hover:bg-slate-100 transition">
-                                    <input type="checkbox" :value="edate" v-model="lab.activeDates" class="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
-                                    {{ edate.split('-').reverse().join('-') }}
+                                <label v-for="(esess, di) in validExamDateSessions" :key="di" class="flex items-center gap-1.5 text-[10px] font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2 py-1 rounded cursor-pointer hover:bg-slate-100 transition">
+                                    <input type="checkbox" :value="esess" v-model="lab.activeSessions" class="w-3 h-3 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                                    <div class="flex flex-col leading-none">
+                                        <span>{{ esess.split('::')[0].split('-').reverse().join('-') }}</span>
+                                        <span class="text-[9px] font-black text-indigo-500">{{ esess.split('::')[1] === 'Shift 1' ? 'Morn (S1)' : 'Aft (S2)' }}</span>
+                                    </div>
                                 </label>
-                                <span v-if="validExamDates.length === 0" class="text-[10px] text-red-500 font-bold italic">Define constraints in Rules Engine first.</span>
+                                <span v-if="validExamDateSessions.length === 0" class="text-[10px] text-red-500 font-bold italic">Define constraints in Rules Engine first.</span>
                             </div>
                         </div>
                     </div>
@@ -863,7 +866,19 @@ createApp({
             if(localStorage.getItem('jostel_labs')) {
                 this.customLabs = JSON.parse(localStorage.getItem('jostel_labs'));
                 this.customLabs.forEach(l => { 
-                    if(!l.activeDates) l.activeDates = (this.settings.examDates || []).filter(Boolean);
+                    if(l.activeDates && !l.activeSessions) {
+                        l.activeSessions = [];
+                        l.activeDates.forEach(d => {
+                            l.activeSessions.push(`${d}::Shift 1`);
+                            l.activeSessions.push(`${d}::Shift 2`);
+                        });
+                        delete l.activeDates;
+                    } else if(!l.activeDates && !l.activeSessions) {
+                        let eD = (this.settings.examDates || []).filter(Boolean);
+                        let base = [];
+                        eD.forEach(d => { base.push(`${d}::Shift 1`); base.push(`${d}::Shift 2`); });
+                        l.activeSessions = base;
+                    }
                 });
             }
             if(localStorage.getItem('jostel_alloc')) this.allocatedStudents = JSON.parse(localStorage.getItem('jostel_alloc'));
@@ -982,10 +997,18 @@ createApp({
         },
         validExamDates() {
             return (this.settings.examDates || []).filter(d => Boolean(d)).sort();
+        },
+        validExamDateSessions() {
+            let sessions = [];
+            this.validExamDates.forEach(d => {
+                sessions.push(`${d}::Shift 1`);
+                sessions.push(`${d}::Shift 2`);
+            });
+            return sessions;
         }
     },
     methods: {
-        addLab() { this.customLabs.push({ name: 'New Lab', building: '', room: '', rows: 5, cols: 5, cap: 25, active: true, activeDates: [...this.validExamDates] }); },
+        addLab() { this.customLabs.push({ name: 'New Lab', building: '', room: '', rows: 5, cols: 5, cap: 25, active: true, activeSessions: [...this.validExamDateSessions] }); },
         removeLab(idx) { this.customLabs.splice(idx, 1); },
         isOccupied(seatStr) { return this.viewLayoutData.some(s => s['Seat Number'] === parseInt(seatStr)); },
         isSelectedForSwap(seatStr) { return this.swapBuffer.some(b => b.seatIdx === parseInt(seatStr)); },
@@ -1167,9 +1190,10 @@ createApp({
 
                 if(permittedClasses.length === 0) { nextSlot(); continue; }
 
-                let activeLabsToday = activeLabs.filter(l => !l.activeDates || l.activeDates.length === 0 || l.activeDates.includes(currentDayStr));
+                let currentSessionStr = `${currentDayStr}::${currentShiftCode}`;
+                let activeLabsToday = activeLabs.filter(l => !l.activeSessions || l.activeSessions.length === 0 || l.activeSessions.includes(currentSessionStr));
                 if(activeLabsToday.length === 0 && permittedClasses.length > 0) {
-                    this.validationErrors.push({type: 'critical', msg: `No enabled labs explicitly mapped to date (${currentDayStr}). Skipping day.`});
+                    this.validationErrors.push({type: 'critical', msg: `No enabled labs explicitly mapped to session (${currentSessionStr}). Skipping slot.`});
                     nextSlot(); continue;
                 }
 
