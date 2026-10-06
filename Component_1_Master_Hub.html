@@ -1531,7 +1531,13 @@
                                 <input type="text" v-model="tmp.title" class="futuristic-input font-bold text-slate-800 flex-1" placeholder="Template Name">
                             </div>
                             <input type="text" v-model="tmp.desc" class="futuristic-input text-slate-600 text-xs" placeholder="Description">
-                            <input type="text" v-model="tmp.url" class="futuristic-input text-blue-600 text-xs font-mono mt-auto" placeholder="Download Link URL">
+                            <div class="flex flex-wrap items-center gap-2 mt-auto">
+                                <input type="text" v-model="tmp.url" class="futuristic-input text-blue-600 text-xs font-mono flex-1 mb-0" placeholder="Download Link URL">
+                                <label class="cursor-pointer bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold px-3 py-1.5 rounded text-xs whitespace-nowrap transition border border-indigo-200 shadow-sm">
+                                    <input type="file" class="hidden" @change="uploadTemplateFile($event, i)">
+                                    Upload File
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div v-if="cmsData.templates.length===0" class="text-center text-gray-500 text-sm py-4">No templates active.</div>
@@ -1546,12 +1552,13 @@
 <script>
 // Non-blocking lazy Firebase module loader
 async function initFirebase() {
-    if (window.fsDb && window.fsSetDoc && window.fsDoc && window.fsGetDoc) {
-        return { db: window.fsDb, setDoc: window.fsSetDoc, doc: window.fsDoc, getDoc: window.fsGetDoc };
+    if (window.fsDb && window.fsSetDoc && window.fsDoc && window.fsGetDoc && window.fsStorage) {
+        return { db: window.fsDb, setDoc: window.fsSetDoc, doc: window.fsDoc, getDoc: window.fsGetDoc, storage: window.fsStorage, ref: window.fsRef, uploadBytes: window.fsUpload, getUrl: window.fsGetUrl };
     }
     try {
         const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js");
         const { getFirestore, doc, setDoc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+        const { getStorage, ref, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js");
         
         const firebaseConfig = {
             apiKey: "AIzaSyB2qCkUx6DMCD-xLoyKVGcT8mNTfTITPOE",
@@ -1565,11 +1572,18 @@ async function initFirebase() {
 
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getFirestore(firebaseApp);
+        const storage = getStorage(firebaseApp);
+        
         window.fsDb = db;
         window.fsSetDoc = setDoc;
         window.fsDoc = doc;
         window.fsGetDoc = getDoc;
-        return { db, setDoc, doc, getDoc };
+        window.fsStorage = storage;
+        window.fsRef = ref;
+        window.fsUpload = uploadBytes;
+        window.fsGetUrl = getDownloadURL;
+        
+        return { db, setDoc, doc, getDoc, storage, ref, uploadBytes, getDownloadURL };
     } catch (e) {
         console.warn("Firebase background initialization skipped/offline:", e.message);
         return null;
@@ -4010,6 +4024,32 @@ createApp({
                 setTimeout(() => this.cmsStatus = '', 6000);
             } catch (e) {
                 this.cmsStatus = "Cloud publishing pipeline failed: " + e.message;
+            }
+        },
+        async uploadTemplateFile(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            this.cmsStatus = `Uploading ${file.name} to Cloud Storage (${Math.round(file.size / 1024)} KB)...`;
+            try {
+                let fb = await initFirebase();
+                if(!fb || !fb.storage) throw new Error("Firebase Storage API could not initialize Offline.");
+                
+                // Set path in bucket
+                const storagePath = `faculty_hub/templates/${new Date().getTime()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+                const fileRef = fb.ref(fb.storage, storagePath);
+                
+                // Push bytes
+                await fb.uploadBytes(fileRef, file);
+                
+                // Retrieve permanent global URL
+                const downloadURL = await fb.getDownloadURL(fileRef);
+                this.cmsData.templates[index].url = downloadURL;
+                this.cmsStatus = `✅ File ${file.name} uploaded successfully and linked to Template Card! Hit Publish when ready.`;
+            } catch (e) {
+                this.cmsStatus = "File Upload Failed: " + e.message;
+            } finally {
+                event.target.value = null; // Clear so they can upload again if needed
             }
         }
     }
