@@ -1,7 +1,8 @@
-const CACHE_NAME = 'jostel-cache-v8';
+const CACHE_NAME = 'jostel-cache-v9';
 const urlsToCache = [
   '/jostel_automation/',
   '/jostel_automation/index.html',
+  '/jostel_automation/Student_Exam_Lookup.html',
   '/jostel_automation/Grade_Fetcher_Dashboard.html',
   '/jostel_automation/Earn_While_You_Learn.html',
   '/jostel_automation/Usage_Analytics.html',

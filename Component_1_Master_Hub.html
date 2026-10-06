@@ -113,6 +113,10 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 Invigilator Remuneration
             </div>
+            <div class="sidebar-item" :class="{'active': activeTab === 'studentLookup'}" @click="activeTab = 'studentLookup'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                Student Venue Lookup
+            </div>
         </div>
 
         <!-- Dynamic Content Pane -->
@@ -1017,6 +1021,157 @@
                         <button @click="saveInvigilator" :disabled="!invigForm.name" class="btn-primary text-xs">Save Invigilator</button>
                     </div>
                 </div>
+            <!-- STUDENT VENUE & SEAT LOOKUP TAB -->
+            <div v-show="activeTab === 'studentLookup'" class="space-y-6 max-w-4xl mx-auto pb-20 h-full">
+                <div class="flex flex-wrap justify-between items-end gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Student Exam Venue & PC Terminal Finder</h2>
+                        <p class="text-slate-500 text-sm">Instant lookup portal for students and invigilators to find exact exam timings, lab rooms, and computer seat numbers.</p>
+                    </div>
+                    <a href="./Student_Exam_Lookup.html" target="_blank" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3.5 py-2 rounded-lg text-xs border border-indigo-200 flex items-center gap-1.5 transition shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        Open Public Student Link ↗
+                    </a>
+                </div>
+
+                <!-- Alert if no schedule -->
+                <div v-if="allocatedStudents.length === 0" class="glass-panel p-10 text-center text-amber-800 bg-amber-50 border border-amber-200 rounded-xl">
+                    <svg class="w-12 h-12 text-amber-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <h3 class="text-lg font-bold">No Exam Matrix Generated Yet</h3>
+                    <p class="text-xs text-amber-700 mt-1 max-w-md mx-auto">Please go to <strong>Timetables & Rules</strong> tab and click <strong>Crunch Timetable Matrix</strong> first so students can search their venue.</p>
+                </div>
+
+                <div v-else class="space-y-6">
+                    <!-- Search Card -->
+                    <div class="glass-panel p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Search Candidate by Register Number or Name</label>
+                        <div class="relative">
+                            <input type="text" v-model="studentSearchQuery" @input="handleStudentSearch" placeholder="Type Register Number (e.g. 24UCO101) or Candidate Name..." class="w-full text-base font-bold pl-11 pr-24 py-3 border-2 border-blue-200 focus:border-blue-600 rounded-xl outline-none transition bg-slate-50 focus:bg-white text-slate-800">
+                            <svg class="w-6 h-6 text-blue-500 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <button v-if="studentSearchQuery" @click="studentSearchQuery = ''; matchedStudents = []; selectedStudentAdmit = null" class="absolute right-3 top-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg px-2.5 py-1 text-xs font-bold">
+                                Clear
+                            </button>
+                        </div>
+                        <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
+                            <span>Searching across <strong class="text-blue-900">{{ allocatedStudents.length }}</strong> scheduled candidates</span>
+                            <span v-if="matchedStudents.length > 0" class="font-bold text-emerald-700">Found {{ matchedStudents.length }} match(es)</span>
+                        </div>
+                    </div>
+
+                    <!-- Search Results / Selected Card -->
+                    <div v-if="matchedStudents.length > 0" class="space-y-4">
+                        <!-- Multiple matches selector if more than 1 match -->
+                        <div v-if="matchedStudents.length > 1" class="glass-panel p-3 bg-slate-100 rounded-xl flex items-center gap-2 overflow-x-auto text-xs">
+                            <span class="font-bold text-gray-600 shrink-0">Select Student:</span>
+                            <button v-for="stu in matchedStudents" :key="stu['Reg No']" @click="selectedStudentAdmit = stu" class="px-3 py-1.5 rounded-lg font-bold transition whitespace-nowrap" :class="selectedStudentAdmit && selectedStudentAdmit['Reg No'] === stu['Reg No'] ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-gray-700 hover:bg-gray-200'">
+                                {{ stu['Reg No'] }} - {{ stu.Name }}
+                            </button>
+                        </div>
+
+                        <!-- Digital Hall Ticket Card -->
+                        <div v-if="selectedStudentAdmit" class="glass-panel bg-white border-2 border-blue-500 rounded-2xl shadow-xl overflow-hidden animate-fade-in-up">
+                            <!-- Card Header -->
+                            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-6 flex flex-wrap justify-between items-center gap-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+                                        <svg class="w-7 h-7 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-[10px] uppercase font-bold tracking-widest text-blue-200">Official Exam Admit Pass</div>
+                                        <h3 class="text-xl font-black">{{ websiteTimetable.examType || 'Component I Examination' }}</h3>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button @click="exportSingleStudentHallTicket(selectedStudentAdmit)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center gap-1.5 shadow transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Download Pass (PDF)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="p-6 space-y-6">
+                                <!-- Student Info Matrix -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b border-gray-200">
+                                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Candidate Name</div>
+                                        <div class="text-lg font-black text-slate-800 mt-0.5 truncate">{{ selectedStudentAdmit.Name }}</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Register Number</div>
+                                        <div class="text-lg font-mono font-black text-blue-800 mt-0.5">{{ selectedStudentAdmit['Reg No'] }}</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Department / Class</div>
+                                        <div class="text-lg font-bold text-slate-800 mt-0.5 truncate">{{ selectedStudentAdmit.Class }}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Big Venue & Seat Highlight Box -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border-2 border-blue-200 flex items-center gap-4">
+                                        <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/30">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-bold uppercase tracking-wider text-blue-600">Assigned Exam Venue / Lab</div>
+                                            <div class="text-2xl font-black text-blue-950">{{ selectedStudentAdmit['Lab Room'] }}</div>
+                                            <div class="text-xs text-blue-700 font-semibold mt-0.5">Please report directly to this laboratory</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-2xl border-2 border-emerald-200 flex items-center gap-4">
+                                        <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-600/30">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-bold uppercase tracking-wider text-emerald-600">Computer Terminal / Seat ID</div>
+                                            <div class="text-2xl font-black text-emerald-950">PC # {{ selectedStudentAdmit['Seat Number'] }}</div>
+                                            <div class="text-xs text-emerald-700 font-semibold mt-0.5">Dedicated workstation reserved for you</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Exam Schedule Timing Box -->
+                                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 flex flex-wrap justify-between items-center gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-lg bg-amber-200 text-amber-800 flex items-center justify-center font-bold">
+                                            📅
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-bold text-amber-800 uppercase">Scheduled Exam Date</div>
+                                            <div class="text-base font-black text-amber-950">{{ selectedStudentAdmit.Date }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-lg bg-amber-200 text-amber-800 flex items-center justify-center font-bold">
+                                            ⏰
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-bold text-amber-800 uppercase">Exam Time Slot</div>
+                                            <div class="text-base font-black text-amber-950">{{ selectedStudentAdmit.Timing }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Student Instructions -->
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
+                                    <div class="font-bold text-slate-800 uppercase mb-1">Important Instructions for Candidates:</div>
+                                    <p>• Arrive at the designated lab at least <strong>10 minutes</strong> before the scheduled timing.</p>
+                                    <p>• Sit only at your assigned PC Terminal (<strong>PC #{{ selectedStudentAdmit['Seat Number'] }}</strong> in <strong>{{ selectedStudentAdmit['Lab Room'] }}</strong>).</p>
+                                    <p>• Bring your College Identity Card to the exam venue.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state if search performed but no match -->
+                    <div v-else-if="studentSearchQuery" class="glass-panel p-8 text-center text-gray-500 bg-white border rounded-2xl">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="font-bold text-base text-gray-700">No student found matching "{{ studentSearchQuery }}"</div>
+                        <div class="text-xs text-gray-400 mt-1">Please double check the Register Number format (e.g. 24UCO101) or try searching by candidate name.</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1110,6 +1265,11 @@ createApp({
             invigFilterSession: '',
             showAddInvigModal: false,
             invigForm: { id: null, name: '', dept: '', acc: '', bank: '', ifsc: '', phone: '', rate: 250 },
+            
+            // Student Venue Lookup State
+            studentSearchQuery: '',
+            matchedStudents: [],
+            selectedStudentAdmit: null,
             
             websiteTimetable: {
                 examType: 'Component I',
@@ -2720,6 +2880,88 @@ createApp({
             });
             
             doc.save("Student_Hall_Tickets.pdf");
+        },
+
+        // Student Venue Lookup Methods
+        handleStudentSearch() {
+            let q = (this.studentSearchQuery || '').trim().toUpperCase();
+            if (!q) {
+                this.matchedStudents = [];
+                this.selectedStudentAdmit = null;
+                return;
+            }
+            this.matchedStudents = this.allocatedStudents.filter(s => {
+                let reg = String(s['Reg No'] || '').toUpperCase();
+                let name = String(s['Name'] || '').toUpperCase();
+                return reg.includes(q) || name.includes(q);
+            });
+            if (this.matchedStudents.length > 0) {
+                this.selectedStudentAdmit = this.matchedStudents[0];
+            } else {
+                this.selectedStudentAdmit = null;
+            }
+        },
+
+        exportSingleStudentHallTicket(s) {
+            if (!s) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a5'); // A5 format for individual pass
+
+            this.injectJosTelBranding(doc);
+
+            doc.setFontSize(13);
+            doc.setFont("helvetica", "bold");
+            doc.text("EXAMINATION VENUE ADMIT PASS", 74, 33, { align: "center" });
+
+            // Main Pass Box
+            doc.setFillColor(248, 250, 252);
+            doc.rect(12, 38, 124, 42, 'F');
+            doc.setDrawColor(203, 213, 225);
+            doc.rect(12, 38, 124, 42, 'S');
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Candidate:`, 16, 46);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${s.Name}`, 40, 46);
+
+            doc.setFont("helvetica", "bold");
+            doc.text(`Register No:`, 16, 54);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${s['Reg No']}`, 40, 54);
+
+            doc.setFont("helvetica", "bold");
+            doc.text(`Department:`, 16, 62);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${s.Class}`, 40, 62);
+
+            doc.setFont("helvetica", "bold");
+            doc.text(`Date & Time:`, 16, 70);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${s.Date} (${s.Timing})`, 40, 70);
+
+            // Highlighted Lab & PC Box
+            doc.setFillColor(30, 58, 138);
+            doc.rect(12, 85, 124, 24, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text(`VENUE: ${s['Lab Room'].toUpperCase()}`, 74, 94, { align: "center" });
+            doc.setFontSize(14);
+            doc.text(`SEAT / PC TERMINAL # ${s['Seat Number']}`, 74, 103, { align: "center" });
+
+            // Instructions
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "italic");
+            doc.text("• Please arrive 10 minutes prior to the scheduled exam slot.", 12, 118);
+            doc.text("• Carry this pass and your College Identity Card to the lab.", 12, 124);
+
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "bold");
+            doc.text("Chief Superintendent Signature: __________________", 12, 140);
+
+            doc.save(`Admit_Pass_${s['Reg No']}.pdf`);
         }
     }
 }).mount('#app');
