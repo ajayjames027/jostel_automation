@@ -1025,15 +1025,19 @@ createApp({
                 let existingClass = this.rawExtractedClasses.find(rc => rc.name === k);
                 
                 if (existingClass) {
-                    // Merge uniquely by Register Number
-                    let existingRegs = new Set(existingClass.students.map(s => s[s._regColRef]));
+                    // Merge uniquely - normalize reg numbers for safe cross-CSV comparison
+                    let existingRegs = new Set(
+                        existingClass.students.map(s => String(s[s._regColRef] || '').trim().toUpperCase())
+                    );
                     pool[k].forEach(stu => {
-                        let r = stu[stu._regColRef];
-                        if(!existingRegs.has(r)) {
+                        let r = String(stu[regCol] || '').trim().toUpperCase();
+                        if(r && !existingRegs.has(r)) {
                             existingClass.students.push(stu);
+                            existingRegs.add(r); // prevent in-batch dupes too
                             additions++;
                         }
                     });
+
                 } else {
                     let academicLevelStr = 'Mixed/Unknown Level';
                     let validStudent = pool[k].find(st => {
