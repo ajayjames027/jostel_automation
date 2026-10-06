@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -1021,6 +1022,8 @@
                         <button @click="saveInvigilator" :disabled="!invigForm.name" class="btn-primary text-xs">Save Invigilator</button>
                     </div>
                 </div>
+            </div>
+
             <!-- STUDENT VENUE & SEAT LOOKUP TAB -->
             <div v-show="activeTab === 'studentLookup'" class="space-y-6 max-w-4xl mx-auto pb-20 h-full">
                 <div class="flex flex-wrap justify-between items-end gap-4">
@@ -1028,10 +1031,16 @@
                         <h2 class="text-2xl font-bold text-slate-800">Student Exam Venue & PC Terminal Finder</h2>
                         <p class="text-slate-500 text-sm">Instant lookup portal for students and invigilators to find exact exam timings, lab rooms, and computer seat numbers.</p>
                     </div>
-                    <a href="./Student_Exam_Lookup.html" target="_blank" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3.5 py-2 rounded-lg text-xs border border-indigo-200 flex items-center gap-1.5 transition shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                        Open Public Student Link ↗
-                    </a>
+                    <div class="flex items-center gap-2">
+                        <button @click="printStudentNoticeFlyer" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            🖨️ Print QR Notice Flyer
+                        </button>
+                        <a href="./exam.html" target="_blank" class="bg-blue-900 hover:bg-blue-800 text-white font-bold px-3.5 py-2 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            Open Student Link (/exam.html) ↗
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Alert if no schedule -->
@@ -1175,8 +1184,6 @@
             </div>
         </div>
 
-
-        </div>
     </div>
 </div>
 
@@ -2962,6 +2969,73 @@ createApp({
             doc.text("Chief Superintendent Signature: __________________", 12, 140);
 
             doc.save(`Admit_Pass_${s['Reg No']}.pdf`);
+        },
+
+        printStudentNoticeFlyer() {
+            const studentUrl = window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + 'exam.html';
+            const tempDiv = document.createElement('div');
+            tempDiv.style.display = 'none';
+            document.body.appendChild(tempDiv);
+
+            new QRCode(tempDiv, {
+                text: studentUrl,
+                width: 220,
+                height: 220,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            setTimeout(() => {
+                const qrCanvas = tempDiv.querySelector('canvas');
+                const qrDataUrl = qrCanvas ? qrCanvas.toDataURL() : '';
+                document.body.removeChild(tempDiv);
+
+                const examTitle = (this.settings && this.settings.examType) ? this.settings.examType : 'Component I Examination';
+                const printWin = window.open('', '', 'width=800,height=900');
+                printWin.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Student Exam Venue & PC Finder Notice</title>
+                        <style>
+                            body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 40px; margin: 0; background: #fff; }
+                            .flyer { border: 4px solid #1e3a8a; border-radius: 20px; padding: 40px; max-width: 620px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+                            h1 { color: #1e3a8a; font-size: 26px; margin-bottom: 6px; text-transform: uppercase; font-weight: 800; }
+                            h2 { color: #475569; font-size: 18px; margin-top: 0; font-weight: 600; }
+                            .badge { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 20px; }
+                            .qr-box { margin: 25px auto; display: inline-block; padding: 15px; border: 2px solid #cbd5e1; border-radius: 16px; background: #f8fafc; }
+                            .link-box { font-size: 15px; font-weight: bold; color: #1e3a8a; word-break: break-all; margin-top: 15px; }
+                            .instructions { text-align: left; margin-top: 30px; background: #f8fafc; padding: 20px; border-radius: 12px; font-size: 13px; line-height: 1.6; border: 1px solid #e2e8f0; }
+                            .instructions strong { color: #0f172a; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="flyer">
+                            <span class="badge">STUDENT EXAMINATION NOTICE</span>
+                            <h1>JosTEL Exam Operations</h1>
+                            <h2>${examTitle} - Venue & PC Finder</h2>
+                            <p style="font-size: 15px; color: #334155;">Scan this QR code with your mobile camera to find your allotted <strong>Exam Hall & Computer Seat</strong>.</p>
+                            <div class="qr-box">
+                                <img src="${qrDataUrl}" width="220" height="220" />
+                            </div>
+                            <div class="link-box">Portal URL: ${studentUrl}</div>
+                            <div class="instructions">
+                                <strong>Candidate Instructions:</strong><br>
+                                1. Scan QR code or visit the link on any mobile or laptop browser.<br>
+                                2. Enter your <strong>Register Number</strong> (e.g. 24UCO101).<br>
+                                3. View your assigned Lab Room, Shift Timing, and PC Terminal Number.<br>
+                                4. Download your official digital Exam Admit Pass.
+                            </div>
+                        </div>
+                        <script>
+                            window.onload = function() { window.print(); }
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                printWin.document.close();
+            }, 300);
         }
     }
 }).mount('#app');
