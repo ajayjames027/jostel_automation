@@ -310,6 +310,13 @@
                                 </button>
                             </div>
                             
+                            <div class="flex flex-col bg-amber-50 p-1 px-3 rounded-lg border border-amber-200 justify-center">
+                                <label class="text-[9px] uppercase font-bold text-amber-600 tracking-wider">Clean Data</label>
+                                <button @click="deduplicateStudents" class="text-xs font-bold text-amber-700 hover:text-amber-900 transition flex items-center justify-center gap-1">
+                                    ✨ De-dupe
+                                </button>
+                            </div>
+                            
                             <div class="flex flex-col bg-blue-50 p-1 px-3 rounded-lg border border-blue-200 justify-center">
                                 <label class="text-[9px] uppercase font-bold text-blue-600 tracking-wider">Bulk Target Shift</label>
                                 <select @change="applyBulkShift($event.target.value)" class="bg-transparent font-bold text-xs outline-none text-blue-800 cursor-pointer">
@@ -1608,6 +1615,31 @@ createApp({
                 this.rosterStats.classes = 0;
                 this.rosterStats.students = 0;
             }
+        },
+        deduplicateStudents() {
+            let removedCount = 0;
+            this.rawExtractedClasses.forEach(c => {
+                let uniqueRegs = new Set();
+                let filtered = [];
+                // Natively dynamically find what column currently identifies 'Reg No' for this batch
+                let regCol = c.students.length > 0 ? (c.students[0]._regColRef || Object.keys(c.students[0])[0]) : null;
+                
+                c.students.forEach(s => {
+                    let r = String(s[regCol] || '').trim().toUpperCase();
+                    if(r && !uniqueRegs.has(r)) {
+                        uniqueRegs.add(r);
+                        filtered.push(s);
+                    } else if(r) {
+                        removedCount++;
+                    }
+                });
+                c.students = filtered;
+            });
+            this.rawExtractedClasses = this.rawExtractedClasses.filter(c => c.students.length > 0);
+            this.rosterStats.students -= removedCount;
+            this.rosterStats.classes = this.rawExtractedClasses.length;
+            this.validationErrors = [{type: 'info', msg: `De-duplication complete! Safely removed ${removedCount} duplicate students from existing roster.`}];
+            setTimeout(() => alert(`Cleaned ${removedCount} duplicates successfully!`), 100);
         },
         async pushToCloud() {
             if(this.allocatedStudents.length === 0 && this.rawExtractedClasses.length === 0) {
