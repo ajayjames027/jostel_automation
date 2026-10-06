@@ -1552,7 +1552,7 @@
 // Non-blocking lazy Firebase module loader
 async function initFirebase() {
     if (window.fsDb && window.fsSetDoc && window.fsDoc && window.fsGetDoc && window.fsStorage) {
-        return { db: window.fsDb, setDoc: window.fsSetDoc, doc: window.fsDoc, getDoc: window.fsGetDoc, storage: window.fsStorage, ref: window.fsRef, uploadBytes: window.fsUpload, getUrl: window.fsGetUrl };
+        return { db: window.fsDb, setDoc: window.fsSetDoc, doc: window.fsDoc, getDoc: window.fsGetDoc, storage: window.fsStorage, ref: window.fsRef, uploadBytes: window.fsUpload, getDownloadURL: window.fsGetUrl };
     }
     try {
         const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js");
