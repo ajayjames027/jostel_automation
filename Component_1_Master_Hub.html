@@ -1980,6 +1980,64 @@ createApp({
             }
             return 0;
         },
+        async downloadMoodleDeploymentKit() {
+            if (this.allocatedStudents.length === 0) return;
+            if (typeof JSZip === 'undefined') {
+                alert("JSZip library has not fully initialized yet. Try again.");
+                return;
+            }
+            const courseShortname = (this.websiteTimetable.examType || 'Exam_Comp_I').replace(/[^a-zA-Z0-9]/g, '_');
+            const courseTitle = this.websiteTimetable.examType || 'Component I Examination Course';
+            
+            const zip = new JSZip();
+            
+            // 1. Courses CSV
+            let csvCourses = "shortname,fullname,category,format\n";
+            csvCourses += `${courseShortname},"${courseTitle}",1,topics\n`;
+            zip.file("1_Courses.csv", csvCourses);
+            
+            // 2. Students & Groups CSV
+            let csvUsers = "username,course1,role1,group1\n";
+            this.allocatedStudents.forEach(s => {
+                let usr = String(s['Reg No']).trim().toLowerCase();
+                let gDate = String(s.Date).replace(/[^a-zA-Z0-9]/g, '');
+                let gTime = String(s.Timing).split(' to ')[0].replace(/[^a-zA-Z0-9]/g, '');
+                let gLab = String(s['Lab Room']).replace(/[^a-zA-Z0-9]/g, '');
+                let groupName = `${gDate}_${gTime}_${gLab}`;
+                
+                csvUsers += `${usr},${courseShortname},student,${groupName}\n`;
+            });
+            zip.file("2_Students_Groups.csv", csvUsers);
+            
+            // 3. Faculty/Invigilator Enrolment CSV
+            let csvFaculty = "username,course1,role1,group1\n";
+            if (this.invigilatorAssignments) {
+                Object.keys(this.invigilatorAssignments).forEach(slotKey => {
+                    let invigId = this.invigilatorAssignments[slotKey];
+                    let invMatch = this.invigilatorList.find(i => i.id === invigId);
+                    if (invMatch) {
+                        let keyParts = slotKey.split(" :: ");
+                        if(keyParts.length === 3) {
+                            let gDate = keyParts[0].replace(/[^a-zA-Z0-9]/g, '');
+                            let gTime = keyParts[1].split(' to ')[0].replace(/[^a-zA-Z0-9]/g, '');
+                            let gLab = keyParts[2].replace(/[^a-zA-Z0-9]/g, '');
+                            let groupName = `${gDate}_${gTime}_${gLab}`;
+                            let fRole = String(invMatch.phone).trim();
+                            csvFaculty += `${fRole},${courseShortname},editingteacher,${groupName}\n`;
+                        }
+                    }
+                });
+            }
+            zip.file("3_Faculty_Map.csv", csvFaculty);
+            
+            const content = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `Moodle_AutoPilot_Deployment_Kit_${new Date().getTime()}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
 
         parseTimeToMinutes(timingStr) {
             if (!timingStr) return 0;
