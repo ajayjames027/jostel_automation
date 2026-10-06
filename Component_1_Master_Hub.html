@@ -1484,7 +1484,13 @@ createApp({
             if(!this.allocatedStudents.length) return [];
             let s = new Set();
             this.allocatedStudents.forEach(st => s.add(`${st.Date} :: ${st.Timing}`));
-            return Array.from(s).sort();
+            let list = Array.from(s);
+            list.sort((a, b) => {
+                let [dA, tA] = a.split(" :: ");
+                let [dB, tB] = b.split(" :: ");
+                return this.compareDateAndTiming(dA, tA, dB, tB);
+            });
+            return list;
         },
         labGrid() {
             if(!this.selectedViewLab) return [];
@@ -1553,7 +1559,7 @@ createApp({
             return report;
         },
         validExamDates() {
-            return (this.settings.examDates || []).filter(d => Boolean(d)).sort();
+            return (this.settings.examDates || []).filter(d => Boolean(d)).sort((a, b) => this.parseDateStrToTime(a) - this.parseDateStrToTime(b));
         },
         validExamDateSessions() {
             let sessions = [];
@@ -1596,9 +1602,9 @@ createApp({
                 });
             });
             slots.sort((a,b) => {
-                if(a.date !== b.date) return a.date.localeCompare(b.date);
-                if(a.timing !== b.timing) return a.timing.localeCompare(b.timing);
-                return a.lab.localeCompare(b.lab);
+                let cmp = this.compareDateAndTiming(a.date, a.timing, b.date, b.timing);
+                if (cmp !== 0) return cmp;
+                return String(a.lab || '').localeCompare(String(b.lab || ''));
             });
             return slots;
         },
@@ -1655,12 +1661,12 @@ createApp({
                 }
                 map[sessionKey].slots.push(slot);
             });
-            return Object.values(map);
+            let list = Object.values(map);
+            list.sort((a, b) => this.compareDateAndTiming(a.date, a.timing, b.date, b.timing));
+            return list;
         },
         uniqueTimingSlots() {
-            let set = new Set();
-            this.allottedScheduleSlots.forEach(s => set.add(`${s.date} :: ${s.timing}`));
-            return Array.from(set);
+            return this.timingWiseRoster.map(r => r.sessionKey);
         },
         filteredTimingWiseRoster() {
             if (!this.rosterFilterTiming) return this.timingWiseRoster;
@@ -1673,6 +1679,74 @@ createApp({
         }
     },
     methods: {
+        parseDateStrToTime(dateStr) {
+            if (!dateStr) return 0;
+            let d = new Date(dateStr);
+            if (!isNaN(d.getTime())) return d.getTime();
+            
+            let parts = String(dateStr).trim().split(/[\s,.-]+/);
+            if (parts.length === 3) {
+                let months = {
+                    'jan': 0, 'january': 0, 'feb': 1, 'february': 1, 'mar': 2, 'march': 2, 'apr': 3, 'april': 3,
+                    'may': 4, 'jun': 5, 'june': 5, 'jul': 6, 'july': 6, 'aug': 7, 'august': 7, 'sep': 8, 'sept': 8, 'september': 8,
+                    'oct': 9, 'october': 9, 'nov': 10, 'november': 10, 'dec': 11, 'december': 11
+                };
+                if (months[parts[1].toLowerCase()] !== undefined) {
+                    let day = parseInt(parts[0], 10);
+                    let month = months[parts[1].toLowerCase()];
+                    let year = parseInt(parts[2], 10);
+                    let parsed = new Date(year, month, day);
+                    if (!isNaN(parsed.getTime())) return parsed.getTime();
+                }
+                if (months[parts[0].toLowerCase()] !== undefined) {
+                    let month = months[parts[0].toLowerCase()];
+                    let day = parseInt(parts[1], 10);
+                    let year = parseInt(parts[2], 10);
+                    let parsed = new Date(year, month, day);
+                    if (!isNaN(parsed.getTime())) return parsed.getTime();
+                }
+                if (!isNaN(parseInt(parts[0], 10)) && !isNaN(parseInt(parts[1], 10)) && !isNaN(parseInt(parts[2], 10))) {
+                    if (parts[0].length === 4) {
+                        let parsed = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                        if (!isNaN(parsed.getTime())) return parsed.getTime();
+                    } else if (parts[2].length === 4) {
+                        let parsed = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                        if (!isNaN(parsed.getTime())) return parsed.getTime();
+                    }
+                }
+            }
+            return 0;
+        },
+
+        parseTimeToMinutes(timingStr) {
+            if (!timingStr) return 0;
+            let m = String(timingStr).match(/(\d{1,2})[:.](\d{2})\s*(AM|PM|am|pm)?/i);
+            if (!m) return 0;
+            let hours = parseInt(m[1], 10);
+            let minutes = parseInt(m[2], 10);
+            let ampm = m[3] ? m[3].toUpperCase() : null;
+
+            if (ampm === 'PM' && hours < 12) hours += 12;
+            if (ampm === 'AM' && hours === 12) hours = 0;
+
+            return hours * 60 + minutes;
+        },
+
+        compareDateAndTiming(dateA, timingA, dateB, timingB) {
+            let timeA = this.parseDateStrToTime(dateA);
+            let timeB = this.parseDateStrToTime(dateB);
+            if (timeA && timeB && timeA !== timeB) return timeA - timeB;
+            if (dateA !== dateB) {
+                let cmp = String(dateA).localeCompare(String(dateB));
+                if (cmp !== 0) return cmp;
+            }
+
+            let minA = this.parseTimeToMinutes(timingA);
+            let minB = this.parseTimeToMinutes(timingB);
+            if (minA !== minB) return minA - minB;
+
+            return String(timingA || '').localeCompare(String(timingB || ''));
+        },
         addLab() { this.customLabs.push({ name: 'New Lab', building: '', room: '', rows: 5, cols: 5, cap: 25, active: true, activeSessions: [...this.validExamDateSessions] }); },
         removeLab(idx) { this.customLabs.splice(idx, 1); },
         isOccupied(seatStr) { return this.viewLayoutData.some(s => s['Seat Number'] === parseInt(seatStr)); },
