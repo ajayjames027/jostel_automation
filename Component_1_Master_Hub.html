@@ -924,46 +924,157 @@
                         </div>
                     </div>
 
-                    <!-- SUB TAB 3: DUTY ROSTER PRINTABLE -->
+                    <!-- SUB TAB 3: DUTY ROSTER PRINTABLE (TIMING-WISE) -->
                     <div v-show="invigSubTab === 'rosterPDF'" class="space-y-6">
-                        <div class="glass-panel p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-                            <div class="flex justify-between items-center mb-4">
+                        <div class="glass-panel p-6 bg-white rounded-xl shadow-sm border border-gray-200 space-y-5">
+                            <div class="flex flex-wrap justify-between items-center gap-4 border-b pb-4">
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-800">Invigilator Duty Roster Publication</h3>
-                                    <p class="text-xs text-gray-500">Generate printable duty allocation matrices for department notice boards.</p>
+                                    <h3 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Invigilator Duty Roster Publication (Timing-Wise)
+                                    </h3>
+                                    <p class="text-xs text-gray-500">Official duty allocations organized session-by-session for department notice boards and invigilator signature records.</p>
                                 </div>
-                                <button @click="exportInvigilatorDutyRosterPDF" :disabled="allottedScheduleSlots.length === 0" class="btn-primary text-xs flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                    Download Official Duty Roster PDF
-                                </button>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <!-- View Mode Switcher -->
+                                    <div class="flex bg-slate-100 p-1 rounded-lg border text-xs font-bold">
+                                        <button @click="rosterViewMode = 'timingWise'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5" :class="rosterViewMode === 'timingWise' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
+                                            <span>📋</span> Timing-Wise Cards
+                                        </button>
+                                        <button @click="rosterViewMode = 'matrix'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5" :class="rosterViewMode === 'matrix' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
+                                            <span>📊</span> Timetable Grid
+                                        </button>
+                                    </div>
+
+                                    <button @click="exportInvigilatorDutyRosterPDF" :disabled="allottedScheduleSlots.length === 0" class="btn-primary text-xs flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                        Download Official PDF Roster
+                                    </button>
+                                </div>
                             </div>
 
-                            <!-- Preview Matrix -->
-                            <div class="overflow-x-auto border rounded-lg">
-                                <table class="w-full text-left text-xs">
+                            <!-- Filter by Timing Slot Bar -->
+                            <div class="flex flex-wrap justify-between items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <div class="flex items-center gap-3">
+                                    <label class="text-xs font-bold text-gray-600 uppercase flex items-center gap-1">
+                                        <span>⏰ Filter Shift Timing:</span>
+                                    </label>
+                                    <select v-model="rosterFilterTiming" class="futuristic-input font-bold text-xs text-blue-900 bg-white" style="width: auto;">
+                                        <option value="">All Shift Timings ({{ uniqueTimingSlots.length }} Sessions)</option>
+                                        <option v-for="t in uniqueTimingSlots" :key="t" :value="t">{{ t }}</option>
+                                    </select>
+                                </div>
+                                <div class="text-xs text-gray-500 font-semibold">
+                                    Total Active Duty Slots: <strong class="text-blue-900">{{ allottedScheduleSlots.length }}</strong> Across <strong class="text-purple-900">{{ uniqueTimingSlots.length }}</strong> Sessions
+                                </div>
+                            </div>
+
+                            <!-- VIEW 1: TIMING-WISE SESSION BLOCKS -->
+                            <div v-if="rosterViewMode === 'timingWise'" class="space-y-6">
+                                <div v-for="(sessionGroup, sIdx) in filteredTimingWiseRoster" :key="sessionGroup.sessionKey" class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+                                    <!-- Timing Session Header Banner -->
+                                    <div class="bg-gradient-to-r from-slate-900 to-blue-950 text-white px-5 py-3.5 flex flex-wrap justify-between items-center gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <span class="bg-blue-600 text-white font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                                                Session #{{ sIdx + 1 }}
+                                            </span>
+                                            <div>
+                                                <div class="text-sm font-black flex items-center gap-2">
+                                                    <span>📅 {{ sessionGroup.date }}</span>
+                                                    <span class="text-blue-300">•</span>
+                                                    <span class="text-amber-300">⏰ {{ sessionGroup.timing }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="bg-slate-800/80 text-blue-200 text-xs font-bold px-3 py-1 rounded-full border border-blue-400/30">
+                                                {{ sessionGroup.slots.length }} Labs Allotted
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Labs Under this Specific Timing -->
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left text-xs">
+                                            <thead>
+                                                <tr class="bg-slate-100 text-slate-700 uppercase font-bold border-b border-gray-200 text-[11px]">
+                                                    <th class="p-3 text-center w-12">#</th>
+                                                    <th class="p-3 w-40">Exam Lab / Venue</th>
+                                                    <th class="p-3">Assigned Invigilator</th>
+                                                    <th class="p-3">Department</th>
+                                                    <th class="p-3">Contact</th>
+                                                    <th class="p-3 text-center w-48">Invigilator Signature</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100">
+                                                <tr v-for="(slot, lIdx) in sessionGroup.slots" :key="slot.key" class="hover:bg-blue-50/40 transition">
+                                                    <td class="p-3 text-center font-bold text-gray-400">
+                                                        {{ lIdx + 1 }}
+                                                    </td>
+                                                    <td class="p-3 font-bold text-blue-900">
+                                                        <div class="flex items-center gap-1.5">
+                                                            <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                                            <span>{{ slot.lab }}</span>
+                                                        </div>
+                                                        <div class="text-[10px] text-gray-500 font-normal mt-0.5">{{ slot.studentCount }} Students Seated</div>
+                                                    </td>
+                                                    <td class="p-3 font-black" :class="invigilatorAssignments[slot.key] ? 'text-slate-900 text-sm' : 'text-amber-600 italic'">
+                                                        <div v-if="invigilatorAssignments[slot.key]" class="flex items-center gap-1.5">
+                                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                            {{ getInvigilatorName(invigilatorAssignments[slot.key]) }}
+                                                        </div>
+                                                        <div v-else class="text-amber-600">
+                                                            ⚠️ Unassigned
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-3 font-semibold text-gray-600">
+                                                        {{ getInvigilatorDept(invigilatorAssignments[slot.key]) }}
+                                                    </td>
+                                                    <td class="p-3 text-gray-500 font-mono text-[11px]">
+                                                        {{ getInvigilatorPhone(invigilatorAssignments[slot.key]) }}
+                                                    </td>
+                                                    <td class="p-3 border-l text-center font-mono text-gray-300">
+                                                        <div class="h-8 border-b border-dashed border-gray-400 mx-2 flex items-end justify-center text-[10px] text-gray-400">
+                                                            Sign Above
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VIEW 2: FULL TIMETABLE MATRIX GRID -->
+                            <div v-else class="overflow-x-auto border border-slate-200 rounded-xl bg-white">
+                                <table class="w-full text-left text-xs border-collapse">
                                     <thead>
-                                        <tr class="bg-slate-800 text-white font-bold uppercase">
-                                            <th class="p-3">Exam Date & Timing</th>
-                                            <th class="p-3">Lab / Venue</th>
-                                            <th class="p-3">Assigned Invigilator</th>
-                                            <th class="p-3">Department</th>
-                                            <th class="p-3 text-center">Invigilator Signature</th>
+                                        <tr class="bg-slate-900 text-white font-bold uppercase text-[11px]">
+                                            <th class="p-3 border-r border-slate-800 sticky left-0 bg-slate-900 z-10">Exam Timing Slot</th>
+                                            <th v-for="lab in uniqueRosterLabs" :key="lab" class="p-3 text-center border-r border-slate-800 min-w-[140px]">
+                                                {{ lab }}
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200">
-                                        <tr v-for="slot in allottedScheduleSlots" :key="slot.key" class="hover:bg-slate-50">
-                                            <td class="p-3 font-bold text-slate-900">
-                                                {{ slot.date }} <br><span class="text-[11px] text-gray-500 font-normal">{{ slot.timing }}</span>
+                                        <tr v-for="sessionGroup in filteredTimingWiseRoster" :key="sessionGroup.sessionKey" class="hover:bg-slate-50 transition">
+                                            <td class="p-3 font-bold text-slate-900 bg-slate-50 border-r border-gray-200 sticky left-0 z-10 whitespace-nowrap">
+                                                <div class="text-xs font-black">{{ sessionGroup.date }}</div>
+                                                <div class="text-[11px] text-blue-700 font-bold">{{ sessionGroup.timing }}</div>
                                             </td>
-                                            <td class="p-3 font-bold text-blue-900">{{ slot.lab }}</td>
-                                            <td class="p-3 font-bold" :class="invigilatorAssignments[slot.key] ? 'text-emerald-700' : 'text-amber-600 italic'">
-                                                {{ getInvigilatorName(invigilatorAssignments[slot.key]) }}
-                                            </td>
-                                            <td class="p-3 text-gray-600">
-                                                {{ getInvigilatorDept(invigilatorAssignments[slot.key]) }}
-                                            </td>
-                                            <td class="p-3 border-l text-center font-mono text-gray-300">
-                                                [ Signature ]
+                                            <td v-for="lab in uniqueRosterLabs" :key="lab" class="p-2.5 text-center border-r border-gray-100">
+                                                <template v-for="slot in sessionGroup.slots.filter(s => s.lab === lab)" :key="slot.key">
+                                                    <div v-if="invigilatorAssignments[slot.key]" class="bg-emerald-50 border border-emerald-200 p-1.5 rounded-lg">
+                                                        <div class="font-bold text-emerald-900 text-[11px]">{{ getInvigilatorName(invigilatorAssignments[slot.key]) }}</div>
+                                                        <div class="text-[9px] text-emerald-700 font-medium truncate">{{ getInvigilatorDept(invigilatorAssignments[slot.key]) }}</div>
+                                                    </div>
+                                                    <div v-else class="bg-amber-50 border border-amber-200 p-1.5 rounded-lg text-amber-800 font-bold text-[10px]">
+                                                        ⚠️ Unassigned
+                                                    </div>
+                                                </template>
+                                                <div v-if="!sessionGroup.slots.some(s => s.lab === lab)" class="text-gray-300 text-[11px] font-mono">
+                                                    —
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1270,6 +1381,8 @@ createApp({
             invigilatorAssignments: {},
             invigSubTab: 'allocation',
             invigFilterSession: '',
+            rosterViewMode: 'timingWise',
+            rosterFilterTiming: '',
             showAddInvigModal: false,
             invigForm: { id: null, name: '', dept: '', acc: '', bank: '', ifsc: '', phone: '', rate: 250 },
             
@@ -1527,6 +1640,36 @@ createApp({
         },
         totalRemunerationPayable() {
             return this.invigilatorClaimSummary.reduce((sum, i) => sum + i.totalAmount, 0);
+        },
+        timingWiseRoster() {
+            let map = {};
+            this.allottedScheduleSlots.forEach(slot => {
+                let sessionKey = `${slot.date} :: ${slot.timing}`;
+                if (!map[sessionKey]) {
+                    map[sessionKey] = {
+                        sessionKey: sessionKey,
+                        date: slot.date,
+                        timing: slot.timing,
+                        slots: []
+                    };
+                }
+                map[sessionKey].slots.push(slot);
+            });
+            return Object.values(map);
+        },
+        uniqueTimingSlots() {
+            let set = new Set();
+            this.allottedScheduleSlots.forEach(s => set.add(`${s.date} :: ${s.timing}`));
+            return Array.from(set);
+        },
+        filteredTimingWiseRoster() {
+            if (!this.rosterFilterTiming) return this.timingWiseRoster;
+            return this.timingWiseRoster.filter(r => r.sessionKey === this.rosterFilterTiming);
+        },
+        uniqueRosterLabs() {
+            let labs = new Set();
+            this.allottedScheduleSlots.forEach(s => labs.add(s.lab));
+            return Array.from(labs);
         }
     },
     methods: {
@@ -2120,6 +2263,11 @@ createApp({
             let inv = this.invigilatorList.find(i => i.id === id);
             return inv ? inv.dept : '-';
         },
+        getInvigilatorPhone(id) {
+            if(!id) return '-';
+            let inv = this.invigilatorList.find(i => i.id === id);
+            return (inv && inv.phone) ? inv.phone : '-';
+        },
         exportMasterRemunerationExcel() {
             if(this.allottedScheduleSlots.length === 0) return;
             const wb = XLSX.utils.book_new();
@@ -2347,35 +2495,67 @@ createApp({
             doc.setFont("helvetica", "bold");
             doc.text("EXAMINATION INVIGILATION DUTY ROSTER", 105, 33, { align: "center" });
 
-            let tableData = this.allottedScheduleSlots.map((slot, idx) => {
-                let invName = this.getInvigilatorName(this.invigilatorAssignments[slot.key]);
-                let invDept = this.getInvigilatorDept(this.invigilatorAssignments[slot.key]);
+            let rows = [];
+            this.timingWiseRoster.forEach((group, gIdx) => {
+                // Timing Section Header Row spanning 5 columns
+                rows.push({
+                    isHeader: true,
+                    title: `SESSION ${gIdx + 1}: ${group.date}  |  ${group.timing}  (${group.slots.length} Active Labs)`
+                });
+
+                group.slots.forEach((slot, sIdx) => {
+                    let invName = this.getInvigilatorName(this.invigilatorAssignments[slot.key]);
+                    let invDept = this.getInvigilatorDept(this.invigilatorAssignments[slot.key]);
+                    let invPhone = this.getInvigilatorPhone(this.invigilatorAssignments[slot.key]);
+                    rows.push({
+                        isHeader: false,
+                        sno: sIdx + 1,
+                        lab: slot.lab,
+                        inv: invName,
+                        dept: invDept,
+                        phone: invPhone,
+                        sig: ''
+                    });
+                });
+            });
+
+            let tableBody = rows.map(r => {
+                if (r.isHeader) {
+                    return [{ content: r.title, colSpan: 5, styles: { fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 } }];
+                }
                 return [
-                    idx + 1,
-                    slot.date + '\n' + slot.timing,
-                    slot.lab,
-                    invName + (invDept !== '-' ? `\n(${invDept})` : ''),
+                    r.sno,
+                    r.lab,
+                    r.inv,
+                    r.dept + (r.phone !== '-' ? `\nPh: ${r.phone}` : ''),
                     ''
                 ];
             });
 
             doc.autoTable({
                 startY: 38,
-                head: [['S.No', 'Date & Timing', 'Lab Room / Venue', 'Assigned Invigilator', 'Invigilator Signature']],
-                body: tableData,
+                head: [['#', 'Exam Lab / Venue', 'Assigned Invigilator', 'Department / Phone', 'Invigilator Signature']],
+                body: tableBody,
                 theme: 'grid',
-                headStyles: { fillColor: [15, 23, 42] },
-                styles: { fontSize: 9, cellPadding: 3, valign: 'middle' },
+                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+                styles: { fontSize: 8.5, cellPadding: 2.5, valign: 'middle' },
                 columnStyles: {
-                    0: { cellWidth: 12 },
-                    1: { cellWidth: 45, fontStyle: 'bold' },
-                    2: { cellWidth: 35, fontStyle: 'bold' },
-                    3: { cellWidth: 50 },
-                    4: { cellWidth: 40 }
+                    0: { cellWidth: 10, halign: 'center', fontStyle: 'bold' },
+                    1: { cellWidth: 40, fontStyle: 'bold' },
+                    2: { cellWidth: 50, fontStyle: 'bold' },
+                    3: { cellWidth: 45 },
+                    4: { cellWidth: 35 }
+                },
+                didDrawPage: (data) => {
+                    // Footer signature
+                    doc.setFontSize(8);
+                    doc.setFont("helvetica", "italic");
+                    doc.text("Generated by JosTEL Exam Automation Suite", 14, 290);
+                    doc.text("Chief Superintendent Signature: __________________", 120, 290);
                 }
             });
 
-            doc.save("Invigilator_Duty_Roster.pdf");
+            doc.save("Invigilator_Duty_Roster_Timing_Wise.pdf");
         },
 
         exportClaimForm() {
