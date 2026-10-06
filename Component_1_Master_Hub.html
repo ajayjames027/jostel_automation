@@ -953,8 +953,11 @@
                                 <div class="flex flex-wrap items-center gap-2">
                                     <!-- View Mode Switcher -->
                                     <div class="flex bg-slate-100 p-1 rounded-lg border text-xs font-bold mr-2">
-                                        <button @click="rosterViewMode = 'timingWise'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5" :class="rosterViewMode === 'timingWise' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
+                                        <button @click="rosterViewMode = 'timingWise'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5 border-r border-slate-200" :class="rosterViewMode === 'timingWise' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
                                             <span>📋</span> Timing-Wise Cards
+                                        </button>
+                                        <button @click="rosterViewMode = 'labWise'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5 border-r border-slate-200" :class="rosterViewMode === 'labWise' ? 'bg-white text-purple-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
+                                            <span>🏢</span> Lab-Wise Cards
                                         </button>
                                         <button @click="rosterViewMode = 'matrix'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5" :class="rosterViewMode === 'matrix' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
                                             <span>📊</span> Timetable Grid
@@ -1079,8 +1082,75 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- VIEW 3: LAB-WISE DUTY BLOCKS -->
+                            <div v-else-if="rosterViewMode === 'labWise'" class="space-y-6">
+                                <div v-for="(labGroup, lIdx) in labWiseRoster" :key="labGroup.lab" class="border border-purple-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+                                    
+                                    <!-- Lab Header Banner -->
+                                    <div class="bg-gradient-to-r from-slate-900 to-purple-900 text-white px-5 py-3.5 flex flex-wrap justify-between items-center gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <span class="bg-purple-600 text-white font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                                                Lab / Venue
+                                            </span>
+                                            <div>
+                                                <div class="text-lg font-black flex items-center gap-2">
+                                                    <span>🏢 {{ labGroup.lab }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="bg-slate-800/80 text-purple-200 text-xs font-bold px-3 py-1 rounded-full border border-purple-400/30">
+                                                {{ labGroup.slots.length }} Sessions Assigned Today
+                                            </span>
+                                        </div>
+                                    </div>
 
-                            <!-- VIEW 2: FULL TIMETABLE MATRIX GRID -->
+                                    <!-- Timings Under this Specific Lab -->
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-left text-xs">
+                                            <thead>
+                                                <tr class="bg-slate-50 text-slate-700 uppercase font-bold border-b border-gray-200 text-[11px]">
+                                                    <th class="p-3 text-center w-12">#</th>
+                                                    <th class="p-3 w-40">Session Date & Time</th>
+                                                    <th class="p-3">Assigned Invigilator</th>
+                                                    <th class="p-3">Department</th>
+                                                    <th class="p-3 text-center w-32">Seats Occupied</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100">
+                                                <tr v-for="(slot, sIdx) in labGroup.slots" :key="slot.key" class="hover:bg-purple-50/40 transition">
+                                                    <td class="p-3 text-center font-bold text-gray-400">
+                                                        {{ sIdx + 1 }}
+                                                    </td>
+                                                    <td class="p-3 font-bold text-slate-800">
+                                                        <div class="flex flex-col gap-0.5">
+                                                            <span class="text-[11px] text-gray-500">{{ slot.date }}</span>
+                                                            <span class="text-blue-800">{{ slot.timing }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-3 font-black" :class="invigilatorAssignments[slot.key] ? 'text-slate-900 text-sm' : 'text-amber-600 italic'">
+                                                        <div v-if="invigilatorAssignments[slot.key]" class="flex items-center gap-1.5">
+                                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                            {{ getInvigilatorName(invigilatorAssignments[slot.key]) }}
+                                                        </div>
+                                                        <div v-else class="text-amber-600">
+                                                            ⚠️ Unassigned
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-3 font-semibold text-gray-600">
+                                                        {{ getInvigilatorDept(invigilatorAssignments[slot.key]) }}
+                                                    </td>
+                                                    <td class="p-3 font-bold text-slate-700 text-center">
+                                                        <span class="bg-slate-100 px-2.5 py-1 rounded-md">{{ slot.studentCount }} Students</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VIEW 4: FULL TIMETABLE MATRIX GRID -->
                             <div v-else class="overflow-x-auto border border-slate-200 rounded-xl bg-white">
                                 <table class="w-full text-left text-xs border-collapse">
                                     <thead>
@@ -1699,6 +1769,27 @@ createApp({
             });
             let list = Object.values(map);
             list.sort((a, b) => this.compareDateAndTiming(a.date, a.timing, b.date, b.timing));
+            return list;
+        },
+        labWiseRoster() {
+            let map = {};
+            this.allottedScheduleSlots.forEach(slot => {
+                let lab = slot.lab;
+                if(!map[lab]) {
+                    map[lab] = {
+                        lab: lab,
+                        slots: []
+                    };
+                }
+                map[lab].slots.push(slot);
+            });
+            let list = Object.values(map);
+            list.sort((a,b) => a.lab.localeCompare(b.lab));
+            
+            // Sort inner slots chronologically
+            list.forEach(item => {
+                item.slots.sort((a,b) => this.compareDateAndTiming(a.date, a.timing, b.date, b.timing));
+            });
             return list;
         },
         uniqueTimingSlots() {
