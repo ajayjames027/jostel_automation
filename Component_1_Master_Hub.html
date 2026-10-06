@@ -50,6 +50,7 @@
         .seat.occupied { background: #dbeafe; border-color: #3b82f6; color: #1e3a8a; }
         .seat.selected { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 0 0 3px rgba(245,158,11,0.3); transform: scale(1.1); z-index: 10;}
 
+        [v-cloak] { display: none !important; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -58,7 +59,7 @@
 </head>
 <body>
 
-<div id="app" class="h-screen w-full flex flex-col">
+<div id="app" v-cloak class="h-screen w-full flex flex-col">
     <!-- Topbar -->
     <div class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-20 shadow-sm">
         <div class="flex items-center gap-4">
@@ -106,9 +107,12 @@
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4 px-2">Execution & Post</div>
             <div class="sidebar-item" :class="{'active': activeTab === 'docs'}" @click="activeTab = 'docs'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Attendance & Claims
+                Attendance Logs
             </div>
-
+            <div class="sidebar-item" :class="{'active': activeTab === 'invigilators'}" @click="activeTab = 'invigilators'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Invigilator Remuneration
+            </div>
         </div>
 
         <!-- Dynamic Content Pane -->
@@ -653,51 +657,28 @@
                         </button>
                     </div>
 
-                    <!-- Claims -->
-                    <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-green-500 flex flex-col">
-                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                        <h3 class="text-xl font-black text-gray-800 mb-2">Invigilator Remuneration</h3>
-                        <p class="text-sm text-gray-500 mb-6">Generate standardized financial claim receipts for faculty compensation.</p>
-                        
-                        <div class="space-y-3 mb-6 flex-1">
-                            <div>
-                                <label class="text-xs font-bold text-gray-500 uppercase">Invigilator Name</label>
-                                <input type="text" v-model="claimForm.name" class="futuristic-input font-bold" placeholder="e.g. Dr. John Doe">
+                    <!-- Invigilator Remuneration Portal Card -->
+                    <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-emerald-500 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <div class="flex gap-3">
-                                <div class="flex-1">
-                                    <label class="text-xs font-bold text-gray-500 uppercase">Account No.</label>
-                                    <input type="text" v-model="claimForm.acc" class="futuristic-input font-bold" placeholder="0123456789">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-xs font-bold text-gray-500 uppercase">Bank / IFSC</label>
-                                    <input type="text" v-model="claimForm.ifsc" class="futuristic-input font-bold" placeholder="SBIN0001234">
-                                </div>
-                            </div>
-                            <div class="flex gap-3">
-                                <div class="flex-1">
-                                    <label class="text-xs font-bold text-gray-500 uppercase">Sessions Assigned</label>
-                                    <input type="number" v-model.number="claimForm.sessions" class="futuristic-input">
-                                </div>
-                                <div class="flex-1">
-                                    <label class="text-xs font-bold text-gray-500 uppercase">Rate per session (₹)</label>
-                                    <input type="number" v-model.number="claimForm.rate" class="futuristic-input">
-                                </div>
-                            </div>
-                            <div class="text-right text-lg font-black text-green-700 mt-2 border-t pt-2 border-gray-200">
-                                Total Remuneration: ₹{{ claimForm.sessions * claimForm.rate }}
+                            <h3 class="text-xl font-black text-gray-800 mb-2">Invigilator Remuneration Portal</h3>
+                            <p class="text-sm text-gray-500 mb-6">Assign invigilators per session & lab, manage staff bank details, and generate itemized financial claim receipts.</p>
+                            
+                            <div class="bg-emerald-50 p-3 rounded text-xs font-bold text-emerald-800 mb-4 flex justify-between">
+                                <span>Duty Assignment Status:</span>
+                                <span>{{ assignedSlotsCount }} / {{ allottedScheduleSlots.length }} Labs Assigned</span>
                             </div>
                         </div>
                         
-                        <button @click="exportClaimForm" :disabled="!claimForm.name" class="w-full bg-green-600 disabled:opacity-50 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
-                            Generate Claim Receipt
+                        <button @click="activeTab = 'invigilators'" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg shadow transition flex items-center justify-center gap-2">
+                            Open Invigilator Portal →
                         </button>
                     </div>
                 </div>
 
-                <!-- NEW PUBLIC TIMETABLE & TICKETS ROW -->
+                <!-- NEW PUBLIC TIMETABLE ROW -->
                 <div v-if="allocatedStudents.length > 0" class="grid md:grid-cols-2 gap-6 mt-6">
                     <!-- Website Timetable -->
                     <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-indigo-500">
@@ -710,36 +691,375 @@
                             Generate Website Timetable (.pdf)
                         </button>
                     </div>
+                </div>
+            </div>
+
+            <!-- INVIGILATOR REMUNERATION SEPARATE TAB -->
+            <div v-show="activeTab === 'invigilators'" class="space-y-6 max-w-6xl mx-auto pb-20 h-full">
+                <div class="flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Invigilator Remuneration & Duty Allocation</h2>
+                        <p class="text-slate-500 text-sm">Assign invigilators to lab exam sessions allotted by the schedule engine and calculate compensation claims.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="openAddInvigModal()" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm text-xs flex items-center gap-2 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            + Add Invigilator
+                        </button>
+                        <button @click="autoAssignInvigilators" :disabled="allottedScheduleSlots.length === 0 || invigilatorList.length === 0" class="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm text-xs flex items-center gap-2 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Auto-Assign Invigilators
+                        </button>
+                        <button @click="exportMasterRemunerationExcel" :disabled="allottedScheduleSlots.length === 0" class="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm text-xs flex items-center gap-2 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Claim Master Excel (.xlsx)
+                        </button>
+                        <button @click="exportMasterRemunerationPDF" :disabled="allottedScheduleSlots.length === 0" class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm text-xs flex items-center gap-2 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            Claim Summary (.pdf)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alert if no schedule -->
+                <div v-if="allocatedStudents.length === 0" class="glass-panel p-10 text-center text-amber-800 bg-amber-50 border border-amber-200 rounded-xl">
+                    <svg class="w-12 h-12 text-amber-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <h3 class="text-lg font-bold">No Allotted Schedule Matrix Found</h3>
+                    <p class="text-xs text-amber-700 mt-1 max-w-md mx-auto">Please go to <strong>Timetables & Rules</strong> tab and click <strong>Crunch Timetable Matrix</strong> to generate active lab session slots first. Once generated, labs for each session will appear here for invigilator assignment.</p>
+                </div>
+
+                <div v-else class="space-y-6">
+                    <!-- Overview Stats Row -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-panel p-4 bg-white border-l-4 border-blue-500">
+                            <div class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Allotted Lab Slots</div>
+                            <div class="text-2xl font-black text-slate-800">{{ allottedScheduleSlots.length }}</div>
+                            <div class="text-xs text-gray-400 mt-1 font-medium">Unique Session × Lab slots</div>
+                        </div>
+                        <div class="glass-panel p-4 bg-white border-l-4 border-emerald-500">
+                            <div class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Duty Assigned</div>
+                            <div class="text-2xl font-black text-emerald-600">{{ assignedSlotsCount }} / {{ allottedScheduleSlots.length }}</div>
+                            <div class="text-xs text-emerald-600 mt-1 font-bold">{{ unassignedSlotsCount === 0 ? 'All Labs Assigned!' : `${unassignedSlotsCount} Pending` }}</div>
+                        </div>
+                        <div class="glass-panel p-4 bg-white border-l-4 border-purple-500">
+                            <div class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Registered Invigilators</div>
+                            <div class="text-2xl font-black text-purple-700">{{ invigilatorList.length }}</div>
+                            <div class="text-xs text-gray-400 mt-1 font-medium">Staff in active roster</div>
+                        </div>
+                        <div class="glass-panel p-4 bg-white border-l-4 border-amber-500">
+                            <div class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Total Remuneration Payable</div>
+                            <div class="text-2xl font-black text-amber-600">₹{{ totalRemunerationPayable }}</div>
+                            <div class="text-xs text-gray-400 mt-1 font-medium">Calculated total claim</div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tab Navigation -->
+                    <div class="flex border-b border-gray-200 bg-white px-4 pt-3 rounded-t-xl gap-6 font-bold text-xs">
+                        <button @click="invigSubTab = 'allocation'" class="pb-3 border-b-2 transition" :class="invigSubTab === 'allocation' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                            🏢 Lab Session Duty Allocation ({{ allottedScheduleSlots.length }} Slots)
+                        </button>
+                        <button @click="invigSubTab = 'roster'" class="pb-3 border-b-2 transition" :class="invigSubTab === 'roster' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                            👨‍🏫 Invigilator Roster & Claims ({{ invigilatorList.length }} Staff)
+                        </button>
+                        <button @click="invigSubTab = 'rosterPDF'" class="pb-3 border-b-2 transition" :class="invigSubTab === 'rosterPDF' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                            📋 Duty Roster Printable PDF
+                        </button>
+                    </div>
+
+                    <!-- SUB TAB 1: LAB SESSION DUTY ALLOCATION -->
+                    <div v-show="invigSubTab === 'allocation'" class="space-y-6">
+                        <div class="glass-panel p-4 bg-white flex flex-wrap justify-between items-center gap-4">
+                            <div class="flex items-center gap-3">
+                                <label class="text-xs font-bold text-gray-500 uppercase">Filter by Session:</label>
+                                <select v-model="invigFilterSession" class="futuristic-input font-bold text-xs text-blue-900" style="width: auto;">
+                                    <option value="">All Sessions ({{ uniqueSessions.length }})</option>
+                                    <option v-for="s in uniqueSessions" :value="s" :key="s">{{ s }}</option>
+                                </select>
+                            </div>
+                            <div class="text-xs text-gray-500 font-medium">
+                                Showing {{ filteredScheduleSlots.length }} lab sessions. Select an invigilator for each lab.
+                            </div>
+                        </div>
+
+                        <!-- Grouped by Session Cards -->
+                        <div v-for="(group, sessionName) in groupedScheduleSlots" :key="sessionName" class="glass-panel bg-white overflow-hidden shadow-sm border border-gray-200 rounded-xl">
+                            <div class="bg-slate-100 px-6 py-3 border-b border-gray-200 flex justify-between items-center flex-wrap gap-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-blue-600 text-white font-bold text-xs px-2.5 py-1 rounded">SESSION</span>
+                                    <h4 class="font-bold text-slate-800 text-sm">{{ sessionName }}</h4>
+                                </div>
+                                <div class="text-xs font-bold text-slate-500">
+                                    {{ group.length }} Active Labs Allotted
+                                </div>
+                            </div>
+
+                            <div class="p-4">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs">
+                                        <thead>
+                                            <tr class="bg-slate-50 text-gray-600 uppercase font-bold border-b border-gray-200">
+                                                <th class="p-3">Lab / Venue</th>
+                                                <th class="p-3">Seated Classes</th>
+                                                <th class="p-3 text-center">Student Strength</th>
+                                                <th class="p-3">Assign Invigilator</th>
+                                                <th class="p-3 text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            <tr v-for="slot in group" :key="slot.key" class="hover:bg-blue-50/40 transition">
+                                                <td class="p-3 font-bold text-blue-900 flex items-center gap-2">
+                                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                                    {{ slot.lab }}
+                                                </td>
+                                                <td class="p-3 font-semibold text-gray-700 max-w-xs truncate" :title="slot.classesList">
+                                                    {{ slot.classesList }}
+                                                </td>
+                                                <td class="p-3 text-center font-bold text-slate-800">
+                                                    <span class="bg-gray-100 text-gray-800 px-2 py-0.5 rounded font-mono">{{ slot.studentCount }} Students</span>
+                                                </td>
+                                                <td class="p-3">
+                                                    <select :value="invigilatorAssignments[slot.key] || ''" @change="assignInvigilatorToSlot(slot.key, $event.target.value)" class="futuristic-input font-bold text-xs" :class="invigilatorAssignments[slot.key] ? 'border-emerald-500 bg-emerald-50 text-emerald-900' : 'border-amber-300 bg-amber-50 text-amber-900'">
+                                                        <option value="">-- Select Invigilator --</option>
+                                                        <option v-for="inv in invigilatorList" :key="inv.id" :value="inv.id">
+                                                            {{ inv.name }} ({{ inv.dept }})
+                                                        </option>
+                                                    </select>
+                                                </td>
+                                                <td class="p-3 text-center">
+                                                    <span v-if="invigilatorAssignments[slot.key]" class="bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded text-[11px] flex items-center justify-center gap-1">
+                                                        ✓ Assigned
+                                                    </span>
+                                                    <span v-else class="bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded text-[11px]">
+                                                        ⚠️ Pending
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB TAB 2: INVIGILATOR ROSTER & CLAIMS -->
+                    <div v-show="invigSubTab === 'roster'" class="space-y-6">
+                        <div class="glass-panel p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Invigilator Roster & Financial Claims Summary</h3>
+                                <button @click="openAddInvigModal()" class="btn-primary text-xs flex items-center gap-1">
+                                    + Add New Invigilator
+                                </button>
+                            </div>
+
+                            <div v-if="invigilatorList.length === 0" class="text-center py-8 text-gray-500 font-semibold text-sm">
+                                No invigilators registered yet. Click "+ Add New Invigilator" to build your staff roster.
+                            </div>
+
+                            <div v-else class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-100 text-slate-700 uppercase font-bold border-b border-gray-200">
+                                            <th class="p-3">Invigilator Name</th>
+                                            <th class="p-3">Department</th>
+                                            <th class="p-3">Bank Account & IFSC</th>
+                                            <th class="p-3 text-center">Rate / Session</th>
+                                            <th class="p-3 text-center">Assigned Sessions</th>
+                                            <th class="p-3 text-right">Total Claim</th>
+                                            <th class="p-3 text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr v-for="summary in invigilatorClaimSummary" :key="summary.id" class="hover:bg-slate-50 transition">
+                                            <td class="p-3 font-bold text-slate-900 text-xs">
+                                                {{ summary.name }}
+                                            </td>
+                                            <td class="p-3 font-semibold text-gray-600">
+                                                {{ summary.dept || 'N/A' }}
+                                            </td>
+                                            <td class="p-3 text-gray-700">
+                                                <div class="font-mono font-bold text-slate-800">{{ summary.acc || 'N/A' }}</div>
+                                                <div class="text-[10px] text-gray-500">{{ summary.bank }} | {{ summary.ifsc }}</div>
+                                            </td>
+                                            <td class="p-3 text-center font-bold text-slate-800">
+                                                ₹{{ summary.rate }}
+                                            </td>
+                                            <td class="p-3 text-center font-bold">
+                                                <span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full text-xs font-bold">
+                                                    {{ summary.sessionsCount }} Session(s)
+                                                </span>
+                                            </td>
+                                            <td class="p-3 text-right font-black text-emerald-700 text-sm">
+                                                ₹{{ summary.totalAmount }}
+                                            </td>
+                                            <td class="p-3 text-center">
+                                                <div class="flex justify-center items-center gap-2">
+                                                    <button @click="openEditInvigModal(summary)" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition" title="Edit Staff Details">
+                                                        Edit
+                                                    </button>
+                                                    <button @click="exportSingleInvigilatorClaimPDF(summary.id)" :disabled="summary.sessionsCount === 0" class="text-emerald-700 hover:text-emerald-900 font-bold text-xs bg-emerald-50 px-2 py-1 rounded hover:bg-emerald-100 disabled:opacity-40 transition" title="Download PDF Claim Receipt">
+                                                        Receipt PDF
+                                                    </button>
+                                                    <button @click="deleteInvigilator(summary.id)" class="text-red-500 hover:text-red-700 font-bold text-xs p-1" title="Delete Invigilator">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-slate-100 font-bold text-slate-800 border-t-2 border-gray-300">
+                                            <td colspan="4" class="p-3 uppercase tracking-wider text-right">Grand Total Financial Claim:</td>
+                                            <td class="p-3 text-center font-black text-blue-900">{{ totalAssignedDutyCount }} Total Sessions</td>
+                                            <td class="p-3 text-right font-black text-emerald-700 text-base">₹{{ totalRemunerationPayable }}</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB TAB 3: DUTY ROSTER PRINTABLE -->
+                    <div v-show="invigSubTab === 'rosterPDF'" class="space-y-6">
+                        <div class="glass-panel p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800">Invigilator Duty Roster Publication</h3>
+                                    <p class="text-xs text-gray-500">Generate printable duty allocation matrices for department notice boards.</p>
+                                </div>
+                                <button @click="exportInvigilatorDutyRosterPDF" :disabled="allottedScheduleSlots.length === 0" class="btn-primary text-xs flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                    Download Official Duty Roster PDF
+                                </button>
+                            </div>
+
+                            <!-- Preview Matrix -->
+                            <div class="overflow-x-auto border rounded-lg">
+                                <table class="w-full text-left text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-800 text-white font-bold uppercase">
+                                            <th class="p-3">Exam Date & Timing</th>
+                                            <th class="p-3">Lab / Venue</th>
+                                            <th class="p-3">Assigned Invigilator</th>
+                                            <th class="p-3">Department</th>
+                                            <th class="p-3 text-center">Invigilator Signature</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr v-for="slot in allottedScheduleSlots" :key="slot.key" class="hover:bg-slate-50">
+                                            <td class="p-3 font-bold text-slate-900">
+                                                {{ slot.date }} <br><span class="text-[11px] text-gray-500 font-normal">{{ slot.timing }}</span>
+                                            </td>
+                                            <td class="p-3 font-bold text-blue-900">{{ slot.lab }}</td>
+                                            <td class="p-3 font-bold" :class="invigilatorAssignments[slot.key] ? 'text-emerald-700' : 'text-amber-600 italic'">
+                                                {{ getInvigilatorName(invigilatorAssignments[slot.key]) }}
+                                            </td>
+                                            <td class="p-3 text-gray-600">
+                                                {{ getInvigilatorDept(invigilatorAssignments[slot.key]) }}
+                                            </td>
+                                            <td class="p-3 border-l text-center font-mono text-gray-300">
+                                                [ Signature ]
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- ADD/EDIT INVIGILATOR MODAL -->
+            <div v-if="showAddInvigModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 animate-fade-in-up">
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <h3 class="text-lg font-bold text-slate-800">{{ invigForm.id ? 'Edit Invigilator Profile' : 'Add New Invigilator' }}</h3>
+                        <button @click="showAddInvigModal = false" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="block font-bold text-gray-600 uppercase mb-1">Invigilator Full Name *</label>
+                            <input type="text" v-model="invigForm.name" class="futuristic-input font-bold" placeholder="e.g. Dr. A. Suresh">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-600 uppercase mb-1">Department / Designation</label>
+                            <input type="text" v-model="invigForm.dept" class="futuristic-input" placeholder="e.g. Dept of Computer Science">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-gray-600 uppercase mb-1">Bank Account Number</label>
+                                <input type="text" v-model="invigForm.acc" class="futuristic-input font-mono" placeholder="e.g. 30123456789">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-600 uppercase mb-1">Bank Name</label>
+                                <input type="text" v-model="invigForm.bank" class="futuristic-input" placeholder="e.g. State Bank of India">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-gray-600 uppercase mb-1">IFSC Code</label>
+                                <input type="text" v-model="invigForm.ifsc" class="futuristic-input font-mono" placeholder="e.g. SBIN0001234">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-600 uppercase mb-1">Remuneration Rate / Session (₹)</label>
+                                <input type="number" v-model.number="invigForm.rate" class="futuristic-input font-bold" placeholder="250">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-gray-600 uppercase mb-1">Contact Phone (Optional)</label>
+                            <input type="text" v-model="invigForm.phone" class="futuristic-input" placeholder="e.g. 9876543210">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3 border-t pt-4">
+                        <button @click="showAddInvigModal = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">Cancel</button>
+                        <button @click="saveInvigilator" :disabled="!invigForm.name" class="btn-primary text-xs">Save Invigilator</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
         </div>
     </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-import { getFirestore, onSnapshot, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+<script>
+// Non-blocking lazy Firebase module loader
+async function initFirebase() {
+    if (window.fsDb && window.fsSetDoc && window.fsDoc && window.fsGetDoc) {
+        return { db: window.fsDb, setDoc: window.fsSetDoc, doc: window.fsDoc, getDoc: window.fsGetDoc };
+    }
+    try {
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js");
+        const { getFirestore, doc, setDoc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2qCkUx6DMCD-xLoyKVGcT8mNTfTITPOE",
+            authDomain: "jostel-e8b17.firebaseapp.com",
+            projectId: "jostel-e8b17",
+            storageBucket: "jostel-e8b17.firebasestorage.app",
+            messagingSenderId: "811645548918",
+            appId: "1:811645548918:web:06648aad3ab2dc13d56257",
+            measurementId: "G-ZPM6WM2M7Q"
+        };
 
-const firebaseConfig = {
-    apiKey: "AIzaSyB2qCkUx6DMCD-xLoyKVGcT8mNTfTITPOE",
-    authDomain: "jostel-e8b17.firebaseapp.com",
-    projectId: "jostel-e8b17",
-    storageBucket: "jostel-e8b17.firebasestorage.app",
-    messagingSenderId: "811645548918",
-    appId: "1:811645548918:web:06648aad3ab2dc13d56257",
-    measurementId: "G-ZPM6WM2M7Q"
-};
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getFirestore(firebaseApp);
+        window.fsDb = db;
+        window.fsSetDoc = setDoc;
+        window.fsDoc = doc;
+        window.fsGetDoc = getDoc;
+        return { db, setDoc, doc, getDoc };
+    } catch (e) {
+        console.warn("Firebase background initialization skipped/offline:", e.message);
+        return null;
+    }
+}
 
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-
-window.fsDb = db;
-window.fsSetDoc = setDoc;
-window.fsDoc = doc;
-window.fsGetDoc = getDoc;
+// Background pre-fetch without blocking the UI
+setTimeout(() => { initFirebase(); }, 1000);
 
 const { createApp } = Vue;
 
@@ -778,6 +1098,18 @@ createApp({
             resetRegNo: '',
             resetStatus: '',
             cloudStatus: '',
+
+            // Invigilator Remuneration System State
+            invigilatorList: [
+                { id: 'inv_1', name: 'Dr. A. Suresh', dept: 'Computer Science', acc: '39482019482', bank: 'SBI', ifsc: 'SBIN0001234', phone: '9840123456', rate: 250 },
+                { id: 'inv_2', name: 'Dr. M. Mary', dept: 'Information Technology', acc: '20194820193', bank: 'IOB', ifsc: 'IOBA0000567', phone: '9840654321', rate: 250 },
+                { id: 'inv_3', name: 'Prof. K. Ramesh', dept: 'Mathematics', acc: '50293840192', bank: 'HDFC', ifsc: 'HDFC0001234', phone: '9840999888', rate: 250 }
+            ],
+            invigilatorAssignments: {},
+            invigSubTab: 'allocation',
+            invigFilterSession: '',
+            showAddInvigModal: false,
+            invigForm: { id: null, name: '', dept: '', acc: '', bank: '', ifsc: '', phone: '', rate: 250 },
             
             websiteTimetable: {
                 examType: 'Component I',
@@ -822,6 +1154,8 @@ createApp({
             }
             if(localStorage.getItem('jostel_alloc')) this.allocatedStudents = JSON.parse(localStorage.getItem('jostel_alloc'));
             if(localStorage.getItem('jostel_stats')) this.rosterStats = JSON.parse(localStorage.getItem('jostel_stats'));
+            if(localStorage.getItem('jostel_invig_list')) this.invigilatorList = JSON.parse(localStorage.getItem('jostel_invig_list'));
+            if(localStorage.getItem('jostel_invig_assignments')) this.invigilatorAssignments = JSON.parse(localStorage.getItem('jostel_invig_assignments'));
             
             // Self-Healing Cache Sanitization
             if(this.rawExtractedClasses.length === 0) {
@@ -844,7 +1178,9 @@ createApp({
         allocatedStudents: { deep: true, handler(val) { localStorage.setItem('jostel_alloc', JSON.stringify(val)); } },
         customLabs: { deep: true, handler(val) { localStorage.setItem('jostel_labs', JSON.stringify(val)); } },
         settings: { deep: true, handler(val) { localStorage.setItem('jostel_settings', JSON.stringify(val)); } },
-        rosterStats: { deep: true, handler(val) { localStorage.setItem('jostel_stats', JSON.stringify(val)); } }
+        rosterStats: { deep: true, handler(val) { localStorage.setItem('jostel_stats', JSON.stringify(val)); } },
+        invigilatorList: { deep: true, handler(val) { localStorage.setItem('jostel_invig_list', JSON.stringify(val)); } },
+        invigilatorAssignments: { deep: true, handler(val) { localStorage.setItem('jostel_invig_assignments', JSON.stringify(val)); } }
     },
     computed: {
         syncableState() {
@@ -854,7 +1190,9 @@ createApp({
                 allocatedStudents: this.allocatedStudents,
                 rosterStats: this.rosterStats,
                 settings: this.settings,
-                websiteTimetable: this.websiteTimetable
+                websiteTimetable: this.websiteTimetable,
+                invigilatorList: this.invigilatorList,
+                invigilatorAssignments: this.invigilatorAssignments
             };
         },
         dynamicLabStats() {
@@ -944,6 +1282,84 @@ createApp({
                 sessions.push(`${d}::Shift 2`);
             });
             return sessions;
+        },
+
+        // Invigilator Remuneration Computed Properties
+        allottedScheduleSlots() {
+            if(!this.allocatedStudents || this.allocatedStudents.length === 0) return [];
+            let map = new Map();
+            this.allocatedStudents.forEach(st => {
+                let key = `${st.Date} :: ${st.Timing} :: ${st['Lab Room']}`;
+                if(!map.has(key)) {
+                    map.set(key, {
+                        key: key,
+                        date: st.Date,
+                        timing: st.Timing,
+                        lab: st['Lab Room'],
+                        studentCount: 0,
+                        classesSet: new Set()
+                    });
+                }
+                let item = map.get(key);
+                item.studentCount++;
+                if(st.Class) item.classesSet.add(st.Class);
+            });
+            let slots = [];
+            map.forEach(val => {
+                slots.push({
+                    key: val.key,
+                    date: val.date,
+                    timing: val.timing,
+                    lab: val.lab,
+                    studentCount: val.studentCount,
+                    classesList: Array.from(val.classesSet).join(', ')
+                });
+            });
+            slots.sort((a,b) => {
+                if(a.date !== b.date) return a.date.localeCompare(b.date);
+                if(a.timing !== b.timing) return a.timing.localeCompare(b.timing);
+                return a.lab.localeCompare(b.lab);
+            });
+            return slots;
+        },
+        filteredScheduleSlots() {
+            if(!this.invigFilterSession) return this.allottedScheduleSlots;
+            return this.allottedScheduleSlots.filter(s => `${s.date} :: ${s.timing}` === this.invigFilterSession);
+        },
+        groupedScheduleSlots() {
+            let res = {};
+            this.filteredScheduleSlots.forEach(slot => {
+                let sessionName = `${slot.date} :: ${slot.timing}`;
+                if(!res[sessionName]) res[sessionName] = [];
+                res[sessionName].push(slot);
+            });
+            return res;
+        },
+        assignedSlotsCount() {
+            return this.allottedScheduleSlots.filter(s => Boolean(this.invigilatorAssignments[s.key])).length;
+        },
+        unassignedSlotsCount() {
+            return this.allottedScheduleSlots.length - this.assignedSlotsCount;
+        },
+        invigilatorClaimSummary() {
+            return this.invigilatorList.map(inv => {
+                let assignedSlots = this.allottedScheduleSlots.filter(s => this.invigilatorAssignments[s.key] === inv.id);
+                let count = assignedSlots.length;
+                let rate = inv.rate || 250;
+                let total = count * rate;
+                return {
+                    ...inv,
+                    assignedSlots: assignedSlots,
+                    sessionsCount: count,
+                    totalAmount: total
+                };
+            });
+        },
+        totalAssignedDutyCount() {
+            return this.invigilatorClaimSummary.reduce((sum, i) => sum + i.sessionsCount, 0);
+        },
+        totalRemunerationPayable() {
+            return this.invigilatorClaimSummary.reduce((sum, i) => sum + i.totalAmount, 0);
         }
     },
     methods: {
@@ -1414,6 +1830,387 @@ createApp({
             doc.save("Mass_Attendance_Pack.pdf");
         },
 
+        // Invigilator Remuneration & Duty Allocation Methods
+        openAddInvigModal() {
+            this.invigForm = { id: null, name: '', dept: '', acc: '', bank: '', ifsc: '', phone: '', rate: 250 };
+            this.showAddInvigModal = true;
+        },
+        openEditInvigModal(invig) {
+            this.invigForm = {
+                id: invig.id,
+                name: invig.name,
+                dept: invig.dept || '',
+                acc: invig.acc || '',
+                bank: invig.bank || '',
+                ifsc: invig.ifsc || '',
+                phone: invig.phone || '',
+                rate: invig.rate || 250
+            };
+            this.showAddInvigModal = true;
+        },
+        saveInvigilator() {
+            if(!this.invigForm.name) return;
+            if(this.invigForm.id) {
+                let idx = this.invigilatorList.findIndex(i => i.id === this.invigForm.id);
+                if(idx !== -1) {
+                    this.invigilatorList[idx] = { ...this.invigForm };
+                }
+            } else {
+                let newId = 'inv_' + Date.now();
+                this.invigilatorList.push({
+                    id: newId,
+                    name: this.invigForm.name,
+                    dept: this.invigForm.dept || '',
+                    acc: this.invigForm.acc || '',
+                    bank: this.invigForm.bank || '',
+                    ifsc: this.invigForm.ifsc || '',
+                    phone: this.invigForm.phone || '',
+                    rate: this.invigForm.rate || 250
+                });
+            }
+            this.invigilatorList = [...this.invigilatorList];
+            this.showAddInvigModal = false;
+        },
+        deleteInvigilator(id) {
+            if(!confirm("Are you sure you want to remove this invigilator from the roster?")) return;
+            this.invigilatorList = this.invigilatorList.filter(i => i.id !== id);
+            let updated = { ...this.invigilatorAssignments };
+            Object.keys(updated).forEach(k => {
+                if(updated[k] === id) delete updated[k];
+            });
+            this.invigilatorAssignments = updated;
+        },
+        assignInvigilatorToSlot(slotKey, invigId) {
+            let updated = { ...this.invigilatorAssignments };
+            if(invigId) {
+                updated[slotKey] = invigId;
+            } else {
+                delete updated[slotKey];
+            }
+            this.invigilatorAssignments = updated;
+        },
+        autoAssignInvigilators() {
+            if(this.invigilatorList.length === 0) {
+                alert("Please add at least one invigilator to the roster first.");
+                return;
+            }
+            let slots = this.allottedScheduleSlots;
+            if(slots.length === 0) {
+                alert("No schedule slots available.");
+                return;
+            }
+            
+            let updated = { ...this.invigilatorAssignments };
+            let invigIdx = 0;
+            let countAssigned = 0;
+            let timeBookings = {};
+
+            Object.keys(updated).forEach(k => {
+                let invId = updated[k];
+                let slot = slots.find(s => s.key === k);
+                if(slot && invId) {
+                    let timeKey = `${slot.date}::${slot.timing}`;
+                    if(!timeBookings[timeKey]) timeBookings[timeKey] = new Set();
+                    timeBookings[timeKey].add(invId);
+                }
+            });
+
+            slots.forEach(slot => {
+                if(!updated[slot.key]) {
+                    let timeKey = `${slot.date}::${slot.timing}`;
+                    if(!timeBookings[timeKey]) timeBookings[timeKey] = new Set();
+
+                    let attempts = 0;
+                    let assignedId = null;
+                    while(attempts < this.invigilatorList.length) {
+                        let candidate = this.invigilatorList[invigIdx % this.invigilatorList.length];
+                        invigIdx++;
+                        attempts++;
+                        if(!timeBookings[timeKey].has(candidate.id)) {
+                            assignedId = candidate.id;
+                            break;
+                        }
+                    }
+
+                    if(assignedId) {
+                        updated[slot.key] = assignedId;
+                        timeBookings[timeKey].add(assignedId);
+                        countAssigned++;
+                    }
+                }
+            });
+
+            this.invigilatorAssignments = updated;
+            alert(`Auto-assigned invigilators to ${countAssigned} lab session slots successfully!`);
+        },
+        getInvigilatorName(id) {
+            if(!id) return '-- Unassigned --';
+            let inv = this.invigilatorList.find(i => i.id === id);
+            return inv ? inv.name : '-- Unassigned --';
+        },
+        getInvigilatorDept(id) {
+            if(!id) return '-';
+            let inv = this.invigilatorList.find(i => i.id === id);
+            return inv ? inv.dept : '-';
+        },
+        exportMasterRemunerationExcel() {
+            if(this.allottedScheduleSlots.length === 0) return;
+            const wb = XLSX.utils.book_new();
+            
+            let examTitle = this.websiteTimetable.examType || 'Component I Exam';
+            let dates = this.settings.examDates.filter(d=>d).map(d => {
+                let p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d;
+            }).join(', ') || 'N/A';
+
+            let headerData = [
+                ["JosTEL - Joseph's Technology Enhanced Learning"],
+                [`INSTITUTIONAL EXAM REMUNERATION MASTER CLAIM STATEMENT`],
+                [`Exam Name: ${examTitle}   |   Dates: ${dates}`],
+                []
+            ];
+
+            let tableHead = ['S.No.', 'Invigilator Name', 'Department', 'Bank Account No.', 'Bank Name', 'IFSC Code', 'Sessions Assigned', 'Rate / Session (Rs.)', 'Total Claim (Rs.)', 'Signature'];
+            
+            let tableRows = this.invigilatorClaimSummary.map((inv, idx) => [
+                idx + 1,
+                inv.name,
+                inv.dept || 'N/A',
+                inv.acc || 'TBA',
+                inv.bank || 'TBA',
+                inv.ifsc || 'TBA',
+                inv.sessionsCount,
+                inv.rate,
+                inv.totalAmount,
+                ''
+            ]);
+
+            tableRows.push([]);
+            tableRows.push([
+                '', 'GRAND TOTAL PAYABLE', '', '', '', '',
+                this.totalAssignedDutyCount,
+                '',
+                this.totalRemunerationPayable,
+                ''
+            ]);
+
+            let fullData = [...headerData, tableHead, ...tableRows];
+            let ws1 = XLSX.utils.aoa_to_sheet(fullData);
+            ws1['!cols'] = [{wch: 6}, {wch: 28}, {wch: 22}, {wch: 18}, {wch: 20}, {wch: 14}, {wch: 18}, {wch: 20}, {wch: 18}, {wch: 20}];
+
+            let mergeCells = [
+                { s: {r:0, c:0}, e: {r:0, c:9} },
+                { s: {r:1, c:0}, e: {r:1, c:9} },
+                { s: {r:2, c:0}, e: {r:2, c:9} }
+            ];
+            ws1['!merges'] = mergeCells;
+            XLSX.utils.book_append_sheet(wb, ws1, 'Remuneration Summary');
+
+            let rosterHeader = [
+                ["JosTEL - Invigilator Duty Allocation Roster"],
+                [`Exam: ${examTitle}`],
+                [],
+                ['S.No.', 'Exam Date', 'Scheduled Timing', 'Lab Room / Venue', 'Seated Strength', 'Assigned Invigilator', 'Invigilator Department']
+            ];
+
+            let rosterRows = this.allottedScheduleSlots.map((slot, idx) => [
+                idx + 1,
+                slot.date,
+                slot.timing,
+                slot.lab,
+                slot.studentCount + ' Students',
+                this.getInvigilatorName(this.invigilatorAssignments[slot.key]),
+                this.getInvigilatorDept(this.invigilatorAssignments[slot.key])
+            ]);
+
+            let ws2 = XLSX.utils.aoa_to_sheet([...rosterHeader, ...rosterRows]);
+            ws2['!cols'] = [{wch: 6}, {wch: 15}, {wch: 25}, {wch: 18}, {wch: 18}, {wch: 28}, {wch: 22}];
+            ws2['!merges'] = [
+                { s: {r:0, c:0}, e: {r:0, c:6} },
+                { s: {r:1, c:0}, e: {r:1, c:6} }
+            ];
+            XLSX.utils.book_append_sheet(wb, ws2, 'Invigilator Duty Roster');
+
+            const dd = new Date();
+            XLSX.writeFile(wb, `Invigilator_Remuneration_Master_${dd.getTime()}.xlsx`);
+        },
+
+        exportMasterRemunerationPDF() {
+            if(this.allottedScheduleSlots.length === 0) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            this.injectJosTelBranding(doc);
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("FACULTY INVIGILATION REMUNERATION CLAIM SUMMARY", 105, 33, { align: "center" });
+
+            let tableData = this.invigilatorClaimSummary.map((inv, idx) => [
+                idx + 1,
+                inv.name,
+                inv.dept || 'N/A',
+                inv.acc || 'TBA',
+                inv.bank + '\n' + inv.ifsc,
+                inv.sessionsCount,
+                `Rs. ${inv.rate}`,
+                `Rs. ${inv.totalAmount}`,
+                ''
+            ]);
+
+            tableData.push([
+                { content: 'TOTAL', colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } },
+                { content: `${this.totalAssignedDutyCount}`, styles: { fontStyle: 'bold', halign: 'center' } },
+                '',
+                { content: `Rs. ${this.totalRemunerationPayable}`, styles: { fontStyle: 'bold', textColor: [22, 163, 74] } },
+                ''
+            ]);
+
+            doc.autoTable({
+                startY: 38,
+                head: [['S.No', 'Invigilator Name', 'Department', 'Account No.', 'Bank & IFSC', 'Sessions', 'Rate', 'Total Claim', 'Signature']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [30, 58, 138] },
+                styles: { fontSize: 8.5, cellPadding: 3, valign: 'middle' },
+                columnStyles: {
+                    0: { cellWidth: 10 },
+                    1: { cellWidth: 35, fontStyle: 'bold' },
+                    2: { cellWidth: 28 },
+                    3: { cellWidth: 25 },
+                    4: { cellWidth: 24 },
+                    5: { cellWidth: 16, halign: 'center' },
+                    6: { cellWidth: 16, halign: 'right' },
+                    7: { cellWidth: 20, halign: 'right', fontStyle: 'bold' },
+                    8: { cellWidth: 18 }
+                }
+            });
+
+            let finalY = doc.lastAutoTable.finalY || 180;
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "bold");
+            doc.text("Verified By: __________________________", 20, finalY + 25);
+            doc.text("Chief Superintendent: __________________________", 115, finalY + 25);
+
+            const dd = new Date();
+            doc.save(`Invigilator_Remuneration_Claim_${dd.getTime()}.pdf`);
+        },
+
+        exportSingleInvigilatorClaimPDF(invigId) {
+            let invig = this.invigilatorClaimSummary.find(i => i.id === invigId);
+            if(!invig) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            this.injectJosTelBranding(doc);
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("EXAMINATION INVIGILATION REMUNERATION RECEIPT", 105, 33, { align: "center" });
+
+            doc.setFillColor(248, 250, 252);
+            doc.rect(14, 38, 182, 28, 'F');
+            doc.setDrawColor(226, 232, 240);
+            doc.rect(14, 38, 182, 28, 'S');
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Staff Name: ${invig.name}`, 18, 45);
+            doc.text(`Department: ${invig.dept || 'N/A'}`, 18, 53);
+            doc.text(`Phone: ${invig.phone || 'N/A'}`, 18, 61);
+
+            doc.text(`Bank Account: ${invig.acc || 'N/A'}`, 110, 45);
+            doc.text(`Bank Name: ${invig.bank || 'N/A'}`, 110, 53);
+            doc.text(`IFSC Code: ${invig.ifsc || 'N/A'}`, 110, 61);
+
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text("Itemized Invigilation Duty Breakdown:", 14, 73);
+
+            let tableData = invig.assignedSlots.map((slot, idx) => [
+                idx + 1,
+                slot.date,
+                slot.timing,
+                slot.lab,
+                `Rs. ${invig.rate}`
+            ]);
+
+            tableData.push([
+                { content: 'TOTAL REMUNERATION PAYABLE:', colSpan: 4, styles: { halign: 'right', fontStyle: 'bold' } },
+                { content: `Rs. ${invig.totalAmount}`, styles: { fontStyle: 'bold', textColor: [22, 163, 74], fontSize: 10 } }
+            ]);
+
+            doc.autoTable({
+                startY: 77,
+                head: [['S.No', 'Exam Date', 'Scheduled Timing / Session', 'Lab Room / Venue', 'Remuneration Rate']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [30, 58, 138] },
+                styles: { fontSize: 9.5, cellPadding: 3.5, valign: 'middle' },
+                columnStyles: {
+                    0: { cellWidth: 12 },
+                    1: { cellWidth: 30 },
+                    2: { cellWidth: 60 },
+                    3: { cellWidth: 40, fontStyle: 'bold' },
+                    4: { cellWidth: 40, halign: 'right' }
+                }
+            });
+
+            let finalY = doc.lastAutoTable.finalY || 160;
+
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "italic");
+            doc.text("Certified that I have discharged the invigilation duties mentioned above.", 14, finalY + 15);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Signature of Invigilator", 20, finalY + 35);
+            doc.text("Signature of Chief Superintendent", 120, finalY + 35);
+
+            doc.save(`Claim_Receipt_${invig.name.replace(/\s+/g, '_')}.pdf`);
+        },
+
+        exportInvigilatorDutyRosterPDF() {
+            if(this.allottedScheduleSlots.length === 0) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            this.injectJosTelBranding(doc);
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("EXAMINATION INVIGILATION DUTY ROSTER", 105, 33, { align: "center" });
+
+            let tableData = this.allottedScheduleSlots.map((slot, idx) => {
+                let invName = this.getInvigilatorName(this.invigilatorAssignments[slot.key]);
+                let invDept = this.getInvigilatorDept(this.invigilatorAssignments[slot.key]);
+                return [
+                    idx + 1,
+                    slot.date + '\n' + slot.timing,
+                    slot.lab,
+                    invName + (invDept !== '-' ? `\n(${invDept})` : ''),
+                    ''
+                ];
+            });
+
+            doc.autoTable({
+                startY: 38,
+                head: [['S.No', 'Date & Timing', 'Lab Room / Venue', 'Assigned Invigilator', 'Invigilator Signature']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [15, 23, 42] },
+                styles: { fontSize: 9, cellPadding: 3, valign: 'middle' },
+                columnStyles: {
+                    0: { cellWidth: 12 },
+                    1: { cellWidth: 45, fontStyle: 'bold' },
+                    2: { cellWidth: 35, fontStyle: 'bold' },
+                    3: { cellWidth: 50 },
+                    4: { cellWidth: 40 }
+                }
+            });
+
+            doc.save("Invigilator_Duty_Roster.pdf");
+        },
+
         exportClaimForm() {
             let total = this.claimForm.sessions * this.claimForm.rate;
             const wb = XLSX.utils.book_new();
@@ -1423,7 +2220,6 @@ createApp({
                 let p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d;
             }).join(', ') || 'N/A';
             
-            // Build Institutional Grade Form Matching Standard Project Template
             let data = [
                 ['JosTEL - Joseph\'s Technology Enhanced Learning'],
                 [`Exam Name: ${examTitle}   |   Date: ${dates}`],
@@ -1441,11 +2237,10 @@ createApp({
             let ws = XLSX.utils.aoa_to_sheet(data);
             ws['!cols'] = [{wch: 6}, {wch: 35}, {wch: 18}, {wch: 25}, {wch: 15}, {wch: 18}];
             
-            // Basic alignment properties for specific header rows natively
             let mergeCells = [
-                { s: {r:0, c:0}, e: {r:0, c:5} }, // Title 1
-                { s: {r:1, c:0}, e: {r:1, c:5} }, // Title 2
-                { s: {r:3, c:0}, e: {r:3, c:5} }, // Title 3
+                { s: {r:0, c:0}, e: {r:0, c:5} },
+                { s: {r:1, c:0}, e: {r:1, c:5} },
+                { s: {r:3, c:0}, e: {r:3, c:5} },
             ];
             ws['!merges'] = mergeCells;
             
@@ -1614,12 +2409,14 @@ createApp({
             if(this.allocatedStudents.length === 0 && this.rawExtractedClasses.length === 0) {
                 this.cloudStatus = '⚠️ Cannot push empty data to cloud.'; return;
             }
-            this.cloudStatus = 'Uploading to Firebase (Chunked Mode)...';
+            this.cloudStatus = 'Connecting to Cloud...';
             try {
-                if(!window.fsSetDoc || !window.fsDoc || !window.fsDb) {
-                    this.cloudStatus = '❌ Firebase not initialized. Check internet connection and reload.';
+                const fb = await initFirebase();
+                if(!fb || !window.fsSetDoc || !window.fsDoc || !window.fsDb) {
+                    this.cloudStatus = '❌ Firebase could not be connected. Check internet connection.';
                     return;
                 }
+                this.cloudStatus = 'Uploading to Firebase (Chunked Mode)...';
                 const timeout = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Timed out after 10s. Check Firestore rules or internet.')), 10000)
                 );
@@ -1653,6 +2450,8 @@ createApp({
                         sessionLen: this.settings.sessionLen, breakTime: this.settings.breakTime, skipWeekends: this.settings.skipWeekends
                     },
                     websiteTimetable: Object.assign({}, this.websiteTimetable),
+                    invigilatorList: this.invigilatorList,
+                    invigilatorAssignments: this.invigilatorAssignments,
                     rawChunkCount: rawChunks.length,
                     allocChunkCount: allocChunks.length
                 };
@@ -1683,8 +2482,14 @@ createApp({
             }
         },
         async pullFromCloud() {
-            this.cloudStatus = 'Downloading split data from Firebase securely...';
+            this.cloudStatus = 'Connecting to Cloud...';
             try {
+                const fb = await initFirebase();
+                if(!fb || !window.fsGetDoc || !window.fsDoc || !window.fsDb) {
+                    this.cloudStatus = '❌ Firebase could not be connected. Check internet connection.';
+                    return;
+                }
+                this.cloudStatus = 'Downloading split data from Firebase securely...';
                 const snap = await window.fsGetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state'));
                 if(snap.exists()) {
                     let d = snap.data();
@@ -1698,6 +2503,8 @@ createApp({
                             if(m.customLabs) this.customLabs = m.customLabs;
                             if(m.settings) this.settings = m.settings;
                             if(m.websiteTimetable) this.websiteTimetable = Object.assign(this.websiteTimetable, m.websiteTimetable);
+                            if(m.invigilatorList) this.invigilatorList = m.invigilatorList;
+                            if(m.invigilatorAssignments) this.invigilatorAssignments = m.invigilatorAssignments;
                             
                             let rawChunkCount = m.rawChunkCount || 0;
                             let allocChunkCount = m.allocChunkCount || 0;
@@ -1752,12 +2559,16 @@ createApp({
                            if(full.allocatedStudents) this.allocatedStudents = full.allocatedStudents;
                            if(full.settings) this.settings = full.settings;
                            if(full.websiteTimetable) this.websiteTimetable = Object.assign(this.websiteTimetable, full.websiteTimetable);
+                           if(full.invigilatorList) this.invigilatorList = full.invigilatorList;
+                           if(full.invigilatorAssignments) this.invigilatorAssignments = full.invigilatorAssignments;
                        }
                     } else {
                         // Apply metadata
                         if(d.customLabs) this.customLabs = d.customLabs;
                         if(d.settings) this.settings = d.settings;
                         if(d.websiteTimetable) this.websiteTimetable = Object.assign(this.websiteTimetable, d.websiteTimetable);
+                        if(d.invigilatorList) this.invigilatorList = d.invigilatorList;
+                        if(d.invigilatorAssignments) this.invigilatorAssignments = d.invigilatorAssignments;
                         
                         // Fetch the split off large tables
                         try {
@@ -1781,6 +2592,8 @@ createApp({
                     localStorage.setItem('jostel_alloc', JSON.stringify(this.allocatedStudents));
                     localStorage.setItem('jostel_labs', JSON.stringify(this.customLabs));
                     localStorage.setItem('jostel_settings', JSON.stringify(this.settings));
+                    localStorage.setItem('jostel_invig_list', JSON.stringify(this.invigilatorList));
+                    localStorage.setItem('jostel_invig_assignments', JSON.stringify(this.invigilatorAssignments));
                     
                     this.cloudStatus = '✅ Global State Restored Successfully! Engine will now sync.';
                     setTimeout(() => window.location.reload(), 2500);

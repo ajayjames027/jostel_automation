@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jostel-cache-v7';
+const CACHE_NAME = 'jostel-cache-v8';
 const urlsToCache = [
   '/jostel_automation/',
   '/jostel_automation/index.html',

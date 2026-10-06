@@ -607,10 +607,16 @@
             }
         },
         mounted() {
+            try {
+                if (localStorage.getItem('jostel_earn_students')) {
+                    this.students = JSON.parse(localStorage.getItem('jostel_earn_students'));
+                }
+            } catch(e) {}
             onSnapshot(doc(db, 'earn_while_you_learn', 'students_data'), (docSnap) => {
                 if (docSnap.exists()) {
                     this.isSyncing = true;
                     this.students = docSnap.data().students || [];
+                    try { localStorage.setItem('jostel_earn_students', JSON.stringify(this.students)); } catch(e) {}
                     this.$nextTick(() => { this.isSyncing = false; });
                 }
             });
@@ -640,6 +646,7 @@
             },
             students: {
                 handler: function(newVal) {
+                    try { localStorage.setItem('jostel_earn_students', JSON.stringify(newVal)); } catch(e) {}
                     if (this.isSyncing) return;
                     setDoc(doc(db, 'earn_while_you_learn', 'students_data'), {
                         students: JSON.parse(JSON.stringify(newVal))
