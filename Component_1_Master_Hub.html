@@ -1611,6 +1611,10 @@ createApp({
             }
             this.cloudStatus = 'Uploading to Firebase...';
             try {
+                if(!window.fsSetDoc || !window.fsDoc || !window.fsDb) {
+                    this.cloudStatus = '❌ Firebase not initialized. Check internet connection and reload.';
+                    return;
+                }
                 let payload = {
                     customLabs: this.customLabs,
                     rawExtractedClasses: this.rawExtractedClasses,
@@ -1618,12 +1622,18 @@ createApp({
                     settings: this.settings,
                     websiteTimetable: Object.assign({}, this.websiteTimetable)
                 };
-                await window.fsSetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state'), payload);
-                this.cloudStatus = '✅ Successfully securely mirrored to Firebase Cloud! You can now load this on any computer.';
+                const timeout = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timed out after 10s. Check Firestore rules or internet.')), 10000)
+                );
+                await Promise.race([
+                    window.fsSetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state'), payload),
+                    timeout
+                ]);
+                this.cloudStatus = '✅ Successfully mirrored to Firebase! Restorable on any computer.';
                 setTimeout(() => {this.cloudStatus=''}, 6000);
             } catch(e) {
                 console.error(e);
-                this.cloudStatus = '❌ Cloud Push Failed. Error: ' + e.message;
+                this.cloudStatus = '❌ Cloud Push Failed: ' + e.message;
             }
         },
         async pullFromCloud() {
