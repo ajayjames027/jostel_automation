@@ -429,6 +429,9 @@
                                 <button @click="exportAuditData" class="bg-amber-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-amber-700 shadow-sm transition ml-2 tracking-wide">
                                     [Audit] PDF
                                 </button>
+                                <button @click="exportCoEData" class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded text-xs hover:bg-indigo-700 shadow-sm transition ml-2 tracking-wide">
+                                    [CoE Data] Export
+                                </button>
                             </div>
                         </div>
                         
@@ -2070,6 +2073,54 @@ createApp({
 
             const dd = new Date();
             doc.save(`Exam_Audit_Export_${dd.getTime()}.pdf`);
+        },
+        exportCoEData() {
+            if(this.allocatedStudents.length === 0) return;
+            const wb = XLSX.utils.book_new();
+            
+            let rowData = [
+                ["JosTEL - CoE Office Master Data"],
+                [],
+                ["Department / Class", "Register Number", "Student Name", "Target Lab Venue", "Exam Date", "Scheduled Timing", "Invigilator Allotted"]
+            ];
+            
+            // Sort to ensure absolute chronological readability natively
+            let sorted = [...this.allocatedStudents].sort((a,b) => {
+                if(a.Date !== b.Date) return a.Date.localeCompare(b.Date);
+                let timeA = new Date("1970/01/01 " + a.Timing.split(' to ')[0]).getTime();
+                let timeB = new Date("1970/01/01 " + b.Timing.split(' to ')[0]).getTime();
+                if(timeA !== timeB) return timeA - timeB;
+                if(a['Lab Room'] !== b['Lab Room']) return a['Lab Room'].localeCompare(b['Lab Room']);
+                return (a['Class']||'').localeCompare(b['Class']||'');
+            });
+            
+            sorted.forEach(s => {
+                let key = `${s.Date} :: ${s.Timing} :: ${s['Lab Room']}`;
+                let invigId = this.invigilatorAssignments ? this.invigilatorAssignments[key] : null;
+                let invigName = "Not Assigned";
+                
+                if(invigId && this.invigilators) {
+                    let invMatch = this.invigilators.find(i => i.id === invigId);
+                    if(invMatch) invigName = invMatch.name;
+                }
+                
+                rowData.push([
+                    s['Class'] || 'N/A',
+                    s['Reg No'] || 'N/A',
+                    s['Name'] || 'N/A',
+                    s['Lab Room'],
+                    s.Date,
+                    s.Timing,
+                    invigName
+                ]);
+            });
+            
+            let ws = XLSX.utils.aoa_to_sheet(rowData);
+            ws['!cols'] = [{wch: 25}, {wch: 18}, {wch: 35}, {wch: 22}, {wch: 15}, {wch: 25}, {wch: 30}];
+            
+            XLSX.utils.book_append_sheet(wb, ws, "CoE Master Extract");
+            const dd = new Date();
+            XLSX.writeFile(wb, `CoE_Master_Schedule_Export_${dd.getTime()}.xlsx`);
         },
         exportTimetable(mode = 'lab') {
             if(this.allocatedStudents.length === 0) return;
