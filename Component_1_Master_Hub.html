@@ -2105,8 +2105,8 @@ createApp({
                 let invigId = this.invigilatorAssignments ? this.invigilatorAssignments[key] : null;
                 let invigName = "Not Assigned";
                 
-                if(invigId && this.invigilators) {
-                    let invMatch = this.invigilators.find(i => i.id === invigId);
+                if(invigId && this.invigilatorList) {
+                    let invMatch = this.invigilatorList.find(i => i.id === invigId);
                     if(invMatch) invigName = invMatch.name;
                 }
                 
