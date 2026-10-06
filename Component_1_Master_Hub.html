@@ -3345,10 +3345,10 @@ createApp({
             
             let tableData = [];
             
-            // Group by strict Class + Timing composites to avoid collapsing split-classes
+            // Group by strict Class + Date composites to mathematically combine consecutive time blocks for huge departments seamlessly!
             let groupedSlices = {};
             this.allocatedStudents.forEach(s => {
-                let key = `${s['Class']}_::_${s.Date}_::_${s.Timing}`;
+                let key = `${s['Class']}_::_${s.Date}`;
                 if(!groupedSlices[key]) groupedSlices[key] = [];
                 groupedSlices[key].push(s);
             });
@@ -3361,12 +3361,29 @@ createApp({
                 let rawMatch = this.rawExtractedClasses.find(rc => rc.name === cName);
                 if(rawMatch) level = rawMatch.computedLevel;
                 
+                // Dynamically compile absolute timing bounds to prevent splitting a single question paper batch!
+                let startTimes = [];
+                let endTimes = [];
+                slice.forEach(s => {
+                    let parts = s.Timing.split(' to ');
+                    if(parts.length === 2) {
+                        startTimes.push(parts[0]);
+                        endTimes.push(parts[1]);
+                    }
+                });
+                
+                // Chronologically sort boundary edges natively
+                startTimes.sort((a,b) => new Date("1970/01/01 " + a).getTime() - new Date("1970/01/01 " + b).getTime());
+                endTimes.sort((a,b) => new Date("1970/01/01 " + a).getTime() - new Date("1970/01/01 " + b).getTime());
+                
+                let combinedTiming = startTimes.length > 0 ? `${startTimes[0]} to ${endTimes[endTimes.length-1]}` : firstRecord.Timing;
+                
                 let assignedLabs = [...new Set(slice.map(s => s['Lab Room']))].join(', ');
                 tableData.push([
                     level,
                     cName,
                     firstRecord.Date,
-                    firstRecord.Timing,
+                    combinedTiming,
                     assignedLabs,
                     slice.length + " Students"
                 ]);
