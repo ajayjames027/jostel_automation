@@ -8,7 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
+        [v-cloak] { display: none; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
         h1, h2, h3, .font-heading { font-family: 'Space Grotesk', sans-serif; }
         
@@ -42,20 +45,21 @@
 </head>
 <body class="min-h-screen text-slate-800 antialiased selection:bg-blue-200">
 
+<div id="app" v-cloak>
     <!-- Top Navigation -->
     <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center gap-3">
-                    <div class="bg-blue-600 text-white p-2 rounded-xl">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <div class="bg-blue-600 text-white p-2 rounded-xl scale-95 md:scale-100 transition">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold font-heading text-slate-900 tracking-tight">JosTEL <span class="text-blue-600">Faculty Hub</span></h1>
+                        <h1 class="text-lg md:text-xl font-bold font-heading text-slate-900 tracking-tight">JosTEL <span class="text-blue-600">Faculty Hub</span></h1>
                     </div>
                 </div>
                 <div>
-                    <a href="#" class="px-5 py-2 text-sm font-bold text-white bg-slate-900 rounded-full hover:bg-slate-800 transition shadow-md">Open LMS Platform</a>
+                    <a href="https://ajayjames027.github.io/jostel_automation/" class="px-4 py-1.5 md:px-5 md:py-2 text-xs md:text-sm font-bold text-white bg-slate-900 rounded-full hover:bg-slate-800 transition shadow-md whitespace-nowrap">Open Master LMS</a>
                 </div>
             </div>
         </div>
@@ -64,14 +68,15 @@
     <!-- Hero Section -->
     <div class="relative overflow-hidden bg-white hero-pattern border-b border-gray-100">
         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white/90"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 relative z-10 text-center">
-            <span class="inline-block py-1 px-3 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-bold tracking-wide mb-5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-20 pb-20 md:pb-24 relative z-10 text-center">
+            <span v-if="!isLoaded" class="inline-block py-1 px-3 rounded-full bg-slate-100 text-slate-400 text-xs font-bold tracking-wide mb-5 animate-pulse">Syncing to Cloud Engine...</span>
+            <span v-else class="inline-block py-1 px-3 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs md:text-sm font-bold tracking-wide mb-5">
                 Official Resource Depository
             </span>
-            <h1 class="text-5xl md:text-7xl font-bold font-heading tracking-tight mb-6 text-slate-900 drop-shadow-sm">
-                Empowering <span class="gradient-text">Educators.</span>
+            <h1 class="text-4xl md:text-7xl font-bold font-heading tracking-tight mb-4 md:mb-6 text-slate-900 drop-shadow-sm leading-tight">
+                Empowering <br class="md:hidden"><span class="gradient-text">Educators.</span>
             </h1>
-            <p class="mt-4 text-xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
+            <p class="mt-4 text-base md:text-xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed px-4">
                 Access official Moodle templates, download automation tools, and explore training videos to streamline your digital pedagogy.
             </p>
         </div>
@@ -83,54 +88,39 @@
         <!-- SECTION: Templates & Tools -->
         <section>
             <div class="flex items-center gap-4 mb-10">
-                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 </div>
-                <h2 class="text-3xl font-bold font-heading text-slate-800">Official Templates</h2>
+                <h2 class="text-2xl md:text-3xl font-bold font-heading text-slate-800">Official Templates</h2>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Template Card 1 -->
-                <div class="glass-card p-6 flex flex-col h-full relative overflow-hidden group">
+                <!-- Vue Mapped Templates -->
+                <div v-for="(tmp, index) in dynamicTemplates" :key="'t'+index" class="glass-card p-6 flex flex-col h-full relative overflow-hidden group">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-                        <svg class="w-24 h-24 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
+                        <svg class="w-24 h-24" :class="index%2===0 ? 'text-blue-600' : 'text-emerald-600'" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
                     </div>
                     <div class="flex-1 relative z-10">
-                        <div class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider w-max mb-4">Moodle Format</div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading">Component I Quiz Template</h3>
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">The official Word Document format with built-in K1/K2 structures for automatic Moodle Quiz Generation.</p>
+                        <div class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider w-max mb-4" :class="index%2===0 ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'">{{ tmp.tag }}</div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading">{{ tmp.title }}</h3>
+                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">{{ tmp.desc }}</p>
                     </div>
-                    <a href="Component-I_K1_K2_Template.docx" download class="mt-auto block w-full py-3 px-4 bg-slate-900 hover:bg-blue-600 text-white text-center rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 relative z-10">
+                    <a :href="tmp.url" download class="mt-auto block w-full py-3 px-4 text-center rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 relative z-10" :class="index%2===0 ? 'bg-slate-900 hover:bg-blue-600 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Download .DOCX
+                        Download Asset
                     </a>
                 </div>
 
-                <!-- Template Card 2 -->
-                <div class="glass-card p-6 flex flex-col h-full relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-                        <svg class="w-24 h-24 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"/></svg>
-                    </div>
-                    <div class="flex-1 relative z-10">
-                        <div class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider w-max mb-4">Automation</div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading">Course Enrolment Engine</h3>
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">Master CSV format for uploading massive batches of students directly into strict cohort groupings.</p>
-                    </div>
-                    <a href="#" class="mt-auto block w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 text-center rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 relative z-10">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Download .CSV
-                    </a>
-                </div>
+                <!-- Empty State Block -->
+                <div v-if="isLoaded && dynamicTemplates.length === 0" class="col-span-full py-10 text-center text-gray-500 font-medium">No templates available yet.</div>
                 
-                <!-- Template Card 3 -->
-                <div class="glass-card p-6 flex flex-col h-full relative overflow-hidden group border-dashed border-2 border-slate-300 bg-slate-50/50">
-                    <div class="flex-1 flex flex-col items-center justify-center text-center">
-                        <div class="mx-auto bg-slate-200 p-4 rounded-full mb-4">
-                            <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-600 font-heading">More Templates Coming Soon</h3>
-                        <p class="text-xs text-slate-400 mt-2">The administration is currently preparing additional automation formats.</p>
-                    </div>
+                <!-- Skeleton State -->
+                <div v-if="!isLoaded" class="glass-card p-6 flex flex-col h-full opacity-50 block animate-pulse min-h-[250px]">
+                    <div class="h-4 w-1/3 bg-gray-300 rounded mb-4"></div>
+                    <div class="h-6 w-2/3 bg-gray-300 rounded mb-3"></div>
+                    <div class="h-3 w-full bg-gray-200 rounded mb-2"></div>
+                    <div class="h-3 w-4/5 bg-gray-200 rounded mb-6"></div>
+                    <div class="mt-auto h-12 w-full bg-gray-300 rounded-xl"></div>
                 </div>
             </div>
         </section>
@@ -138,46 +128,47 @@
         <!-- SECTION: Training & Tutorials -->
         <section>
             <div class="flex items-center gap-4 mb-10">
-                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
-                <h2 class="text-3xl font-bold font-heading text-slate-800">Training Modules</h2>
+                <h2 class="text-2xl md:text-3xl font-bold font-heading text-slate-800">Training Modules</h2>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Video Module 1 (Placeholder) -->
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200 hover:shadow-xl transition duration-300">
-                    <div class="aspect-video bg-slate-800 relative group cursor-pointer flex items-center justify-center">
-                        <div class="absolute inset-0 bg-cover bg-center opacity-50 transition duration-500 group-hover:scale-105 group-hover:opacity-70" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                <!-- Vue Mapped Videos -->
+                <div v-for="(vid, vIdx) in dynamicVideos" :key="'v'+vIdx" class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200 hover:shadow-xl transition duration-300">
+                    <a :href="vid.embedUrl" target="_blank" class="block aspect-video bg-slate-800 relative group cursor-pointer flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105 group-hover:opacity-80" :style="'background-image: url(' + vid.thumbUrl + ');'">
+                            <div class="absolute inset-0 bg-black/40"></div>
+                        </div>
                         <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center z-10 group-hover:bg-blue-600 transition duration-300 shadow-lg">
                             <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         </div>
-                    </div>
+                    </a>
                     <div class="p-6">
-                        <div class="text-orange-600 text-xs font-black uppercase tracking-wider mb-2">Module 1</div>
-                        <h3 class="text-xl font-bold font-heading text-slate-900 mb-2">How to format your Component I Quizzes for Moodle Automation</h3>
-                        <p class="text-sm text-slate-500 line-clamp-2">Learn the exact syntax and spacing required in Microsoft Word to allow our portal to perfectly interpret your question bank into native Moodle XML formats.</p>
+                        <div class="text-orange-600 text-xs font-black uppercase tracking-wider mb-2">Module {{ vIdx + 1 }}</div>
+                        <h3 class="text-lg md:text-xl font-bold font-heading text-slate-900 mb-2">{{ vid.title }}</h3>
+                        <p class="text-sm text-slate-500 line-clamp-2 md:line-clamp-none">{{ vid.desc }}</p>
                     </div>
                 </div>
 
-                <!-- Video Module 2 (Placeholder) -->
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200 hover:shadow-xl transition duration-300">
-                    <div class="aspect-video bg-slate-800 relative group cursor-pointer flex items-center justify-center">
-                        <div class="absolute inset-0 bg-cover bg-center opacity-50 transition duration-500 group-hover:scale-105 group-hover:opacity-70" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
-                        <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center z-10 group-hover:bg-blue-600 transition duration-300 shadow-lg">
-                            <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                    </div>
+                <!-- Empty State Block -->
+                <div v-if="isLoaded && dynamicVideos.length === 0" class="col-span-full py-10 text-center text-gray-500 font-medium">No training modules available right now.</div>
+                
+                <!-- Skeleton Loader -->
+                <div v-if="!isLoaded" class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200 opacity-50 min-h-[350px] animate-pulse">
+                    <div class="aspect-video bg-gray-300"></div>
                     <div class="p-6">
-                        <div class="text-orange-600 text-xs font-black uppercase tracking-wider mb-2">Module 2</div>
-                        <h3 class="text-xl font-bold font-heading text-slate-900 mb-2">Deploying Auto-Pilot Exams</h3>
-                        <p class="text-sm text-slate-500 line-clamp-2">A comprehensive walkthrough of the Exam Operations Portal. Watch how to turn a CoE timetable into rigorous Moodle lab cohorts in 5 minutes.</p>
+                        <div class="h-3 w-16 bg-gray-200 mb-4 rounded"></div>
+                        <div class="h-6 w-3/4 bg-gray-300 mb-3 rounded"></div>
+                        <div class="h-4 w-full bg-gray-200 rounded"></div>
                     </div>
                 </div>
             </div>
         </section>
 
     </main>
+</div>
 
     <!-- Footer -->
     <footer class="bg-slate-900 text-slate-400 py-12 mt-12 border-t border-slate-800">
@@ -191,6 +182,57 @@
             </div>
         </div>
     </footer>
+
+<!-- Vue & Firebase Engine -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    
+    // Exact identical configs from Master Dashboard
+    const firebaseConfig = {
+        apiKey: "AIzaSyB2qCkUx6DMCD-xLoyKVGcT8mNTfTITPOE",
+        authDomain: "jostel-e8b17.firebaseapp.com",
+        projectId: "jostel-e8b17",
+        storageBucket: "jostel-e8b17.firebasestorage.app",
+        messagingSenderId: "811645548918",
+        appId: "1:811645548918:web:06648aad3ab2dc13d56257",
+        measurementId: "G-ZPM6WM2M7Q"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const { createApp } = Vue;
+    createApp({
+        data() {
+            return {
+                isLoaded: false,
+                dynamicVideos: [],
+                dynamicTemplates: []
+            }
+        },
+        async mounted() {
+            try {
+                const docRef = doc(db, "jostel_deployments", "cms_faculty_hub");
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    let cloudCMS = JSON.parse(docSnap.data().payload);
+                    this.dynamicVideos = cloudCMS.videos || [];
+                    this.dynamicTemplates = cloudCMS.templates || [];
+                } else {
+                    // Fallback to defaults
+                    this.dynamicTemplates = [
+                        { title: 'Component I Quiz Template', tag: 'Moodle Format', desc: 'The official Word Document format with built-in K1/K2 structures.', url: 'Component-I_K1_K2_Template.docx' }
+                    ];
+                }
+            } catch(e) {
+                console.error("Firebase Sync Error", e);
+            } finally {
+                this.isLoaded = true;
+            }
+        }
+    }).mount('#app');
+</script>
 
 </body>
 </html>

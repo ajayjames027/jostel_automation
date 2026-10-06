@@ -132,6 +132,12 @@
                 Moodle Deploy Engine
             </div>
             
+            <div class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-2 mt-4 px-2">Web Architecture</div>
+            <div class="sidebar-item" :class="{'active': activeTab === 'cms'}" @click="activeTab = 'cms'">
+                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H14"></path></svg>
+                Faculty Hub CMS
+            </div>
+            
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4 px-2">Student Actions</div>
             <div class="sidebar-item" :class="{'active': activeTab === 'studentLookup'}" @click="activeTab = 'studentLookup'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -1472,6 +1478,66 @@
                 </div>
             </div>
 
+            </div>
+            
+            <!-- CMS MANAGER TAB -->
+            <div v-show="activeTab === 'cms'" class="space-y-6 max-w-5xl mx-auto pb-20 h-full">
+                <div class="flex justify-between items-end flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Faculty Hub CMS Engine</h2>
+                        <p class="text-slate-500 text-sm">Manage dynamic web content injected directly into the live public Faculty Resources portal.</p>
+                    </div>
+                    <button @click="publishCMSToCloud" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V6m0 0l-3 3m3-3l3 3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Publish to Public Web
+                    </button>
+                </div>
+                
+                <div v-show="cmsStatus" class="p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded font-bold text-sm">
+                    {{ cmsStatus }}
+                </div>
+                
+                <!-- Videos Management -->
+                <div class="glass-panel p-6 bg-white border-t-4 border-rose-500">
+                    <div class="flex justify-between mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">Training Video Modules</h3>
+                        <button @click="cmsData.videos.push({title:'New Training Module', desc:'Description here...', embedUrl:'https://', thumbUrl:''})" class="text-rose-600 text-sm font-bold bg-rose-50 px-3 py-1 rounded hover:bg-rose-100">+ Add Video</button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div v-for="(vid, i) in cmsData.videos" :key="'v'+i" class="p-4 border rounded relative bg-gray-50/50">
+                            <button @click="cmsData.videos.splice(i,1)" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-xl">&times;</button>
+                            <input type="text" v-model="vid.title" class="futuristic-input font-bold text-slate-800 mb-2" placeholder="Video Title">
+                            <input type="text" v-model="vid.desc" class="futuristic-input text-slate-600 text-sm mb-2" placeholder="Short description">
+                            <input type="text" v-model="vid.embedUrl" class="futuristic-input text-blue-600 text-sm font-mono mb-2" placeholder="Target Link (e.g. YouTube)">
+                            <input type="text" v-model="vid.thumbUrl" class="futuristic-input text-gray-500 text-sm" placeholder="Image Thumbnail URL (Unsplash or Imgur)">
+                        </div>
+                        <div v-if="cmsData.videos.length===0" class="text-center text-gray-500 text-sm py-4">No video modules. Everything is hidden on the web.</div>
+                    </div>
+                </div>
+
+                <!-- Template Management -->
+                <div class="glass-panel p-6 bg-white border-t-4 border-indigo-500">
+                    <div class="flex justify-between mb-4">
+                        <h3 class="text-lg font-bold text-slate-800">Downloadable Templates</h3>
+                        <button @click="cmsData.templates.push({title:'New Template', tag:'DOCX', desc:'Description here...', url:'#'})" class="text-indigo-600 text-sm font-bold bg-indigo-50 px-3 py-1 rounded hover:bg-indigo-100">+ Add Template</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div v-for="(tmp, i) in cmsData.templates" :key="'t'+i" class="p-4 border rounded relative bg-gray-50/50 flex flex-col gap-2">
+                            <button @click="cmsData.templates.splice(i,1)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 font-bold">&times;</button>
+                            <div class="flex gap-2">
+                                <input type="text" v-model="tmp.tag" class="futuristic-input font-black uppercase text-xs w-24 text-center text-indigo-700 bg-indigo-50" placeholder="TAG">
+                                <input type="text" v-model="tmp.title" class="futuristic-input font-bold text-slate-800 flex-1" placeholder="Template Name">
+                            </div>
+                            <input type="text" v-model="tmp.desc" class="futuristic-input text-slate-600 text-xs" placeholder="Description">
+                            <input type="text" v-model="tmp.url" class="futuristic-input text-blue-600 text-xs font-mono mt-auto" placeholder="Download Link URL">
+                        </div>
+                    </div>
+                    <div v-if="cmsData.templates.length===0" class="text-center text-gray-500 text-sm py-4">No templates active.</div>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -1565,6 +1631,19 @@ createApp({
             rosterFilterTiming: '',
             showAddInvigModal: false,
             invigForm: { id: null, name: '', dept: '', acc: '', bank: '', ifsc: '', phone: '', rate: 250 },
+            
+            // CMS State
+            cmsStatus: '',
+            cmsData: {
+                videos: [
+                    { title: 'How to format your Component I Quizzes', desc: 'Learn the exact syntax and spacing required in Microsoft Word.', embedUrl: '#', thumbUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
+                    { title: 'Deploying Auto-Pilot Exams', desc: 'Watch how to turn a CoE timetable into rigorous Moodle lab cohorts in 5 minutes.', embedUrl: '#', thumbUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' }
+                ],
+                templates: [
+                    { title: 'Component I Quiz Template', tag: 'Moodle Format', desc: 'The official Word Document format with built-in K1/K2 structures.', url: 'Component-I_K1_K2_Template.docx' },
+                    { title: 'Course Enrolment Engine', tag: 'Automation', desc: 'Master CSV format for uploading massive batches of students directly.', url: '#' }
+                ]
+            },
             
             // Student Venue Lookup State
             studentSearchQuery: '',
@@ -3914,6 +3993,24 @@ createApp({
                 `);
                 printWin.document.close();
             }, 300);
+        },
+        async publishCMSToCloud() {
+            this.cmsStatus = 'Connecting to Firebase Edge Network...';
+            try {
+                let fb = await initFirebase();
+                if(!fb) throw new Error("Firebase blocked by network or initialization failed.");
+                const blockRef = fb.doc(fb.db, "jostel_deployments", "cms_faculty_hub");
+                
+                await fb.setDoc(blockRef, {
+                    payload: JSON.stringify(this.cmsData),
+                    timestamp: new Date().toISOString()
+                });
+                
+                this.cmsStatus = '✅ Hyperlink Database Published successfully! The public Faculty Hub will now display exactly what is configured here instantly to all network visitors.';
+                setTimeout(() => this.cmsStatus = '', 6000);
+            } catch (e) {
+                this.cmsStatus = "Cloud publishing pipeline failed: " + e.message;
+            }
         }
     }
 }).mount('#app');
