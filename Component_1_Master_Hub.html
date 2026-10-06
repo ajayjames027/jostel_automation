@@ -1478,10 +1478,9 @@
                 </div>
             </div>
 
-            </div>
             
             <!-- CMS MANAGER TAB -->
-            <div v-show="activeTab === 'cms'" class="space-y-6 max-w-5xl mx-auto pb-20 h-full">
+            <div v-show="activeTab === 'cms'" class="space-y-6 max-w-5xl mx-auto pb-20">
                 <div class="flex justify-between items-end flex-wrap gap-4">
                     <div>
                         <h2 class="text-2xl font-bold text-slate-800">Faculty Hub CMS Engine</h2>
@@ -4015,8 +4014,12 @@ createApp({
                 if(!fb) throw new Error("Firebase blocked by network or initialization failed.");
                 const blockRef = fb.doc(fb.db, "jostel_deployments", "cms_faculty_hub");
                 
+                let sanitizedPayload = JSON.parse(JSON.stringify(this.cmsData));
+                sanitizedPayload.videos.forEach(v => { if(v.embedUrl) v.embedUrl = v.embedUrl.replace(/^#+/, ''); });
+                sanitizedPayload.templates.forEach(t => { if(t.url) t.url = t.url.replace(/^#+/, ''); });
+
                 await fb.setDoc(blockRef, {
-                    payload: JSON.stringify(this.cmsData),
+                    payload: JSON.stringify(sanitizedPayload),
                     timestamp: new Date().toISOString()
                 });
                 

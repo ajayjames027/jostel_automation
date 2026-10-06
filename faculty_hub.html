@@ -217,8 +217,14 @@
                 
                 if (docSnap.exists()) {
                     let cloudCMS = JSON.parse(docSnap.data().payload);
-                    this.dynamicVideos = cloudCMS.videos || [];
-                    this.dynamicTemplates = cloudCMS.templates || [];
+                    this.dynamicVideos = (cloudCMS.videos || []).map(v => {
+                        if(v.embedUrl) v.embedUrl = v.embedUrl.replace(/^#+/, '');
+                        return v;
+                    });
+                    this.dynamicTemplates = (cloudCMS.templates || []).map(t => {
+                        if(t.url) t.url = t.url.replace(/^#+/, '');
+                        return t;
+                    });
                 } else {
                     // Fallback to defaults
                     this.dynamicTemplates = [
