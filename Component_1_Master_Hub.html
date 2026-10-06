@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -1613,27 +1614,68 @@ createApp({
             if(this.allocatedStudents.length === 0 && this.rawExtractedClasses.length === 0) {
                 this.cloudStatus = '⚠️ Cannot push empty data to cloud.'; return;
             }
-            this.cloudStatus = 'Uploading to Firebase...';
+            this.cloudStatus = 'Uploading to Firebase (Chunked Mode)...';
             try {
                 if(!window.fsSetDoc || !window.fsDoc || !window.fsDb) {
                     this.cloudStatus = '❌ Firebase not initialized. Check internet connection and reload.';
                     return;
                 }
-                let payload = {
-                    customLabs: this.customLabs,
-                    rawExtractedClasses: this.rawExtractedClasses,
-                    allocatedStudents: this.allocatedStudents,
-                    settings: this.settings,
-                    websiteTimetable: Object.assign({}, this.websiteTimetable)
-                };
                 const timeout = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Timed out after 10s. Check Firestore rules or internet.')), 10000)
                 );
+                
+                let rawPayloadStr = LZString.compressToBase64(JSON.stringify(this.rawExtractedClasses));
+                let allocPayloadStr = LZString.compressToBase64(JSON.stringify(this.allocatedStudents));
+
+                const MAX_CHUNK_SIZE = 500000;
+                const chunkString = (str, len) => {
+                    const size = Math.ceil(str.length / len);
+                    const r = Array(size);
+                    let offset = 0;
+                    for (let i = 0; i < size; i++) {
+                        r[i] = str.substring(offset, offset + len);
+                        offset += len;
+                    }
+                    return r;
+                };
+
+                let rawChunks = chunkString(rawPayloadStr, MAX_CHUNK_SIZE);
+                let allocChunks = chunkString(allocPayloadStr, MAX_CHUNK_SIZE);
+
+                // Map cleanly to avoid proxy bloat or corrupted caches from previous crashes
+                let cleanMeta = { 
+                    customLabs: this.customLabs.map(l => ({name: l.name, building: l.building, room: l.room, rows: l.rows, cols: l.cols, cap: l.cap, active: l.active, activeSessions: l.activeSessions})), 
+                    settings: {
+                        academicStartYear: this.settings.academicStartYear,
+                        examDates: this.settings.examDates,
+                        s1Start: this.settings.s1Start, s1End: this.settings.s1End,
+                        s2Start: this.settings.s2Start, s2End: this.settings.s2End,
+                        sessionLen: this.settings.sessionLen, breakTime: this.settings.breakTime, skipWeekends: this.settings.skipWeekends
+                    },
+                    websiteTimetable: Object.assign({}, this.websiteTimetable),
+                    rawChunkCount: rawChunks.length,
+                    allocChunkCount: allocChunks.length
+                };
+
+                let metaPayload = { data: LZString.compressToBase64(JSON.stringify(cleanMeta)) };
+                
+                let pushPromises = [];
+                pushPromises.push(window.fsSetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state'), metaPayload));
+                
+                rawChunks.forEach((chunk, idx) => {
+                    pushPromises.push(window.fsSetDoc(window.fsDoc(window.fsDb, 'exam_operations', `core_state_raw_${idx}`), { data: chunk }));
+                });
+                
+                allocChunks.forEach((chunk, idx) => {
+                    pushPromises.push(window.fsSetDoc(window.fsDoc(window.fsDb, 'exam_operations', `core_state_alloc_${idx}`), { data: chunk }));
+                });
+
                 await Promise.race([
-                    window.fsSetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state'), payload),
+                    Promise.all(pushPromises),
                     timeout
                 ]);
-                this.cloudStatus = '✅ Successfully mirrored to Firebase! Restorable on any computer.';
+
+                this.cloudStatus = '✅ Successfully mirrored chunked data to Firebase! Restorable on any computer.';
                 setTimeout(() => {this.cloudStatus=''}, 6000);
             } catch(e) {
                 console.error(e);
@@ -1641,16 +1683,104 @@ createApp({
             }
         },
         async pullFromCloud() {
-            this.cloudStatus = 'Downloading from Firebase securely...';
+            this.cloudStatus = 'Downloading split data from Firebase securely...';
             try {
                 const snap = await window.fsGetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state'));
                 if(snap.exists()) {
                     let d = snap.data();
-                    if(d.customLabs) this.customLabs = d.customLabs;
-                    if(d.rawExtractedClasses) this.rawExtractedClasses = d.rawExtractedClasses;
-                    if(d.allocatedStudents) this.allocatedStudents = d.allocatedStudents;
-                    if(d.settings) this.settings = d.settings;
-                    if(d.websiteTimetable) this.websiteTimetable = Object.assign(this.websiteTimetable, d.websiteTimetable);
+                    
+                    // Maintain backward compatibility for the fallback previous versions!
+                    if (d.data) {
+                        // Fully compressed split JSON format handling
+                        let decodedMeta = LZString.decompressFromBase64(d.data);
+                        if(decodedMeta) {
+                            let m = JSON.parse(decodedMeta);
+                            if(m.customLabs) this.customLabs = m.customLabs;
+                            if(m.settings) this.settings = m.settings;
+                            if(m.websiteTimetable) this.websiteTimetable = Object.assign(this.websiteTimetable, m.websiteTimetable);
+                            
+                            let rawChunkCount = m.rawChunkCount || 0;
+                            let allocChunkCount = m.allocChunkCount || 0;
+                            
+                            if (rawChunkCount === 0 && allocChunkCount === 0) {
+                                // Old 2-document chunk approach
+                                try {
+                                    const rawSnap = await window.fsGetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state_raw'));
+                                    if (rawSnap.exists() && rawSnap.data().data) {
+                                        let decomp = LZString.decompressFromBase64(rawSnap.data().data);
+                                        if(decomp) this.rawExtractedClasses = JSON.parse(decomp);
+                                    }
+                                    const allocSnap = await window.fsGetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state_allocations'));
+                                    if (allocSnap.exists() && allocSnap.data().data) {
+                                        let decomp = LZString.decompressFromBase64(allocSnap.data().data);
+                                        if(decomp) this.allocatedStudents = JSON.parse(decomp);
+                                    }
+                                } catch(e) { console.warn("Could not fetch auxiliary collections.", e); }
+                            } else {
+                                // Multi-document dynamic chunk approach (parallelized fetch)
+                                try {
+                                    let rawPromises = [];
+                                    for(let i = 0; i < rawChunkCount; i++) {
+                                        rawPromises.push(window.fsGetDoc(window.fsDoc(window.fsDb, 'exam_operations', `core_state_raw_${i}`)));
+                                    }
+                                    let rawSnaps = await Promise.all(rawPromises);
+                                    let rawFullStr = rawSnaps.map(s => (s.exists() && s.data().data) ? s.data().data : '').join('');
+                                    if(rawFullStr) {
+                                        let rawDecomp = LZString.decompressFromBase64(rawFullStr);
+                                        if(rawDecomp) this.rawExtractedClasses = JSON.parse(rawDecomp);
+                                    }
+                                    
+                                    let allocPromises = [];
+                                    for(let i = 0; i < allocChunkCount; i++) {
+                                        allocPromises.push(window.fsGetDoc(window.fsDoc(window.fsDb, 'exam_operations', `core_state_alloc_${i}`)));
+                                    }
+                                    let allocSnaps = await Promise.all(allocPromises);
+                                    let allocFullStr = allocSnaps.map(s => (s.exists() && s.data().data) ? s.data().data : '').join('');
+                                    if(allocFullStr) {
+                                        let allocDecomp = LZString.decompressFromBase64(allocFullStr);
+                                        if(allocDecomp) this.allocatedStudents = JSON.parse(allocDecomp);
+                                    }
+                                } catch(e) { console.warn("Failed fetching dynamic chunks", e); }
+                            }
+                        }
+                    } else if (d._compressed) {
+                       let decoded = LZString.decompressFromUTF16(d._compressed);
+                       if(decoded) {
+                           let full = JSON.parse(decoded);
+                           if(full.customLabs) this.customLabs = full.customLabs;
+                           if(full.rawExtractedClasses) this.rawExtractedClasses = full.rawExtractedClasses;
+                           if(full.allocatedStudents) this.allocatedStudents = full.allocatedStudents;
+                           if(full.settings) this.settings = full.settings;
+                           if(full.websiteTimetable) this.websiteTimetable = Object.assign(this.websiteTimetable, full.websiteTimetable);
+                       }
+                    } else {
+                        // Apply metadata
+                        if(d.customLabs) this.customLabs = d.customLabs;
+                        if(d.settings) this.settings = d.settings;
+                        if(d.websiteTimetable) this.websiteTimetable = Object.assign(this.websiteTimetable, d.websiteTimetable);
+                        
+                        // Fetch the split off large tables
+                        try {
+                            const rawSnap = await window.fsGetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state_raw'));
+                            if (rawSnap.exists() && rawSnap.data().data) {
+                                let decomp = LZString.decompressFromBase64(rawSnap.data().data);
+                                if(decomp) this.rawExtractedClasses = JSON.parse(decomp);
+                            }
+                            
+                            const allocSnap = await window.fsGetDoc(window.fsDoc(window.fsDb, 'exam_operations', 'core_state_allocations'));
+                            if (allocSnap.exists() && allocSnap.data().data) {
+                                let decomp = LZString.decompressFromBase64(allocSnap.data().data);
+                                if(decomp) this.allocatedStudents = JSON.parse(decomp);
+                            }
+                        } catch(e) {
+                            console.warn("Could not fetch auxiliary collections. Might be an old version or empty.", e);
+                        }
+                    }
+                    
+                    localStorage.setItem('jostel_classes', JSON.stringify(this.rawExtractedClasses));
+                    localStorage.setItem('jostel_alloc', JSON.stringify(this.allocatedStudents));
+                    localStorage.setItem('jostel_labs', JSON.stringify(this.customLabs));
+                    localStorage.setItem('jostel_settings', JSON.stringify(this.settings));
                     
                     this.cloudStatus = '✅ Global State Restored Successfully! Engine will now sync.';
                     setTimeout(() => window.location.reload(), 2500);
