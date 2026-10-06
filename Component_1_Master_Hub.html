@@ -60,28 +60,33 @@
 </head>
 <body>
 
-<div id="app" v-cloak class="h-screen w-full flex flex-col">
+<div id="app" v-cloak class="h-[100dvh] w-full flex flex-col relative bg-slate-50">
     <!-- Topbar -->
-    <div class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-20 shadow-sm">
-        <div class="flex items-center gap-4">
-            <h1 class="text-xl font-bold tracking-tight text-primary uppercase flex items-center gap-2">
-                <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                Exam Operations Platform
+    <div class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 shrink-0 z-50 shadow-sm sticky top-0">
+        <div class="flex items-center gap-3 w-full">
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-1.5 bg-slate-100 rounded-lg text-slate-700 hover:bg-slate-200 focus:ring-2 focus:ring-blue-500 transition">
+                <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <svg v-else class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h1 class="text-sm md:text-xl font-bold tracking-tight text-primary uppercase flex items-center gap-2 overflow-hidden truncate">
+                <svg class="w-5 h-5 md:w-6 md:h-6 text-secondary shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span class="hidden sm:inline">Exam Operations Platform</span>
+                <span class="sm:hidden">JosTEL Timetable</span>
             </h1>
-            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest border border-blue-200">Component I</span>
+            <span class="bg-blue-100 text-blue-800 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest border border-blue-200 shrink-0">Admin</span>
         </div>
-        <div class="flex items-center gap-4 text-sm font-medium">
-            <div class="flex items-center gap-2 text-gray-500">
-                 <div class="w-2 h-2 rounded-full bg-green-500"></div> System Ready
+        <div class="flex items-center gap-4 text-xs md:text-sm font-medium shrink-0 ml-auto">
+            <div class="flex items-center gap-1.5 md:gap-2 text-gray-500 bg-gray-50 px-2 py-1 rounded border">
+                 <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> <span class="hidden md:inline">System Live</span>
             </div>
         </div>
     </div>
 
     <!-- Main Layout -->
-    <div class="flex-1 flex overflow-hidden">
+    <div class="flex-1 flex overflow-hidden relative">
         
         <!-- Sidebar Navigation -->
-        <div class="w-64 bg-white border-r border-gray-200 p-4 flex flex-col gap-2 shrink-0 z-10 overflow-y-auto">
+        <div :class="mobileMenuOpen ? 'flex absolute inset-0 top-0 bg-white/95 backdrop-blur-sm z-40 transform translate-x-0 transition-transform duration-300' : 'hidden md:flex transform -translate-x-full md:translate-x-0 relative'" class="w-full md:w-64 border-r border-gray-200 p-4 pt-6 md:pt-4 flex-col gap-2 shrink-0 md:bg-white overflow-y-auto" @click="mobileMenuOpen = false">
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2 mt-2">Command Center</div>
             <div class="sidebar-item" :class="{'active': activeTab === 'overview'}" @click="activeTab = 'overview'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
@@ -1369,6 +1374,7 @@ const { createApp } = Vue;
 createApp({
     data() {
         return {
+            mobileMenuOpen: false,
             isSyncing: false,
             activeTab: 'timetable',
             rawExtractedClasses: [], 
