@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Student Exam Venue & PC Finder - JosTEL</title>
+    <!-- PWA Requirements -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="apple-touch-icon" href="./jostel_logo.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            500: '#1e3a8a',
+                            600: '#1e40af',
+                            900: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; font-family: 'Outfit', sans-serif; color: #1e293b; }
+        [v-cloak] { display: none !important; }
+        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .pulse-subtle { animation: pulseSubtle 2s infinite ease-in-out; }
+        @keyframes pulseSubtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+<div id="app" v-cloak class="max-w-2xl mx-auto w-full flex-1 flex flex-col justify-between">
+    
+    <!-- Top Header -->
+    <div>
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+            <div class="flex items-center gap-3">
+                <img src="./jostel_logo.png" alt="JosTEL" class="h-10 object-contain" onerror="this.style.display='none'">
+                <div>
+                    <h1 class="text-xl font-extrabold text-blue-900 tracking-tight leading-none">JosTEL Exam Portal</h1>
+                    <p class="text-xs text-gray-500 font-semibold mt-1">Student Exam Venue & PC Terminal Finder</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button @click="showShareModal = true" class="text-xs font-bold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                    Share / QR
+                </button>
+                <a href="index.html" class="text-xs font-bold text-gray-500 hover:text-blue-900 bg-white px-3 py-1.5 rounded-lg border border-gray-200 transition">
+                    ← Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Sync Indicator Banner if cloud loading -->
+        <div v-if="isLoadingCloud" class="bg-blue-50 border border-blue-200 text-blue-800 text-xs px-4 py-2.5 rounded-xl mb-4 flex items-center gap-2 animate-pulse">
+            <svg class="w-4 h-4 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <span>Syncing latest examination seat allocations from cloud...</span>
+        </div>
+
+        <!-- Search Input Box -->
+        <div class="glass-card p-6 rounded-2xl mb-6 shadow-sm">
+            <label class="block text-xs font-black uppercase tracking-wider text-gray-500 mb-2">Enter Your Register Number</label>
+            <div class="relative">
+                <input 
+                    type="text" 
+                    v-model="regInput" 
+                    @input="searchStudent"
+                    @keyup.enter="searchStudent"
+                    placeholder="e.g. 24UCO101 or 23UPH502..." 
+                    class="w-full text-lg font-black pl-11 pr-24 py-3.5 border-2 border-blue-300 focus:border-blue-600 rounded-xl outline-none transition bg-slate-50 focus:bg-white text-slate-800 uppercase"
+                    autofocus
+                >
+                <svg class="w-6 h-6 text-blue-500 absolute left-3.5 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <button 
+                    v-if="regInput" 
+                    @click="regInput = ''; foundStudent = null; searchError = ''" 
+                    class="absolute right-3 top-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
+                >
+                    Clear
+                </button>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-2">Type your register number to instantly view your allocated laboratory, exam shift time, and computer terminal.</p>
+        </div>
+
+        <!-- Result Card: Found Student Pass -->
+        <div v-if="foundStudent" class="glass-card rounded-2xl overflow-hidden border-2 border-blue-500 shadow-xl mb-6">
+            <!-- Header Badge -->
+            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-5 flex justify-between items-center">
+                <div>
+                    <span class="bg-blue-800 text-blue-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Exam Admit Pass</span>
+                    <h2 class="text-lg font-black mt-1">{{ examTitle }}</h2>
+                </div>
+                <button @click="downloadPassPDF" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Download PDF
+                </button>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="p-6 space-y-5 bg-white">
+                <!-- Candidate Info -->
+                <div class="grid grid-cols-2 gap-3 pb-4 border-b border-gray-100">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-gray-400">Student Name</div>
+                        <div class="text-base font-black text-slate-800">{{ foundStudent.Name }}</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-gray-400">Register Number</div>
+                        <div class="text-base font-mono font-black text-blue-900">{{ foundStudent['Reg No'] }}</div>
+                    </div>
+                    <div class="col-span-2">
+                        <div class="text-[10px] uppercase font-bold text-gray-400">Class / Department</div>
+                        <div class="text-sm font-bold text-slate-700">{{ foundStudent.Class }}</div>
+                    </div>
+                </div>
+
+                <!-- Big Highlighting Venue & PC Number -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-blue-50 border-2 border-blue-200 p-4 rounded-xl flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xl shrink-0 shadow">
+                            🏢
+                        </div>
+                        <div>
+                            <div class="text-[10px] uppercase font-bold text-blue-600">Assigned Venue</div>
+                            <div class="text-xl font-black text-blue-950 leading-tight">{{ foundStudent['Lab Room'] }}</div>
+                            <div class="text-[11px] text-blue-700 font-semibold">Laboratory Room</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50 border-2 border-emerald-200 p-4 rounded-xl flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shrink-0 shadow">
+                            💻
+                        </div>
+                        <div>
+                            <div class="text-[10px] uppercase font-bold text-emerald-600">Assigned Seat ID</div>
+                            <div class="text-xl font-black text-emerald-950 leading-tight">PC # {{ foundStudent['Seat Number'] }}</div>
+                            <div class="text-[11px] text-emerald-700 font-semibold">Computer Terminal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timing & Date Card -->
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-amber-800">Exam Date</div>
+                        <div class="text-base font-black text-amber-950">{{ foundStudent.Date }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] uppercase font-bold text-amber-800">Scheduled Timing</div>
+                        <div class="text-base font-black text-amber-950">{{ foundStudent.Timing }}</div>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="p-3 bg-slate-50 rounded-lg text-xs text-slate-600 space-y-1 border border-slate-100">
+                    <div class="font-bold text-slate-800 uppercase">Instructions:</div>
+                    <p>• Report to <strong>{{ foundStudent['Lab Room'] }}</strong> at least 10 minutes prior to exam start.</p>
+                    <p>• Sit only at terminal <strong>PC #{{ foundStudent['Seat Number'] }}</strong>.</p>
+                    <p>• Carry your College Identity Card.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="searchError" class="glass-card p-6 rounded-2xl text-center text-amber-800 bg-amber-50 border border-amber-200 mb-6">
+            <svg class="w-10 h-10 text-amber-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div class="font-bold text-sm">{{ searchError }}</div>
+            <p class="text-xs text-amber-600 mt-1">Please ensure your Register Number is entered accurately.</p>
+        </div>
+    </div>
+
+    <!-- Share / QR Modal -->
+    <div v-if="showShareModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-fade-in-up text-center">
+            <div class="flex justify-between items-center border-b pb-3 text-left">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800">Student Access Link & QR</h3>
+                    <p class="text-xs text-gray-500">Share or print for notice boards</p>
+                </div>
+                <button @click="showShareModal = false" class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+            </div>
+
+            <!-- QR Container -->
+            <div class="flex flex-col items-center justify-center p-4 bg-slate-50 border rounded-xl">
+                <div id="qrcode" class="p-2 bg-white rounded-lg shadow-sm"></div>
+                <p class="text-xs text-gray-500 font-bold mt-3">Scan with mobile camera to open finder</p>
+            </div>
+
+            <!-- Share URL Box -->
+            <div class="space-y-2 text-left">
+                <label class="text-xs font-bold text-gray-600 uppercase">Direct Link</label>
+                <div class="flex gap-2">
+                    <input type="text" readonly :value="currentUrl" class="w-full text-xs font-mono bg-slate-100 border p-2.5 rounded-lg outline-none text-slate-700">
+                    <button @click="copyLink" class="bg-blue-900 hover:bg-blue-800 text-white font-bold px-3 py-2 rounded-lg text-xs shrink-0 transition">
+                        {{ copied ? '✓ Copied' : 'Copy' }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button @click="printQRFlyer" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-1.5">
+                    🖨️ Print Notice Poster
+                </button>
+                <button @click="showShareModal = false" class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-400 text-xs py-4">
+        &copy; 2026 JosTEL - Joseph's Technology Enhanced Learning. All rights reserved.
+    </footer>
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            regInput: '',
+            allocatedStudents: [],
+            examTitle: 'Component I Examination',
+            foundStudent: null,
+            searchError: '',
+            isLoadingCloud: false,
+            showShareModal: false,
+            copied: false,
+            currentUrl: window.location.href
+        }
+    },
+    watch: {
+        showShareModal(val) {
+            if (val) {
+                this.$nextTick(() => {
+                    this.renderQR();
+                });
+            }
+        }
+    },
+    mounted() {
+        // Read URL query parameter ?reg=24UCO101 if provided
+        const params = new URLSearchParams(window.location.search);
+        const urlReg = params.get('reg') || params.get('r');
+        if (urlReg) {
+            this.regInput = urlReg.trim().toUpperCase();
+        }
+
+        // Load data from LocalStorage first
+        try {
+            if (localStorage.getItem('jostel_alloc')) {
+                this.allocatedStudents = JSON.parse(localStorage.getItem('jostel_alloc'));
+            }
+            if (localStorage.getItem('jostel_settings')) {
+                let s = JSON.parse(localStorage.getItem('jostel_settings'));
+                if (s.examType) this.examTitle = s.examType;
+            }
+        } catch(e) {}
+
+        if (this.regInput && this.allocatedStudents.length > 0) {
+            this.searchStudent();
+        }
+
+        // Always attempt cloud background sync if empty or to ensure freshness
+        if (this.allocatedStudents.length === 0) {
+            this.fetchFromCloud();
+        }
+    },
+    methods: {
+        renderQR() {
+            const qrEl = document.getElementById('qrcode');
+            if (!qrEl) return;
+            qrEl.innerHTML = '';
+            new QRCode(qrEl, {
+                text: window.location.href,
+                width: 160,
+                height: 160,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        },
+        copyLink() {
+            navigator.clipboard.writeText(this.currentUrl).then(() => {
+                this.copied = true;
+                setTimeout(() => { this.copied = false; }, 2000);
+            });
+        },
+        printQRFlyer() {
+            const printWin = window.open('', '', 'width=800,height=900');
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            const qrDataUrl = qrCanvas ? qrCanvas.toDataURL() : '';
+
+            printWin.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Student Exam Venue Notice</title>
+                    <style>
+                        body { font-family: sans-serif; text-align: center; padding: 40px; margin: 0; }
+                        .flyer { border: 4px solid #1e3a8a; border-radius: 20px; padding: 40px; max-width: 600px; margin: 0 auto; }
+                        h1 { color: #1e3a8a; font-size: 28px; margin-bottom: 5px; text-transform: uppercase; }
+                        h2 { color: #475569; font-size: 18px; margin-top: 0; }
+                        .qr-box { margin: 30px auto; display: inline-block; padding: 15px; border: 2px solid #cbd5e1; border-radius: 12px; }
+                        .link-box { font-size: 16px; font-weight: bold; color: #1e3a8a; word-break: break-all; margin-top: 15px; }
+                        .instructions { text-align: left; margin-top: 30px; background: #f8fafc; padding: 20px; border-radius: 10px; font-size: 14px; line-height: 1.6; }
+                    </style>
+                </head>
+                <body>
+                    <div class="flyer">
+                        <h1>JosTEL Examination Portal</h1>
+                        <h2>${this.examTitle} - Venue & PC Finder</h2>
+                        <p style="font-size: 15px; color: #334155;">Scan this QR code with your mobile phone camera to check your allotted <strong>Exam Lab & PC Terminal</strong>.</p>
+                        <div class="qr-box">
+                            <img src="${qrDataUrl}" width="200" height="200" />
+                        </div>
+                        <div class="link-box">Or visit: ${this.currentUrl}</div>
+                        <div class="instructions">
+                            <strong>Instructions for Candidates:</strong><br>
+                            1. Scan QR code or enter URL.<br>
+                            2. Type your Register Number.<br>
+                            3. View your designated Lab Room, Timing, and PC Seat Number.<br>
+                            4. Download your digital Admit Pass if needed.
+                        </div>
+                    </div>
+                    <script>
+                        window.onload = function() { window.print(); }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWin.document.close();
+        },
+        async fetchFromCloud() {
+            this.isLoadingCloud = true;
+            try {
+                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js");
+                const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+                
+                const firebaseConfig = {
+                    apiKey: "AIzaSyB2qCkUx6DMCD-xLoyKVGcT8mNTfTITPOE",
+                    authDomain: "jostel-e8b17.firebaseapp.com",
+                    projectId: "jostel-e8b17",
+                    storageBucket: "jostel-e8b17.firebasestorage.app",
+                    messagingSenderId: "811645548918",
+                    appId: "1:811645548918:web:06648aad3ab2dc13d56257",
+                    measurementId: "G-ZPM6WM2M7Q"
+                };
+
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+
+                const snap = await getDoc(doc(db, 'exam_operations', 'core_state'));
+                if (snap.exists() && snap.data().data) {
+                    let decompMeta = LZString.decompressFromBase64(snap.data().data);
+                    if (decompMeta) {
+                        let m = JSON.parse(decompMeta);
+                        if (m.settings && m.settings.examType) this.examTitle = m.settings.examType;
+                        let allocChunkCount = m.allocChunkCount || 0;
+                        
+                        if (allocChunkCount > 0) {
+                            let allocPromises = [];
+                            for (let i = 0; i < allocChunkCount; i++) {
+                                allocPromises.push(getDoc(doc(db, 'exam_operations', `core_state_alloc_${i}`)));
+                            }
+                            let allocSnaps = await Promise.all(allocPromises);
+                            let allocFullStr = allocSnaps.map(s => (s.exists() && s.data().data) ? s.data().data : '').join('');
+                            if (allocFullStr) {
+                                let decompAlloc = LZString.decompressFromBase64(allocFullStr);
+                                if (decompAlloc) {
+                                    this.allocatedStudents = JSON.parse(decompAlloc);
+                                    try { localStorage.setItem('jostel_alloc', JSON.stringify(this.allocatedStudents)); } catch(e) {}
+                                }
+                            }
+                        } else {
+                            // Fallback single doc check
+                            const fallbackSnap = await getDoc(doc(db, 'exam_operations', 'core_state_allocations'));
+                            if (fallbackSnap.exists() && fallbackSnap.data().data) {
+                                let decompAlloc = LZString.decompressFromBase64(fallbackSnap.data().data);
+                                if (decompAlloc) {
+                                    this.allocatedStudents = JSON.parse(decompAlloc);
+                                    try { localStorage.setItem('jostel_alloc', JSON.stringify(this.allocatedStudents)); } catch(e) {}
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (this.regInput && this.allocatedStudents.length > 0) {
+                    this.searchStudent();
+                }
+            } catch(e) {
+                console.warn("Cloud fallback fetch error:", e);
+            } finally {
+                this.isLoadingCloud = false;
+            }
+        },
+        searchStudent() {
+            let q = (this.regInput || '').trim().toUpperCase();
+            if (!q) {
+                this.foundStudent = null;
+                this.searchError = '';
+                return;
+            }
+            if (this.allocatedStudents.length === 0) {
+                this.searchError = "Exam schedule data is syncing or not yet published. Please try again shortly.";
+                return;
+            }
+            let match = this.allocatedStudents.find(s => String(s['Reg No'] || '').trim().toUpperCase() === q);
+            if (!match) {
+                // Partial match fallback
+                match = this.allocatedStudents.find(s => String(s['Reg No'] || '').trim().toUpperCase().includes(q));
+            }
+            if (match) {
+                this.foundStudent = match;
+                this.searchError = '';
+            } else {
+                this.foundStudent = null;
+                this.searchError = `No exam seat found for Register Number '${q}'.`;
+            }
+        },
+        downloadPassPDF() {
+            if (!this.foundStudent) return;
+            const s = this.foundStudent;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a5');
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("JosTEL - Joseph's Technology Enhanced Learning", 74, 14, { align: "center" });
+            
+            doc.setFontSize(11);
+            doc.setTextColor(30, 58, 138);
+            doc.text(`${this.examTitle}`, 74, 20, { align: "center" });
+
+            doc.setDrawColor(200, 200, 200);
+            doc.line(12, 24, 136, 24);
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(13);
+            doc.setFont("helvetica", "bold");
+            doc.text("EXAMINATION VENUE ADMIT PASS", 74, 32, { align: "center" });
+
+            // Main Info Box
+            doc.setFillColor(248, 250, 252);
+            doc.rect(12, 38, 124, 42, 'F');
+            doc.setDrawColor(203, 213, 225);
+            doc.rect(12, 38, 124, 42, 'S');
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Candidate:`, 16, 46);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${s.Name}`, 42, 46);
+
+            doc.setFont("helvetica", "bold");
+            doc.text(`Register No:`, 16, 54);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${s['Reg No']}`, 42, 54);
+
+            doc.setFont("helvetica", "bold");
+            doc.text(`Department:`, 16, 62);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${s.Class}`, 42, 62);
+
+            doc.setFont("helvetica", "bold");
+            doc.text(`Date & Time:`, 16, 70);
+            doc.setFont("helvetica", "normal");
+            doc.text(`${s.Date} (${s.Timing})`, 42, 70);
+
+            // Highlighted Lab & PC Box
+            doc.setFillColor(30, 58, 138);
+            doc.rect(12, 85, 124, 24, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text(`VENUE: ${s['Lab Room'].toUpperCase()}`, 74, 94, { align: "center" });
+            doc.setFontSize(14);
+            doc.text(`SEAT / PC TERMINAL # ${s['Seat Number']}`, 74, 103, { align: "center" });
+
+            // Instructions
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "italic");
+            doc.text("• Please arrive 10 minutes prior to the scheduled exam slot.", 12, 118);
+            doc.text("• Carry this pass and your College Identity Card to the lab.", 12, 124);
+
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "bold");
+            doc.text("Chief Superintendent Signature: __________________", 12, 140);
+
+            doc.save(`Exam_Pass_${s['Reg No']}.pdf`);
+        }
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
