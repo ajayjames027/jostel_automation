@@ -3344,22 +3344,31 @@ createApp({
             this.injectJosTelBranding(doc);
             
             let tableData = [];
-            let classGroups = this.groupedByClass;
             
-            Object.keys(classGroups).forEach(cName => {
-                let firstRecord = classGroups[cName][0];
+            // Group by strict Class + Timing composites to avoid collapsing split-classes
+            let groupedSlices = {};
+            this.allocatedStudents.forEach(s => {
+                let key = `${s['Class']}_::_${s.Date}_::_${s.Timing}`;
+                if(!groupedSlices[key]) groupedSlices[key] = [];
+                groupedSlices[key].push(s);
+            });
+            
+            Object.keys(groupedSlices).forEach(sliceKey => {
+                let slice = groupedSlices[sliceKey];
+                let firstRecord = slice[0];
+                let cName = firstRecord['Class'];
                 let level = 'Unknown';
                 let rawMatch = this.rawExtractedClasses.find(rc => rc.name === cName);
                 if(rawMatch) level = rawMatch.computedLevel;
                 
-                let assignedLabs = [...new Set(classGroups[cName].map(s => s['Lab Room']))].join(', ');
+                let assignedLabs = [...new Set(slice.map(s => s['Lab Room']))].join(', ');
                 tableData.push([
                     level,
                     cName,
                     firstRecord.Date,
                     firstRecord.Timing,
                     assignedLabs,
-                    classGroups[cName].length + " Students"
+                    slice.length + " Students"
                 ]);
             });
             
