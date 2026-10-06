@@ -277,7 +277,7 @@
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase">Exam Target Name</label>
-                                <input type="text" v-model="websiteTimetable.examType" class="text-sm font-bold p-1 border rounded bg-white w-32 text-primary" placeholder="e.g. Component I">
+                                <input type="text" v-model="websiteTimetable.examType" class="text-xs font-bold p-1 border rounded bg-white w-96 text-primary" placeholder="e.g. End Semester Examinations - Self Learning Courses (III UG & II PG)">
                             </div>
                             <div class="flex flex-col">
                                 <label class="text-[10px] font-bold text-gray-500 block mb-1 uppercase">Constrain Exam Dates</label>
@@ -1422,7 +1422,7 @@ createApp({
             selectedStudentAdmit: null,
             
             websiteTimetable: {
-                examType: 'Component I',
+                examType: 'End Semester Examinations - Self Learning Courses (III UG & II PG)',
                 customExamName: '',
                 startDate: new Date().toISOString().split('T')[0],
                 endDate: new Date().toISOString().split('T')[0],
@@ -3557,7 +3557,7 @@ createApp({
                 const qrDataUrl = qrCanvas ? qrCanvas.toDataURL() : '';
                 document.body.removeChild(tempDiv);
 
-                const examTitle = (this.settings && this.settings.examType) ? this.settings.examType : 'Component I Examination';
+                const examTitle = (this.websiteTimetable && this.websiteTimetable.examType) ? this.websiteTimetable.examType : 'End Semester Examinations - Self Learning Courses (III UG & II PG)';
                 const printWin = window.open('', '', 'width=800,height=900');
                 printWin.document.write(`
                     <!DOCTYPE html>
