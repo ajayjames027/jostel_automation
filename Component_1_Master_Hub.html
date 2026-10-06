@@ -935,9 +935,9 @@
                                     </h3>
                                     <p class="text-xs text-gray-500">Official duty allocations organized session-by-session for department notice boards and invigilator signature records.</p>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-3">
+                                <div class="flex flex-wrap items-center gap-2">
                                     <!-- View Mode Switcher -->
-                                    <div class="flex bg-slate-100 p-1 rounded-lg border text-xs font-bold">
+                                    <div class="flex bg-slate-100 p-1 rounded-lg border text-xs font-bold mr-2">
                                         <button @click="rosterViewMode = 'timingWise'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5" :class="rosterViewMode === 'timingWise' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
                                             <span>📋</span> Timing-Wise Cards
                                         </button>
@@ -946,16 +946,32 @@
                                         </button>
                                     </div>
 
-                                    <button @click="exportInvigilatorDutyRosterPDF" :disabled="allottedScheduleSlots.length === 0" class="btn-primary text-xs flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                        Download Official PDF Roster
+                                    <!-- PDF Export Suite Buttons -->
+                                    <button @click="exportInvigilatorDutyRosterPDF(false)" :disabled="allottedScheduleSlots.length === 0" class="btn-primary text-xs flex items-center gap-1.5 shadow-sm" title="Download Full Official Duty Roster PDF (Timing-Wise)">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        <span>PDF Roster</span>
+                                    </button>
+
+                                    <button @click="exportInvigilatorGridMatrixPDF" :disabled="allottedScheduleSlots.length === 0" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm" title="Download 2D Timetable Grid Matrix PDF (Landscape)">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+                                        <span>Grid PDF</span>
+                                    </button>
+
+                                    <button @click="exportStaffWiseDutySlipsPDF" :disabled="invigilatorList.length === 0" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm" title="Download Faculty Duty Allotment Orders & Slips">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        <span>Faculty Slips</span>
+                                    </button>
+
+                                    <button @click="copyDutyRosterWhatsAppText" :disabled="allottedScheduleSlots.length === 0" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm" title="Copy Formatted Duty List for WhatsApp & Email">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                        <span>Share / Text</span>
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Filter by Timing Slot Bar -->
                             <div class="flex flex-wrap justify-between items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                                <div class="flex items-center gap-3">
+                                <div class="flex flex-wrap items-center gap-3">
                                     <label class="text-xs font-bold text-gray-600 uppercase flex items-center gap-1">
                                         <span>⏰ Filter Shift Timing:</span>
                                     </label>
@@ -963,6 +979,10 @@
                                         <option value="">All Shift Timings ({{ uniqueTimingSlots.length }} Sessions)</option>
                                         <option v-for="t in uniqueTimingSlots" :key="t" :value="t">{{ t }}</option>
                                     </select>
+                                    <button v-if="rosterFilterTiming" @click="exportInvigilatorDutyRosterPDF(true)" class="bg-blue-100 hover:bg-blue-200 text-blue-900 border border-blue-300 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Download Filtered Shift PDF
+                                    </button>
                                 </div>
                                 <div class="text-xs text-gray-500 font-semibold">
                                     Total Active Duty Slots: <strong class="text-blue-900">{{ allottedScheduleSlots.length }}</strong> Across <strong class="text-purple-900">{{ uniqueTimingSlots.length }}</strong> Sessions
@@ -2558,23 +2578,31 @@ createApp({
             doc.save(`Claim_Receipt_${invig.name.replace(/\s+/g, '_')}.pdf`);
         },
 
-        exportInvigilatorDutyRosterPDF() {
+        exportInvigilatorDutyRosterPDF(filteredOnly = false) {
             if(this.allottedScheduleSlots.length === 0) return;
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
 
             this.injectJosTelBranding(doc);
 
-            doc.setFontSize(14);
+            const rosterData = filteredOnly ? this.filteredTimingWiseRoster : this.timingWiseRoster;
+            const examTitle = (this.settings && this.settings.examType) ? this.settings.examType : 'Component I Examination';
+
+            doc.setFontSize(13);
             doc.setFont("helvetica", "bold");
             doc.text("EXAMINATION INVIGILATION DUTY ROSTER", 105, 33, { align: "center" });
 
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(71, 85, 105);
+            doc.text(`${examTitle}  •  Publication Notice for Department Notice Boards`, 105, 38, { align: "center" });
+
             let rows = [];
-            this.timingWiseRoster.forEach((group, gIdx) => {
+            rosterData.forEach((group, gIdx) => {
                 // Timing Section Header Row spanning 5 columns
                 rows.push({
                     isHeader: true,
-                    title: `SESSION ${gIdx + 1}: ${group.date}  |  ${group.timing}  (${group.slots.length} Active Labs)`
+                    title: `SESSION ${gIdx + 1}:  ${group.date}   |   ${group.timing}   (${group.slots.length} Active Labs Allotted)`
                 });
 
                 group.slots.forEach((slot, sIdx) => {
@@ -2607,7 +2635,7 @@ createApp({
             });
 
             doc.autoTable({
-                startY: 38,
+                startY: 42,
                 head: [['#', 'Exam Lab / Venue', 'Assigned Invigilator', 'Department / Phone', 'Invigilator Signature']],
                 body: tableBody,
                 theme: 'grid',
@@ -2621,15 +2649,207 @@ createApp({
                     4: { cellWidth: 35 }
                 },
                 didDrawPage: (data) => {
-                    // Footer signature
                     doc.setFontSize(8);
                     doc.setFont("helvetica", "italic");
+                    doc.setTextColor(100, 100, 100);
                     doc.text("Generated by JosTEL Exam Automation Suite", 14, 290);
                     doc.text("Chief Superintendent Signature: __________________", 120, 290);
                 }
             });
 
-            doc.save("Invigilator_Duty_Roster_Timing_Wise.pdf");
+            const suffix = filteredOnly ? '_Filtered_Session' : '_Complete_Master';
+            doc.save(`Invigilator_Duty_Roster${suffix}.pdf`);
+        },
+
+        exportInvigilatorGridMatrixPDF() {
+            if(this.allottedScheduleSlots.length === 0) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4'); // Landscape A4
+
+            this.injectJosTelBranding(doc);
+
+            const examTitle = (this.settings && this.settings.examType) ? this.settings.examType : 'Component I Examination';
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("EXAMINATION INVIGILATION TIMETABLE MATRIX", 148, 28, { align: "center" });
+
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(71, 85, 105);
+            doc.text(`${examTitle}  •  Consolidated Lab-Wise Duty Matrix`, 148, 33, { align: "center" });
+
+            const labs = this.uniqueRosterLabs;
+            const headers = ['Exam Shift Timing', ...labs];
+
+            const tableData = this.timingWiseRoster.map(sessionGroup => {
+                const row = [
+                    `${sessionGroup.date}\n${sessionGroup.timing}`
+                ];
+                labs.forEach(lab => {
+                    const slot = sessionGroup.slots.find(s => s.lab === lab);
+                    if (slot) {
+                        const invName = this.getInvigilatorName(this.invigilatorAssignments[slot.key]);
+                        const invDept = this.getInvigilatorDept(this.invigilatorAssignments[slot.key]);
+                        row.push(invName + (invDept !== '-' ? `\n(${invDept})` : ''));
+                    } else {
+                        row.push('—');
+                    }
+                });
+                return row;
+            });
+
+            doc.autoTable({
+                startY: 38,
+                head: [headers],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.5, halign: 'center' },
+                styles: { fontSize: 8, cellPadding: 2.5, valign: 'middle', halign: 'center' },
+                columnStyles: {
+                    0: { cellWidth: 45, fontStyle: 'bold', halign: 'left' }
+                },
+                didDrawPage: (data) => {
+                    doc.setFontSize(8);
+                    doc.setFont("helvetica", "italic");
+                    doc.setTextColor(100, 100, 100);
+                    doc.text("Generated by JosTEL Exam Automation Suite", 14, 200);
+                    doc.text("Chief Superintendent Signature: __________________", 210, 200);
+                }
+            });
+
+            doc.save("Invigilator_Duty_Timetable_Matrix.pdf");
+        },
+
+        exportStaffWiseDutySlipsPDF() {
+            if(this.invigilatorList.length === 0) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            const activeStaff = this.invigilatorClaimSummary.filter(inv => inv.sessionsCount > 0);
+            if (activeStaff.length === 0) {
+                alert("No invigilators currently have duties assigned. Please assign duties first!");
+                return;
+            }
+
+            activeStaff.forEach((inv, iIdx) => {
+                if (iIdx > 0) doc.addPage();
+
+                this.injectJosTelBranding(doc);
+
+                doc.setFontSize(13);
+                doc.setFont("helvetica", "bold");
+                doc.text("FACULTY INVIGILATION DUTY ORDER & SCHEDULE", 105, 33, { align: "center" });
+
+                // Staff Info Card Box
+                doc.setFillColor(248, 250, 252);
+                doc.rect(14, 38, 182, 28, 'F');
+                doc.setDrawColor(203, 213, 225);
+                doc.rect(14, 38, 182, 28, 'S');
+
+                doc.setFontSize(10);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(15, 23, 42);
+                doc.text(`Staff Name:`, 18, 46);
+                doc.setFont("helvetica", "normal");
+                doc.text(`${inv.name}`, 45, 46);
+
+                doc.setFont("helvetica", "bold");
+                doc.text(`Department:`, 18, 54);
+                doc.setFont("helvetica", "normal");
+                doc.text(`${inv.dept || 'N/A'}`, 45, 54);
+
+                doc.setFont("helvetica", "bold");
+                doc.text(`Phone / Mobile:`, 18, 62);
+                doc.setFont("helvetica", "normal");
+                doc.text(`${inv.phone || 'N/A'}`, 45, 62);
+
+                doc.setFont("helvetica", "bold");
+                doc.text(`Total Assigned Duties:`, 120, 46);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(30, 58, 138);
+                doc.text(`${inv.sessionsCount} Session(s)`, 165, 46);
+
+                doc.setTextColor(15, 23, 42);
+                doc.setFont("helvetica", "bold");
+                doc.text(`Honorarium Rate:`, 120, 54);
+                doc.setFont("helvetica", "normal");
+                doc.text(`Rs. ${inv.rate} / session`, 165, 54);
+
+                // Duty Table
+                const dutyRows = inv.assignedSlots.map((slot, sIdx) => [
+                    sIdx + 1,
+                    slot.date,
+                    slot.timing,
+                    slot.lab,
+                    '10 Mins Prior to Shift',
+                    ''
+                ]);
+
+                doc.autoTable({
+                    startY: 72,
+                    head: [['#', 'Exam Date', 'Shift Timing', 'Allocated Lab / Venue', 'Reporting Time', 'Invigilator Sign']],
+                    body: dutyRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+                    styles: { fontSize: 8.5, cellPadding: 3, valign: 'middle' },
+                    columnStyles: {
+                        0: { cellWidth: 10, halign: 'center', fontStyle: 'bold' },
+                        1: { cellWidth: 32, fontStyle: 'bold' },
+                        2: { cellWidth: 45, fontStyle: 'bold' },
+                        3: { cellWidth: 38 },
+                        4: { cellWidth: 32, fontSize: 8 },
+                        5: { cellWidth: 25 }
+                    }
+                });
+
+                let finalY = doc.lastAutoTable.finalY || 160;
+
+                // Instructions Box
+                doc.setFontSize(8.5);
+                doc.setFont("helvetica", "italic");
+                doc.setTextColor(71, 85, 105);
+                doc.text("• Invigilators are requested to report at the assigned lab 10 minutes before the scheduled exam start time.", 14, finalY + 12);
+                doc.text("• In case of unavoidable absence, please arrange an alternate invigilator with prior intimation to the Chief Superintendent.", 14, finalY + 18);
+
+                doc.setFontSize(9);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(15, 23, 42);
+                doc.text("Signature of Faculty Invigilator: __________________", 14, finalY + 36);
+                doc.text("Chief Superintendent: __________________", 125, finalY + 36);
+            });
+
+            doc.save("Faculty_Individual_Duty_Orders.pdf");
+        },
+
+        copyDutyRosterWhatsAppText() {
+            if(this.allottedScheduleSlots.length === 0) return;
+            const examTitle = (this.settings && this.settings.examType) ? this.settings.examType : 'Component I Examination';
+            
+            let txt = `📋 *EXAMINATION INVIGILATION DUTY ROSTER*\n`;
+            txt += `🏢 *JosTEL Exam Operations - ${examTitle}*\n`;
+            txt += `═══════════════════════════════════════\n\n`;
+
+            const rosterData = this.rosterFilterTiming ? this.filteredTimingWiseRoster : this.timingWiseRoster;
+
+            rosterData.forEach((group, idx) => {
+                txt += `📅 *${group.date}*  |  ⏰ *${group.timing}*\n`;
+                group.slots.forEach(slot => {
+                    const invName = this.getInvigilatorName(this.invigilatorAssignments[slot.key]);
+                    const invDept = this.getInvigilatorDept(this.invigilatorAssignments[slot.key]);
+                    txt += `  • *${slot.lab}*: ${invName} (${invDept})\n`;
+                });
+                txt += `\n`;
+            });
+
+            txt += `═══════════════════════════════════════\n`;
+            txt += `⚠️ *Note:* Please report at your assigned lab 10 minutes prior to exam shift start.`;
+
+            navigator.clipboard.writeText(txt).then(() => {
+                alert("✅ Formatted Duty List copied to clipboard! You can now paste it into WhatsApp, Telegram, or Email.");
+            }).catch(() => {
+                alert("Failed to copy. Please allow clipboard permissions.");
+            });
         },
 
         exportClaimForm() {
