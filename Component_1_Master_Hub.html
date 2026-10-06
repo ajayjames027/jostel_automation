@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -120,6 +121,14 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 Invigilator Remuneration
             </div>
+            
+            <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2 mt-4 px-2">LMS Integration</div>
+            <div class="sidebar-item" :class="{'active': activeTab === 'moodle'}" @click="activeTab = 'moodle'">
+                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+                Moodle Deploy Engine
+            </div>
+            
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4 px-2">Student Actions</div>
             <div class="sidebar-item" :class="{'active': activeTab === 'studentLookup'}" @click="activeTab = 'studentLookup'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 Student Venue Lookup
@@ -1416,7 +1425,49 @@
                         <div class="text-xs text-gray-400 mt-1">Please double check the Register Number format (e.g. 24UCO101) or try searching by candidate name.</div>
                     </div>
                 </div>
+                </div>
             </div>
+            
+            <!-- MOODLE AUTOMATION TAB -->
+            <div v-show="activeTab === 'moodle'" class="space-y-6 max-w-5xl mx-auto pb-20 h-full">
+                <div class="bg-orange-50 p-8 rounded-2xl border-2 border-orange-200">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="bg-orange-100 p-3 rounded-full border border-orange-300">
+                            <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-orange-900">Moodle Server Deployment Kit</h2>
+                            <p class="text-orange-700 font-medium">Auto-Pilot sync engine bridging physical timetables straight into Moodle automated setups.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-orange-100 mb-6">
+                        <h3 class="font-bold text-slate-800 mb-4 border-b pb-2">📦 What is generated inside the Setup Kit ZIP?</h3>
+                        <ul class="space-y-4 text-sm text-gray-700">
+                            <li class="flex gap-3">
+                                <span class="bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded text-xs shrink-0 h-min">1_Courses.csv</span>
+                                <span>Instructs Moodle to Bulk Create your <b>Component I</b> official Exam Course instantly.</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-xs shrink-0 h-min">2_Students_Groups.csv</span>
+                                <span>Enrols all Scheduled Students exactly into highly restricted, isolated Moodle Lab/Shift Groups (e.g. <b>15-Oct_ECCLab1_930AM</b>).</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded text-xs shrink-0 h-min">3_Faculty_Map.csv</span>
+                                <span>Enrols Invigilators into the exact Moodle Lab Group of the students they are physically watching as Non-Editing Teachers.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button @click="downloadMoodleDeploymentKit" :disabled="allocatedStudents.length === 0" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 text-white font-black text-lg py-4 px-8 rounded-xl shadow-lg transition flex items-center gap-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Download Auto-Pilot Deployment Kit (.zip)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -1904,17 +1955,17 @@ createApp({
                     'oct': 9, 'october': 9, 'nov': 10, 'november': 10, 'dec': 11, 'december': 11
                 };
                 if (months[parts[1].toLowerCase()] !== undefined) {
-                    let day = parseInt(parts[0], 10);
-                    let month = months[parts[1].toLowerCase()];
-                    let year = parseInt(parts[2], 10);
-                    let parsed = new Date(year, month, day);
+                    let d = parseInt(parts[0], 10);
+                    let m = months[parts[1].toLowerCase()];
+                    let y = parseInt(parts[2], 10);
+                    let parsed = new Date(y, m, d);
                     if (!isNaN(parsed.getTime())) return parsed.getTime();
                 }
                 if (months[parts[0].toLowerCase()] !== undefined) {
-                    let month = months[parts[0].toLowerCase()];
-                    let day = parseInt(parts[1], 10);
-                    let year = parseInt(parts[2], 10);
-                    let parsed = new Date(year, month, day);
+                    let m = months[parts[0].toLowerCase()];
+                    let d = parseInt(parts[1], 10);
+                    let y = parseInt(parts[2], 10);
+                    let parsed = new Date(y, m, d);
                     if (!isNaN(parsed.getTime())) return parsed.getTime();
                 }
                 if (!isNaN(parseInt(parts[0], 10)) && !isNaN(parseInt(parts[1], 10)) && !isNaN(parseInt(parts[2], 10))) {
