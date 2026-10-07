@@ -358,15 +358,17 @@
                         <div class="flex gap-2 items-stretch flex-wrap justify-end mt-2">
                             <div class="flex flex-col bg-red-50 p-1 px-3 rounded-lg border border-red-200 justify-center">
                                 <label class="text-[9px] uppercase font-bold text-red-600 tracking-wider">Flush Data</label>
-                                <button @click="clearAllClasses" class="text-xs font-bold text-red-700 hover:text-red-900 transition flex items-center justify-center gap-1">
-                                    🗑️ Drop All
+                                <button @click="clearAllClasses" class="text-xs font-bold text-red-700 hover:text-red-900 transition flex items-center justify-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    <span>Drop All</span>
                                 </button>
                             </div>
                             
                             <div class="flex flex-col bg-amber-50 p-1 px-3 rounded-lg border border-amber-200 justify-center">
                                 <label class="text-[9px] uppercase font-bold text-amber-600 tracking-wider">Clean Data</label>
-                                <button @click="deduplicateStudents" class="text-xs font-bold text-amber-700 hover:text-amber-900 transition flex items-center justify-center gap-1">
-                                    ✨ De-dupe
+                                <button @click="deduplicateStudents" class="text-xs font-bold text-amber-700 hover:text-amber-900 transition flex items-center justify-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    <span>De-dupe</span>
                                 </button>
                             </div>
                             
@@ -380,8 +382,9 @@
                                 </select>
                             </div>
 
-                            <button @click="$refs.mainUpload.click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition-transform hover:scale-105 flex items-center justify-center mb-0 mt-auto h-11" title="Append additional Excel/CSV files without overwriting">
-                                ➕ Append CSV
+                            <button @click="$refs.mainUpload.click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition-transform hover:scale-105 flex items-center justify-center gap-1.5 mb-0 mt-auto h-11" title="Append additional Excel/CSV files without overwriting">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span>Append CSV</span>
                             </button>
                             <button @click="generateCoreEngine" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg text-lg ring-4 ring-green-600/30 transition-transform hover:scale-105 mb-0 mt-auto h-11">
                                 CRUNCH TIMETABLE
@@ -813,14 +816,17 @@
 
                     <!-- Sub Tab Navigation -->
                     <div class="flex border-b border-gray-200 bg-white px-4 pt-3 rounded-t-xl gap-6 font-bold text-xs">
-                        <button @click="invigSubTab = 'allocation'" class="pb-3 border-b-2 transition" :class="invigSubTab === 'allocation' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
-                            🏢 Lab Session Duty Allocation ({{ allottedScheduleSlots.length }} Slots)
+                        <button @click="invigSubTab = 'allocation'" class="pb-3 border-b-2 transition flex items-center gap-1.5" :class="invigSubTab === 'allocation' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            <span>Lab Session Duty Allocation ({{ allottedScheduleSlots.length }} Slots)</span>
                         </button>
-                        <button @click="invigSubTab = 'roster'" class="pb-3 border-b-2 transition" :class="invigSubTab === 'roster' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
-                            👨‍🏫 Invigilator Roster & Claims ({{ invigilatorList.length }} Staff)
+                        <button @click="invigSubTab = 'roster'" class="pb-3 border-b-2 transition flex items-center gap-1.5" :class="invigSubTab === 'roster' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <span>Invigilator Roster & Claims ({{ invigilatorList.length }} Staff)</span>
                         </button>
-                        <button @click="invigSubTab = 'rosterPDF'" class="pb-3 border-b-2 transition" :class="invigSubTab === 'rosterPDF' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
-                            📋 Duty Roster Printable PDF
+                        <button @click="invigSubTab = 'rosterPDF'" class="pb-3 border-b-2 transition flex items-center gap-1.5" :class="invigSubTab === 'rosterPDF' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>Duty Roster Printable PDF</span>
                         </button>
                     </div>
 
@@ -992,13 +998,16 @@
                                     <!-- View Mode Switcher -->
                                     <div class="flex bg-slate-100 p-1 rounded-lg border text-xs font-bold mr-2">
                                         <button @click="rosterViewMode = 'timingWise'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5 border-r border-slate-200" :class="rosterViewMode === 'timingWise' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
-                                            <span>📋</span> Timing-Wise Cards
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span>Timing-Wise Cards</span>
                                         </button>
                                         <button @click="rosterViewMode = 'labWise'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5 border-r border-slate-200" :class="rosterViewMode === 'labWise' ? 'bg-white text-purple-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
-                                            <span>🏢</span> Lab-Wise Cards
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                            <span>Lab-Wise Cards</span>
                                         </button>
                                         <button @click="rosterViewMode = 'matrix'" class="px-3 py-1.5 rounded-md transition flex items-center gap-1.5" :class="rosterViewMode === 'matrix' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'">
-                                            <span>📊</span> Timetable Grid
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                                            <span>Timetable Grid</span>
                                         </button>
                                     </div>
 
