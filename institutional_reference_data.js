@@ -1,0 +1,5946 @@
+const INSTITUTIONAL_DATA = {
+  "schools": {
+    "SBS": {
+      "name": "School of Biological Sciences",
+      "color": "emerald"
+    },
+    "SCS": {
+      "name": "School of Computing Sciences",
+      "color": "blue"
+    },
+    "SPS": {
+      "name": "School of Physical Sciences",
+      "color": "indigo"
+    },
+    "SCM": {
+      "name": "School of Commerce & Management",
+      "color": "amber"
+    },
+    "SCO": {
+      "name": "School of Commerce",
+      "color": "amber"
+    },
+    "SMS": {
+      "name": "School of Management Studies",
+      "color": "purple"
+    },
+    "SLAC": {
+      "name": "School of Languages and Culture",
+      "color": "rose"
+    },
+    "SSH": {
+      "name": "School of Social Sciences & Humanities",
+      "color": "cyan"
+    }
+  },
+  "students": {
+    "2023-24": {
+      "Biochemistry": {
+        "school": "SBS",
+        "shift1": 0,
+        "shift2": 42,
+        "total": 42,
+        "classes": [
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 0,
+            "shift2": 21,
+            "total": 21,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 0,
+            "shift2": 21,
+            "total": 21,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Biotechnology": {
+        "school": "SBS",
+        "shift1": 1,
+        "shift2": 56,
+        "total": 57,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Botany": {
+        "school": "SBS",
+        "shift1": 188,
+        "shift2": 0,
+        "total": 188,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 50,
+            "shift2": 0,
+            "total": 50,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 48,
+            "shift2": 0,
+            "total": 48,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 51,
+            "shift2": 0,
+            "total": 51,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 17,
+            "shift2": 0,
+            "total": 17,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 17,
+            "shift2": 0,
+            "total": 17,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce": {
+        "school": "SCM",
+        "shift1": 493,
+        "shift2": 569,
+        "total": 1062,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 7,
+            "shift2": 0,
+            "total": 7,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2022-23",
+            "shift1": 3,
+            "shift2": 0,
+            "total": 3,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 9,
+            "shift2": 0,
+            "total": 9,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 137,
+            "shift2": 187,
+            "total": 324,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 127,
+            "shift2": 182,
+            "total": 309,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 130,
+            "shift2": 200,
+            "total": 330,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce CA": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 279,
+        "total": 279,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 0,
+            "shift2": 64,
+            "total": 64,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 0,
+            "shift2": 62,
+            "total": 62,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 0,
+            "shift2": 67,
+            "total": 67,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 0,
+            "shift2": 43,
+            "total": 43,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 0,
+            "shift2": 43,
+            "total": 43,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce Honours": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 169,
+        "total": 169,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 0,
+            "shift2": 58,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 0,
+            "shift2": 58,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 0,
+            "shift2": 53,
+            "total": 53,
+            "prog": "UG"
+          }
+        ]
+      },
+      "SD & SA": {
+        "school": "SCS",
+        "shift1": 149,
+        "shift2": 0,
+        "total": 149,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 49,
+            "shift2": 0,
+            "total": 49,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 53,
+            "shift2": 0,
+            "total": 53,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 47,
+            "shift2": 0,
+            "total": 47,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Computer Science": {
+        "school": "SCS",
+        "shift1": 329,
+        "shift2": 547,
+        "total": 876,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 10,
+            "shift2": 0,
+            "total": 10,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2022-23",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 67,
+            "shift2": 167,
+            "total": 234,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 63,
+            "shift2": 196,
+            "total": 259,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 67,
+            "shift2": 184,
+            "total": 251,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Data Science": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 125,
+        "total": 125,
+        "classes": [
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 0,
+            "shift2": 65,
+            "total": 65,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 0,
+            "shift2": 60,
+            "total": 60,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Information Technology": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 538,
+        "total": 538,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 0,
+            "shift2": 111,
+            "total": 111,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 0,
+            "shift2": 125,
+            "total": 125,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 0,
+            "shift2": 129,
+            "total": 129,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 0,
+            "shift2": 88,
+            "total": 88,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 0,
+            "shift2": 85,
+            "total": 85,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Mathematics": {
+        "school": "SCS",
+        "shift1": 302,
+        "shift2": 145,
+        "total": 447,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2022-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 56,
+            "shift2": 18,
+            "total": 74,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 80,
+            "shift2": 25,
+            "total": 105,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 100,
+            "shift2": 44,
+            "total": 144,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 32,
+            "shift2": 29,
+            "total": 61,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 30,
+            "shift2": 29,
+            "total": 59,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Statistics": {
+        "school": "SCS",
+        "shift1": 179,
+        "shift2": 0,
+        "total": 179,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 57,
+            "shift2": 0,
+            "total": 57,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 60,
+            "shift2": 0,
+            "total": 60,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 62,
+            "shift2": 0,
+            "total": 62,
+            "prog": "UG"
+          }
+        ]
+      },
+      "English": {
+        "school": "SLAC",
+        "shift1": 284,
+        "shift2": 379,
+        "total": 663,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 8,
+            "shift2": 0,
+            "total": 8,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2022-23",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 7,
+            "shift2": 0,
+            "total": 7,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 64,
+            "shift2": 66,
+            "total": 130,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 60,
+            "shift2": 116,
+            "total": 176,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 64,
+            "shift2": 129,
+            "total": 193,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 40,
+            "shift2": 34,
+            "total": 74,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 39,
+            "shift2": 34,
+            "total": 73,
+            "prog": "PG"
+          }
+        ]
+      },
+      "History": {
+        "school": "SLAC",
+        "shift1": 200,
+        "shift2": 0,
+        "total": 200,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 65,
+            "shift2": 0,
+            "total": 65,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 69,
+            "shift2": 0,
+            "total": 69,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Tamil": {
+        "school": "SLAC",
+        "shift1": 198,
+        "shift2": 0,
+        "total": 198,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 3,
+            "shift2": 0,
+            "total": 3,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 60,
+            "shift2": 0,
+            "total": 60,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 67,
+            "shift2": 0,
+            "total": 67,
+            "prog": "UG"
+          }
+        ]
+      },
+      "BBA": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 382,
+        "total": 382,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 0,
+            "shift2": 128,
+            "total": 128,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 0,
+            "shift2": 124,
+            "total": 124,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 0,
+            "shift2": 130,
+            "total": 130,
+            "prog": "UG"
+          }
+        ]
+      },
+      "MBA": {
+        "school": "SMS",
+        "shift1": 249,
+        "shift2": 0,
+        "total": 249,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 10,
+            "shift2": 0,
+            "total": 10,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 118,
+            "shift2": 0,
+            "total": 118,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 120,
+            "shift2": 0,
+            "total": 120,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Counselling Psy": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 72,
+        "total": 72,
+        "classes": [
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 0,
+            "shift2": 34,
+            "total": 34,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 0,
+            "shift2": 38,
+            "total": 38,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Economics": {
+        "school": "SMS",
+        "shift1": 240,
+        "shift2": 0,
+        "total": 240,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2022-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 68,
+            "shift2": 0,
+            "total": 68,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 26,
+            "shift2": 0,
+            "total": 26,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 19,
+            "shift2": 0,
+            "total": 19,
+            "prog": "PG"
+          }
+        ]
+      },
+      "HRM": {
+        "school": "SMS",
+        "shift1": 86,
+        "shift2": 0,
+        "total": 86,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 8,
+            "shift2": 0,
+            "total": 8,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 38,
+            "shift2": 0,
+            "total": 38,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Viscom Technology": {
+        "school": "SMS",
+        "shift1": 135,
+        "shift2": 0,
+        "total": 135,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 47,
+            "shift2": 0,
+            "total": 47,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 42,
+            "shift2": 0,
+            "total": 42,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 46,
+            "shift2": 0,
+            "total": 46,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Visual Communication": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 121,
+        "total": 121,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 0,
+            "shift2": 41,
+            "total": 41,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Chemistry": {
+        "school": "SPS",
+        "shift1": 346,
+        "shift2": 54,
+        "total": 400,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2022-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 82,
+            "shift2": 0,
+            "total": 82,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 97,
+            "shift2": 0,
+            "total": 97,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 105,
+            "shift2": 0,
+            "total": 105,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 29,
+            "shift2": 27,
+            "total": 56,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 28,
+            "shift2": 27,
+            "total": 55,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Electronics": {
+        "school": "SPS",
+        "shift1": 0,
+        "shift2": 127,
+        "total": 127,
+        "classes": [
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 0,
+            "shift2": 29,
+            "total": 29,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 0,
+            "shift2": 32,
+            "total": 32,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 0,
+            "shift2": 32,
+            "total": 32,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 0,
+            "shift2": 10,
+            "total": 10,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 0,
+            "shift2": 24,
+            "total": 24,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Physics": {
+        "school": "SPS",
+        "shift1": 317,
+        "shift2": 181,
+        "total": 498,
+        "classes": [
+          {
+            "class": "PhD-2021-22",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2022-23",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2023-24",
+            "shift1": 77,
+            "shift2": 32,
+            "total": 109,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2022-23",
+            "shift1": 75,
+            "shift2": 33,
+            "total": 108,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2021-22",
+            "shift1": 94,
+            "shift2": 47,
+            "total": 141,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2023-24",
+            "shift1": 29,
+            "shift2": 37,
+            "total": 66,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2022-23",
+            "shift1": 26,
+            "shift2": 32,
+            "total": 58,
+            "prog": "PG"
+          }
+        ]
+      }
+    },
+    "2024-25": {
+      "Biochemistry": {
+        "school": "SBS",
+        "shift1": 0,
+        "shift2": 34,
+        "total": 34,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 13,
+            "total": 13,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 21,
+            "total": 21,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Biotechnology": {
+        "school": "SBS",
+        "shift1": 3,
+        "shift2": 55,
+        "total": 58,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 27,
+            "total": 27,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Botany": {
+        "school": "SBS",
+        "shift1": 184,
+        "shift2": 0,
+        "total": 184,
+        "classes": [
+          {
+            "class": "PhD-2023-24",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 42,
+            "shift2": 0,
+            "total": 42,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 50,
+            "shift2": 0,
+            "total": 50,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 48,
+            "shift2": 0,
+            "total": 48,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 17,
+            "shift2": 0,
+            "total": 17,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 17,
+            "shift2": 0,
+            "total": 17,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce": {
+        "school": "SCM",
+        "shift1": 504,
+        "shift2": 548,
+        "total": 1052,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 10,
+            "shift2": 0,
+            "total": 10,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 9,
+            "shift2": 0,
+            "total": 9,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 136,
+            "shift2": 180,
+            "total": 316,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 137,
+            "shift2": 186,
+            "total": 323,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 127,
+            "shift2": 182,
+            "total": 309,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 39,
+            "shift2": 0,
+            "total": 39,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce Business Analytics": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 39,
+        "total": 39,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 39,
+            "total": 39,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Commerce CA": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 337,
+        "total": 337,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 125,
+            "total": 125,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 63,
+            "total": 63,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 62,
+            "total": 62,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 44,
+            "total": 44,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 43,
+            "total": 43,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce Honours": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 173,
+        "total": 173,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 57,
+            "total": 57,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 58,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 58,
+            "total": 58,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Commerce Strategic Finance": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 40,
+        "total": 40,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Artificial Intelligence": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 59,
+        "total": 59,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 59,
+            "total": 59,
+            "prog": "UG"
+          }
+        ]
+      },
+      "SD & SA": {
+        "school": "SCS",
+        "shift1": 151,
+        "shift2": 0,
+        "total": 151,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 49,
+            "shift2": 0,
+            "total": 49,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 49,
+            "shift2": 0,
+            "total": 49,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 53,
+            "shift2": 0,
+            "total": 53,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Computer Science": {
+        "school": "SCS",
+        "shift1": 333,
+        "shift2": 594,
+        "total": 927,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 12,
+            "shift2": 0,
+            "total": 12,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 65,
+            "shift2": 232,
+            "total": 297,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 67,
+            "shift2": 167,
+            "total": 234,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 63,
+            "shift2": 195,
+            "total": 258,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Data Science": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 121,
+        "total": 121,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 56,
+            "total": 56,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 65,
+            "total": 65,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Information Technology": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 508,
+        "total": 508,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 120,
+            "total": 120,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 112,
+            "total": 112,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 125,
+            "total": 125,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 63,
+            "total": 63,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 88,
+            "total": 88,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Mathematics": {
+        "school": "SCS",
+        "shift1": 279,
+        "shift2": 95,
+        "total": 374,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 3,
+            "shift2": 0,
+            "total": 3,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 74,
+            "shift2": 0,
+            "total": 74,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 56,
+            "shift2": 18,
+            "total": 74,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 80,
+            "shift2": 25,
+            "total": 105,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 31,
+            "shift2": 23,
+            "total": 54,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 32,
+            "shift2": 29,
+            "total": 61,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Statistics": {
+        "school": "SCS",
+        "shift1": 173,
+        "shift2": 0,
+        "total": 173,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 56,
+            "shift2": 0,
+            "total": 56,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 57,
+            "shift2": 0,
+            "total": 57,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 60,
+            "shift2": 0,
+            "total": 60,
+            "prog": "UG"
+          }
+        ]
+      },
+      "English": {
+        "school": "SLAC",
+        "shift1": 277,
+        "shift2": 289,
+        "total": 566,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 10,
+            "shift2": 0,
+            "total": 10,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 7,
+            "shift2": 0,
+            "total": 7,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 55,
+            "shift2": 56,
+            "total": 111,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 64,
+            "shift2": 62,
+            "total": 126,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 60,
+            "shift2": 116,
+            "total": 176,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 37,
+            "shift2": 21,
+            "total": 58,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 34,
+            "total": 74,
+            "prog": "PG"
+          }
+        ]
+      },
+      "History": {
+        "school": "SLAC",
+        "shift1": 196,
+        "shift2": 0,
+        "total": 196,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 64,
+            "shift2": 0,
+            "total": 64,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Tamil": {
+        "school": "SLAC",
+        "shift1": 198,
+        "shift2": 0,
+        "total": 198,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 3,
+            "shift2": 0,
+            "total": 3,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 69,
+            "shift2": 0,
+            "total": 69,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 65,
+            "shift2": 0,
+            "total": 65,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 59,
+            "shift2": 0,
+            "total": 59,
+            "prog": "UG"
+          }
+        ]
+      },
+      "BBA": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 370,
+        "total": 370,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 120,
+            "total": 120,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 126,
+            "total": 126,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 124,
+            "total": 124,
+            "prog": "UG"
+          }
+        ]
+      },
+      "MBA": {
+        "school": "SMS",
+        "shift1": 244,
+        "shift2": 0,
+        "total": 244,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 120,
+            "shift2": 0,
+            "total": 120,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 118,
+            "shift2": 0,
+            "total": 118,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Counselling Psy": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 66,
+        "total": 66,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 38,
+            "total": 38,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Economics": {
+        "school": "SMS",
+        "shift1": 229,
+        "shift2": 0,
+        "total": 229,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 61,
+            "shift2": 0,
+            "total": 61,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 14,
+            "shift2": 0,
+            "total": 14,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 25,
+            "shift2": 0,
+            "total": 25,
+            "prog": "PG"
+          }
+        ]
+      },
+      "HRM": {
+        "school": "SMS",
+        "shift1": 86,
+        "shift2": 0,
+        "total": 86,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 7,
+            "shift2": 0,
+            "total": 7,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 39,
+            "shift2": 0,
+            "total": 39,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Viscom Technology": {
+        "school": "SMS",
+        "shift1": 134,
+        "shift2": 0,
+        "total": 134,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 45,
+            "shift2": 0,
+            "total": 45,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 47,
+            "shift2": 0,
+            "total": 47,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 42,
+            "shift2": 0,
+            "total": 42,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Visual Communication": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 131,
+        "total": 131,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 37,
+            "total": 37,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 14,
+            "total": 14,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Chemistry": {
+        "school": "SPS",
+        "shift1": 323,
+        "shift2": 49,
+        "total": 372,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 83,
+            "shift2": 0,
+            "total": 83,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 82,
+            "shift2": 0,
+            "total": 82,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 97,
+            "shift2": 0,
+            "total": 97,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 24,
+            "shift2": 22,
+            "total": 46,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 29,
+            "shift2": 27,
+            "total": 56,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Electronics": {
+        "school": "SPS",
+        "shift1": 0,
+        "shift2": 115,
+        "total": 115,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 29,
+            "total": 29,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 32,
+            "total": 32,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 16,
+            "total": 16,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 10,
+            "total": 10,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Physics": {
+        "school": "SPS",
+        "shift1": 316,
+        "shift2": 115,
+        "total": 431,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 9,
+            "shift2": 0,
+            "total": 9,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 92,
+            "shift2": 0,
+            "total": 92,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 77,
+            "shift2": 32,
+            "total": 109,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 75,
+            "shift2": 33,
+            "total": 108,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 23,
+            "shift2": 22,
+            "total": 45,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 29,
+            "shift2": 28,
+            "total": 57,
+            "prog": "PG"
+          }
+        ]
+      }
+    },
+    "2025-26": {
+      "Biochemistry": {
+        "school": "SBS",
+        "shift1": 0,
+        "shift2": 34,
+        "total": 34,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 13,
+            "total": 13,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 21,
+            "total": 21,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Biotechnology": {
+        "school": "SBS",
+        "shift1": 3,
+        "shift2": 55,
+        "total": 58,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 27,
+            "total": 27,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Botany": {
+        "school": "SBS",
+        "shift1": 184,
+        "shift2": 0,
+        "total": 184,
+        "classes": [
+          {
+            "class": "PhD-2023-24",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 42,
+            "shift2": 0,
+            "total": 42,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 50,
+            "shift2": 0,
+            "total": 50,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 48,
+            "shift2": 0,
+            "total": 48,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 17,
+            "shift2": 0,
+            "total": 17,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 17,
+            "shift2": 0,
+            "total": 17,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce": {
+        "school": "SCM",
+        "shift1": 504,
+        "shift2": 548,
+        "total": 1052,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 10,
+            "shift2": 0,
+            "total": 10,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 9,
+            "shift2": 0,
+            "total": 9,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 136,
+            "shift2": 180,
+            "total": 316,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 137,
+            "shift2": 186,
+            "total": 323,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 127,
+            "shift2": 182,
+            "total": 309,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 39,
+            "shift2": 0,
+            "total": 39,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce Business Analytics": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 39,
+        "total": 39,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 39,
+            "total": 39,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Commerce CA": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 337,
+        "total": 337,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 125,
+            "total": 125,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 63,
+            "total": 63,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 62,
+            "total": 62,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 44,
+            "total": 44,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 43,
+            "total": 43,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce Honours": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 173,
+        "total": 173,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 57,
+            "total": 57,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 58,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 58,
+            "total": 58,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Commerce Strategic Finance": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 40,
+        "total": 40,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Artificial Intelligence": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 59,
+        "total": 59,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 59,
+            "total": 59,
+            "prog": "UG"
+          }
+        ]
+      },
+      "SD & SA": {
+        "school": "SCS",
+        "shift1": 151,
+        "shift2": 0,
+        "total": 151,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 49,
+            "shift2": 0,
+            "total": 49,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 49,
+            "shift2": 0,
+            "total": 49,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 53,
+            "shift2": 0,
+            "total": 53,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Computer Science": {
+        "school": "SCS",
+        "shift1": 333,
+        "shift2": 594,
+        "total": 927,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 12,
+            "shift2": 0,
+            "total": 12,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 65,
+            "shift2": 232,
+            "total": 297,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 67,
+            "shift2": 167,
+            "total": 234,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 63,
+            "shift2": 195,
+            "total": 258,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Data Science": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 121,
+        "total": 121,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 56,
+            "total": 56,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 65,
+            "total": 65,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Information Technology": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 508,
+        "total": 508,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 120,
+            "total": 120,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 112,
+            "total": 112,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 125,
+            "total": 125,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 63,
+            "total": 63,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 88,
+            "total": 88,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Mathematics": {
+        "school": "SCS",
+        "shift1": 279,
+        "shift2": 95,
+        "total": 374,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 3,
+            "shift2": 0,
+            "total": 3,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 74,
+            "shift2": 0,
+            "total": 74,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 56,
+            "shift2": 18,
+            "total": 74,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 80,
+            "shift2": 25,
+            "total": 105,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 31,
+            "shift2": 23,
+            "total": 54,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 32,
+            "shift2": 29,
+            "total": 61,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Statistics": {
+        "school": "SCS",
+        "shift1": 173,
+        "shift2": 0,
+        "total": 173,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 56,
+            "shift2": 0,
+            "total": 56,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 57,
+            "shift2": 0,
+            "total": 57,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 60,
+            "shift2": 0,
+            "total": 60,
+            "prog": "UG"
+          }
+        ]
+      },
+      "English": {
+        "school": "SLAC",
+        "shift1": 277,
+        "shift2": 289,
+        "total": 566,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 10,
+            "shift2": 0,
+            "total": 10,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 7,
+            "shift2": 0,
+            "total": 7,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 55,
+            "shift2": 56,
+            "total": 111,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 64,
+            "shift2": 62,
+            "total": 126,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 60,
+            "shift2": 116,
+            "total": 176,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 37,
+            "shift2": 21,
+            "total": 58,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 34,
+            "total": 74,
+            "prog": "PG"
+          }
+        ]
+      },
+      "History": {
+        "school": "SLAC",
+        "shift1": 196,
+        "shift2": 0,
+        "total": 196,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 64,
+            "shift2": 0,
+            "total": 64,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Tamil": {
+        "school": "SLAC",
+        "shift1": 198,
+        "shift2": 0,
+        "total": 198,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 3,
+            "shift2": 0,
+            "total": 3,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 69,
+            "shift2": 0,
+            "total": 69,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 65,
+            "shift2": 0,
+            "total": 65,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 59,
+            "shift2": 0,
+            "total": 59,
+            "prog": "UG"
+          }
+        ]
+      },
+      "BBA": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 370,
+        "total": 370,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 120,
+            "total": 120,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 126,
+            "total": 126,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 124,
+            "total": 124,
+            "prog": "UG"
+          }
+        ]
+      },
+      "MBA": {
+        "school": "SMS",
+        "shift1": 244,
+        "shift2": 0,
+        "total": 244,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 120,
+            "shift2": 0,
+            "total": 120,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 118,
+            "shift2": 0,
+            "total": 118,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Counselling Psy": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 66,
+        "total": 66,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 38,
+            "total": 38,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Economics": {
+        "school": "SMS",
+        "shift1": 229,
+        "shift2": 0,
+        "total": 229,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 61,
+            "shift2": 0,
+            "total": 61,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 14,
+            "shift2": 0,
+            "total": 14,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 25,
+            "shift2": 0,
+            "total": 25,
+            "prog": "PG"
+          }
+        ]
+      },
+      "HRM": {
+        "school": "SMS",
+        "shift1": 86,
+        "shift2": 0,
+        "total": 86,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 7,
+            "shift2": 0,
+            "total": 7,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 39,
+            "shift2": 0,
+            "total": 39,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Viscom Technology": {
+        "school": "SMS",
+        "shift1": 134,
+        "shift2": 0,
+        "total": 134,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 45,
+            "shift2": 0,
+            "total": 45,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 47,
+            "shift2": 0,
+            "total": 47,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 42,
+            "shift2": 0,
+            "total": 42,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Visual Communication": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 131,
+        "total": 131,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 37,
+            "total": 37,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 14,
+            "total": 14,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Chemistry": {
+        "school": "SPS",
+        "shift1": 323,
+        "shift2": 49,
+        "total": 372,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 83,
+            "shift2": 0,
+            "total": 83,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 82,
+            "shift2": 0,
+            "total": 82,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 97,
+            "shift2": 0,
+            "total": 97,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 24,
+            "shift2": 22,
+            "total": 46,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 29,
+            "shift2": 27,
+            "total": 56,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Electronics": {
+        "school": "SPS",
+        "shift1": 0,
+        "shift2": 115,
+        "total": 115,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 29,
+            "total": 29,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 32,
+            "total": 32,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 16,
+            "total": 16,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 10,
+            "total": 10,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Physics": {
+        "school": "SPS",
+        "shift1": 316,
+        "shift2": 115,
+        "total": 431,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 9,
+            "shift2": 0,
+            "total": 9,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 92,
+            "shift2": 0,
+            "total": 92,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 77,
+            "shift2": 32,
+            "total": 109,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 75,
+            "shift2": 33,
+            "total": 108,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 23,
+            "shift2": 22,
+            "total": 45,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 29,
+            "shift2": 28,
+            "total": 57,
+            "prog": "PG"
+          }
+        ]
+      }
+    },
+    "2026-27": {
+      "Biochemistry": {
+        "school": "SBS",
+        "shift1": 0,
+        "shift2": 34,
+        "total": 34,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 13,
+            "total": 13,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 21,
+            "total": 21,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Biotechnology": {
+        "school": "SBS",
+        "shift1": 3,
+        "shift2": 55,
+        "total": 58,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 27,
+            "total": 27,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Botany": {
+        "school": "SBS",
+        "shift1": 184,
+        "shift2": 0,
+        "total": 184,
+        "classes": [
+          {
+            "class": "PhD-2023-24",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 42,
+            "shift2": 0,
+            "total": 42,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 50,
+            "shift2": 0,
+            "total": 50,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 48,
+            "shift2": 0,
+            "total": 48,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 17,
+            "shift2": 0,
+            "total": 17,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 17,
+            "shift2": 0,
+            "total": 17,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce": {
+        "school": "SCM",
+        "shift1": 504,
+        "shift2": 548,
+        "total": 1052,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 10,
+            "shift2": 0,
+            "total": 10,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 9,
+            "shift2": 0,
+            "total": 9,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 136,
+            "shift2": 180,
+            "total": 316,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 137,
+            "shift2": 186,
+            "total": 323,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 127,
+            "shift2": 182,
+            "total": 309,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 39,
+            "shift2": 0,
+            "total": 39,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce Business Analytics": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 39,
+        "total": 39,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 39,
+            "total": 39,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Commerce CA": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 337,
+        "total": 337,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 125,
+            "total": 125,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 63,
+            "total": 63,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 62,
+            "total": 62,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 44,
+            "total": 44,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 43,
+            "total": 43,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Commerce Honours": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 173,
+        "total": 173,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 57,
+            "total": 57,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 58,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 58,
+            "total": 58,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Commerce Strategic Finance": {
+        "school": "SCM",
+        "shift1": 0,
+        "shift2": 40,
+        "total": 40,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Artificial Intelligence": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 59,
+        "total": 59,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 59,
+            "total": 59,
+            "prog": "UG"
+          }
+        ]
+      },
+      "SD & SA": {
+        "school": "SCS",
+        "shift1": 151,
+        "shift2": 0,
+        "total": 151,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 49,
+            "shift2": 0,
+            "total": 49,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 49,
+            "shift2": 0,
+            "total": 49,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 53,
+            "shift2": 0,
+            "total": 53,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Computer Science": {
+        "school": "SCS",
+        "shift1": 333,
+        "shift2": 594,
+        "total": 927,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 12,
+            "shift2": 0,
+            "total": 12,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 65,
+            "shift2": 232,
+            "total": 297,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 67,
+            "shift2": 167,
+            "total": 234,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 63,
+            "shift2": 195,
+            "total": 258,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Data Science": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 121,
+        "total": 121,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 56,
+            "total": 56,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 65,
+            "total": 65,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Information Technology": {
+        "school": "SCS",
+        "shift1": 0,
+        "shift2": 508,
+        "total": 508,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 120,
+            "total": 120,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 112,
+            "total": 112,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 125,
+            "total": 125,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 63,
+            "total": 63,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 88,
+            "total": 88,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Mathematics": {
+        "school": "SCS",
+        "shift1": 279,
+        "shift2": 95,
+        "total": 374,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 3,
+            "shift2": 0,
+            "total": 3,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 74,
+            "shift2": 0,
+            "total": 74,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 56,
+            "shift2": 18,
+            "total": 74,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 80,
+            "shift2": 25,
+            "total": 105,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 31,
+            "shift2": 23,
+            "total": 54,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 32,
+            "shift2": 29,
+            "total": 61,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Statistics": {
+        "school": "SCS",
+        "shift1": 173,
+        "shift2": 0,
+        "total": 173,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 56,
+            "shift2": 0,
+            "total": 56,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 57,
+            "shift2": 0,
+            "total": 57,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 60,
+            "shift2": 0,
+            "total": 60,
+            "prog": "UG"
+          }
+        ]
+      },
+      "English": {
+        "school": "SLAC",
+        "shift1": 277,
+        "shift2": 289,
+        "total": 566,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 10,
+            "shift2": 0,
+            "total": 10,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 7,
+            "shift2": 0,
+            "total": 7,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 55,
+            "shift2": 56,
+            "total": 111,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 64,
+            "shift2": 62,
+            "total": 126,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 60,
+            "shift2": 116,
+            "total": 176,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 37,
+            "shift2": 21,
+            "total": 58,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 34,
+            "total": 74,
+            "prog": "PG"
+          }
+        ]
+      },
+      "History": {
+        "school": "SLAC",
+        "shift1": 196,
+        "shift2": 0,
+        "total": 196,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 64,
+            "shift2": 0,
+            "total": 64,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Tamil": {
+        "school": "SLAC",
+        "shift1": 198,
+        "shift2": 0,
+        "total": 198,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 3,
+            "shift2": 0,
+            "total": 3,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 69,
+            "shift2": 0,
+            "total": 69,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 65,
+            "shift2": 0,
+            "total": 65,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 59,
+            "shift2": 0,
+            "total": 59,
+            "prog": "UG"
+          }
+        ]
+      },
+      "BBA": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 370,
+        "total": 370,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 120,
+            "total": 120,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 126,
+            "total": 126,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 124,
+            "total": 124,
+            "prog": "UG"
+          }
+        ]
+      },
+      "MBA": {
+        "school": "SMS",
+        "shift1": 244,
+        "shift2": 0,
+        "total": 244,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 120,
+            "shift2": 0,
+            "total": 120,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 118,
+            "shift2": 0,
+            "total": 118,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Counselling Psy": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 66,
+        "total": 66,
+        "classes": [
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 38,
+            "total": 38,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Economics": {
+        "school": "SMS",
+        "shift1": 229,
+        "shift2": 0,
+        "total": 229,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 1,
+            "shift2": 0,
+            "total": 1,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 61,
+            "shift2": 0,
+            "total": 61,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 58,
+            "shift2": 0,
+            "total": 58,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 66,
+            "shift2": 0,
+            "total": 66,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 14,
+            "shift2": 0,
+            "total": 14,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 25,
+            "shift2": 0,
+            "total": 25,
+            "prog": "PG"
+          }
+        ]
+      },
+      "HRM": {
+        "school": "SMS",
+        "shift1": 86,
+        "shift2": 0,
+        "total": 86,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 7,
+            "shift2": 0,
+            "total": 7,
+            "prog": "PhD"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 39,
+            "shift2": 0,
+            "total": 39,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 40,
+            "shift2": 0,
+            "total": 40,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Viscom Technology": {
+        "school": "SMS",
+        "shift1": 134,
+        "shift2": 0,
+        "total": 134,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 45,
+            "shift2": 0,
+            "total": 45,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 47,
+            "shift2": 0,
+            "total": 47,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 42,
+            "shift2": 0,
+            "total": 42,
+            "prog": "UG"
+          }
+        ]
+      },
+      "Visual Communication": {
+        "school": "SMS",
+        "shift1": 0,
+        "shift2": 131,
+        "total": 131,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 37,
+            "total": 37,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 40,
+            "total": 40,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 14,
+            "total": 14,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Chemistry": {
+        "school": "SPS",
+        "shift1": 323,
+        "shift2": 49,
+        "total": 372,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 2,
+            "shift2": 0,
+            "total": 2,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 4,
+            "shift2": 0,
+            "total": 4,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 83,
+            "shift2": 0,
+            "total": 83,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 82,
+            "shift2": 0,
+            "total": 82,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 97,
+            "shift2": 0,
+            "total": 97,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 24,
+            "shift2": 22,
+            "total": 46,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 29,
+            "shift2": 27,
+            "total": 56,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Electronics": {
+        "school": "SPS",
+        "shift1": 0,
+        "shift2": 115,
+        "total": 115,
+        "classes": [
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 0,
+            "shift2": 29,
+            "total": 29,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 0,
+            "shift2": 28,
+            "total": 28,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 0,
+            "shift2": 32,
+            "total": 32,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 0,
+            "shift2": 16,
+            "total": 16,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 0,
+            "shift2": 10,
+            "total": 10,
+            "prog": "PG"
+          }
+        ]
+      },
+      "Physics": {
+        "school": "SPS",
+        "shift1": 316,
+        "shift2": 115,
+        "total": 431,
+        "classes": [
+          {
+            "class": "PhD-2021-23",
+            "shift1": 9,
+            "shift2": 0,
+            "total": 9,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2023-24",
+            "shift1": 6,
+            "shift2": 0,
+            "total": 6,
+            "prog": "PhD"
+          },
+          {
+            "class": "PhD-2024-25",
+            "shift1": 5,
+            "shift2": 0,
+            "total": 5,
+            "prog": "PhD"
+          },
+          {
+            "class": "UG-I-2024-25",
+            "shift1": 92,
+            "shift2": 0,
+            "total": 92,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-II-2023-24",
+            "shift1": 77,
+            "shift2": 32,
+            "total": 109,
+            "prog": "UG"
+          },
+          {
+            "class": "UG-III-2022-23",
+            "shift1": 75,
+            "shift2": 33,
+            "total": 108,
+            "prog": "UG"
+          },
+          {
+            "class": "PG-I-2024-25",
+            "shift1": 23,
+            "shift2": 22,
+            "total": 45,
+            "prog": "PG"
+          },
+          {
+            "class": "PG-II-2023-24",
+            "shift1": 29,
+            "shift2": 28,
+            "total": 57,
+            "prog": "PG"
+          }
+        ]
+      }
+    }
+  },
+  "faculty": {
+    "2026-27": {
+      "Biochemistry": {
+        "school": "SBS",
+        "total": 3,
+        "shift1": 0,
+        "shift2": 3,
+        "male": 3,
+        "female": 0,
+        "aided": 0,
+        "management": 3
+      },
+      "Biotechnology": {
+        "school": "SBS",
+        "total": 8,
+        "shift1": 0,
+        "shift2": 8,
+        "male": 4,
+        "female": 4,
+        "aided": 0,
+        "management": 8
+      },
+      "Botany": {
+        "school": "SBS",
+        "total": 12,
+        "shift1": 12,
+        "shift2": 0,
+        "male": 11,
+        "female": 1,
+        "aided": 12,
+        "management": 0
+      },
+      "Commerce": {
+        "school": "SCO",
+        "total": 25,
+        "shift1": 14,
+        "shift2": 11,
+        "male": 19,
+        "female": 6,
+        "aided": 13,
+        "management": 12
+      },
+      "Commerce CA": {
+        "school": "SCO",
+        "total": 15,
+        "shift1": 0,
+        "shift2": 15,
+        "male": 7,
+        "female": 8,
+        "aided": 0,
+        "management": 15
+      },
+      "Commerce Business Analytics": {
+        "school": "SCO",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "male": 2,
+        "female": 2,
+        "aided": 0,
+        "management": 4
+      },
+      "Commerce Honours": {
+        "school": "SCO",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "male": 3,
+        "female": 1,
+        "aided": 0,
+        "management": 4
+      },
+      "Commerce Strategic Finance": {
+        "school": "SCO",
+        "total": 2,
+        "shift1": 0,
+        "shift2": 2,
+        "male": 0,
+        "female": 2,
+        "aided": 0,
+        "management": 2
+      },
+      "Artificial Intelligence": {
+        "school": "SCS",
+        "total": 10,
+        "shift1": 0,
+        "shift2": 10,
+        "male": 4,
+        "female": 6,
+        "aided": 0,
+        "management": 10
+      },
+      "SD & SA": {
+        "school": "SCS",
+        "total": 6,
+        "shift1": 0,
+        "shift2": 6,
+        "male": 2,
+        "female": 4,
+        "aided": 0,
+        "management": 6
+      },
+      "Computer Science": {
+        "school": "SCS",
+        "total": 29,
+        "shift1": 13,
+        "shift2": 16,
+        "male": 15,
+        "female": 14,
+        "aided": 11,
+        "management": 18
+      },
+      "Data Science": {
+        "school": "SCS",
+        "total": 5,
+        "shift1": 0,
+        "shift2": 5,
+        "male": 3,
+        "female": 2,
+        "aided": 0,
+        "management": 5
+      },
+      "Information Technology": {
+        "school": "SCS",
+        "total": 16,
+        "shift1": 0,
+        "shift2": 16,
+        "male": 8,
+        "female": 8,
+        "aided": 0,
+        "management": 16
+      },
+      "Mathematics": {
+        "school": "SCS",
+        "total": 25,
+        "shift1": 16,
+        "shift2": 9,
+        "male": 16,
+        "female": 9,
+        "aided": 16,
+        "management": 9
+      },
+      "Statistics": {
+        "school": "SCS",
+        "total": 6,
+        "shift1": 5,
+        "shift2": 1,
+        "male": 4,
+        "female": 2,
+        "aided": 5,
+        "management": 1
+      },
+      "English": {
+        "school": "SLC",
+        "total": 40,
+        "shift1": 20,
+        "shift2": 20,
+        "male": 27,
+        "female": 13,
+        "aided": 20,
+        "management": 20
+      },
+      "French": {
+        "school": "SLC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "male": 0,
+        "female": 1,
+        "aided": 1,
+        "management": 0
+      },
+      "Hindi": {
+        "school": "SLC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "male": 0,
+        "female": 1,
+        "aided": 1,
+        "management": 0
+      },
+      "History": {
+        "school": "SLC",
+        "total": 9,
+        "shift1": 5,
+        "shift2": 4,
+        "male": 6,
+        "female": 3,
+        "aided": 5,
+        "management": 4
+      },
+      "Department": {
+        "school": "School",
+        "total": 0,
+        "shift1": 0,
+        "shift2": 0,
+        "male": 0,
+        "female": 0,
+        "aided": 0,
+        "management": 0
+      },
+      "Sanskrit": {
+        "school": "SLC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "male": 1,
+        "female": 0,
+        "aided": 1,
+        "management": 0
+      },
+      "Tamil": {
+        "school": "SLC",
+        "total": 28,
+        "shift1": 12,
+        "shift2": 16,
+        "male": 20,
+        "female": 8,
+        "aided": 11,
+        "management": 17
+      },
+      "BBA": {
+        "school": "SMS",
+        "total": 8,
+        "shift1": 0,
+        "shift2": 8,
+        "male": 6,
+        "female": 2,
+        "aided": 0,
+        "management": 8
+      },
+      "MBA": {
+        "school": "SMS",
+        "total": 16,
+        "shift1": 0,
+        "shift2": 16,
+        "male": 10,
+        "female": 6,
+        "aided": 0,
+        "management": 16
+      },
+      "Counselling Psychology": {
+        "school": "SMS",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "male": 2,
+        "female": 2,
+        "aided": 0,
+        "management": 4
+      },
+      "Economics": {
+        "school": "SMS",
+        "total": 11,
+        "shift1": 11,
+        "shift2": 0,
+        "male": 7,
+        "female": 4,
+        "aided": 10,
+        "management": 1
+      },
+      "Human Resource Management": {
+        "school": "SMS",
+        "total": 8,
+        "shift1": 5,
+        "shift2": 3,
+        "male": 5,
+        "female": 3,
+        "aided": 5,
+        "management": 3
+      },
+      "Physical Education": {
+        "school": "SMS",
+        "total": 4,
+        "shift1": 1,
+        "shift2": 3,
+        "male": 4,
+        "female": 0,
+        "aided": 1,
+        "management": 3
+      },
+      "Visual Communication Technology": {
+        "school": "SMS",
+        "total": 13,
+        "shift1": 0,
+        "shift2": 13,
+        "male": 8,
+        "female": 5,
+        "aided": 0,
+        "management": 13
+      },
+      "Chemistry": {
+        "school": "SPS",
+        "total": 22,
+        "shift1": 18,
+        "shift2": 4,
+        "male": 18,
+        "female": 4,
+        "aided": 18,
+        "management": 4
+      },
+      "Electronics": {
+        "school": "SPS",
+        "total": 10,
+        "shift1": 0,
+        "shift2": 10,
+        "male": 7,
+        "female": 3,
+        "aided": 0,
+        "management": 10
+      },
+      "Physics": {
+        "school": "SPS",
+        "total": 28,
+        "shift1": 19,
+        "shift2": 9,
+        "male": 22,
+        "female": 6,
+        "aided": 19,
+        "management": 9
+      },
+      "Human Excellence": {
+        "school": "OTH",
+        "total": 6,
+        "shift1": 0,
+        "shift2": 6,
+        "male": 5,
+        "female": 1,
+        "aided": 0,
+        "management": 6
+      },
+      "Librarian": {
+        "school": "OTH",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "male": 0,
+        "female": 1,
+        "aided": 1,
+        "management": 0
+      },
+      "Placement Officer": {
+        "school": "OTH",
+        "total": 1,
+        "shift1": 0,
+        "shift2": 1,
+        "male": 1,
+        "female": 0,
+        "aided": 0,
+        "management": 1
+      },
+      "Blue shade indicates S1 - Mgt/Secreatry": {
+        "school": "OTH",
+        "total": 0,
+        "shift1": 0,
+        "shift2": 0,
+        "male": 0,
+        "female": 0,
+        "aided": 0,
+        "management": 0
+      }
+    },
+    "2025-26": {
+      "Biochemistry": {
+        "school": "SBS",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "aided": 0,
+        "management": 4,
+        "phd": 1,
+        "net_set": 3
+      },
+      "Biotechnology": {
+        "school": "SBS",
+        "total": 6,
+        "shift1": 0,
+        "shift2": 6,
+        "aided": 0,
+        "management": 6,
+        "phd": 6,
+        "net_set": 2
+      },
+      "Botany": {
+        "school": "SBS",
+        "total": 12,
+        "shift1": 12,
+        "shift2": 0,
+        "aided": 12,
+        "management": 0,
+        "phd": 12,
+        "net_set": 2
+      },
+      "Commerce": {
+        "school": "SCM",
+        "total": 13,
+        "shift1": 13,
+        "shift2": 0,
+        "aided": 13,
+        "management": 0,
+        "phd": 12,
+        "net_set": 8
+      },
+      "Commerce-Shift-II": {
+        "school": "SCM",
+        "total": 12,
+        "shift1": 0,
+        "shift2": 12,
+        "aided": 0,
+        "management": 12,
+        "phd": 8,
+        "net_set": 6
+      },
+      "Commerce Business Analytics": {
+        "school": "SCM",
+        "total": 2,
+        "shift1": 0,
+        "shift2": 2,
+        "aided": 0,
+        "management": 2,
+        "phd": 0,
+        "net_set": 1
+      },
+      "Commerce CA": {
+        "school": "SCM",
+        "total": 12,
+        "shift1": 0,
+        "shift2": 12,
+        "aided": 0,
+        "management": 12,
+        "phd": 9,
+        "net_set": 3
+      },
+      "Commerce Honours": {
+        "school": "SCM",
+        "total": 3,
+        "shift1": 0,
+        "shift2": 3,
+        "aided": 0,
+        "management": 3,
+        "phd": 1,
+        "net_set": 2
+      },
+      "Commerce Strategic Finance": {
+        "school": "SCM",
+        "total": 1,
+        "shift1": 0,
+        "shift2": 1,
+        "aided": 0,
+        "management": 1,
+        "phd": 0,
+        "net_set": 1
+      },
+      "Artificial Intelligence": {
+        "school": "SCS",
+        "total": 5,
+        "shift1": 0,
+        "shift2": 5,
+        "aided": 0,
+        "management": 5,
+        "phd": 2,
+        "net_set": 0
+      },
+      "SD & SA": {
+        "school": "SCS",
+        "total": 6,
+        "shift1": 0,
+        "shift2": 6,
+        "aided": 0,
+        "management": 6,
+        "phd": 2,
+        "net_set": 2
+      },
+      "Computer Science": {
+        "school": "SCS",
+        "total": 12,
+        "shift1": 11,
+        "shift2": 1,
+        "aided": 11,
+        "management": 1,
+        "phd": 12,
+        "net_set": 8
+      },
+      "Computer Science-Shift-II": {
+        "school": "SCS",
+        "total": 13,
+        "shift1": 0,
+        "shift2": 13,
+        "aided": 0,
+        "management": 13,
+        "phd": 6,
+        "net_set": 4
+      },
+      "Data Science": {
+        "school": "SCS",
+        "total": 5,
+        "shift1": 0,
+        "shift2": 5,
+        "aided": 0,
+        "management": 5,
+        "phd": 5,
+        "net_set": 2
+      },
+      "Information Technology": {
+        "school": "SCS",
+        "total": 16,
+        "shift1": 0,
+        "shift2": 16,
+        "aided": 0,
+        "management": 16,
+        "phd": 13,
+        "net_set": 0
+      },
+      "Mathematics": {
+        "school": "SCS",
+        "total": 16,
+        "shift1": 16,
+        "shift2": 0,
+        "aided": 16,
+        "management": 0,
+        "phd": 15,
+        "net_set": 10
+      },
+      "Mathematics-Shift-II": {
+        "school": "SCS",
+        "total": 12,
+        "shift1": 0,
+        "shift2": 12,
+        "aided": 0,
+        "management": 12,
+        "phd": 11,
+        "net_set": 2
+      },
+      "Statistics": {
+        "school": "SCS",
+        "total": 5,
+        "shift1": 5,
+        "shift2": 0,
+        "aided": 5,
+        "management": 0,
+        "phd": 5,
+        "net_set": 0
+      },
+      "English": {
+        "school": "SLAC",
+        "total": 20,
+        "shift1": 20,
+        "shift2": 0,
+        "aided": 20,
+        "management": 0,
+        "phd": 15,
+        "net_set": 9
+      },
+      "English-Shift-II": {
+        "school": "SLAC",
+        "total": 20,
+        "shift1": 0,
+        "shift2": 20,
+        "aided": 0,
+        "management": 20,
+        "phd": 8,
+        "net_set": 13
+      },
+      "French": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 0,
+        "net_set": 1
+      },
+      "Hindi": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 1
+      },
+      "History": {
+        "school": "SLAC",
+        "total": 8,
+        "shift1": 5,
+        "shift2": 3,
+        "aided": 5,
+        "management": 3,
+        "phd": 6,
+        "net_set": 3
+      },
+      "Sanskrit": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 0
+      },
+      "Tamil": {
+        "school": "SLAC",
+        "total": 11,
+        "shift1": 11,
+        "shift2": 0,
+        "aided": 11,
+        "management": 0,
+        "phd": 11,
+        "net_set": 8
+      },
+      "Tamil-Shift-II": {
+        "school": "SLAC",
+        "total": 14,
+        "shift1": 0,
+        "shift2": 14,
+        "aided": 0,
+        "management": 14,
+        "phd": 10,
+        "net_set": 9
+      },
+      "BBA": {
+        "school": "SMS",
+        "total": 9,
+        "shift1": 0,
+        "shift2": 9,
+        "aided": 0,
+        "management": 9,
+        "phd": 1,
+        "net_set": 4
+      },
+      "MBA": {
+        "school": "SMS",
+        "total": 15,
+        "shift1": 0,
+        "shift2": 15,
+        "aided": 0,
+        "management": 15,
+        "phd": 12,
+        "net_set": 5
+      },
+      "Counselling Psy": {
+        "school": "SMS",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "aided": 0,
+        "management": 4,
+        "phd": 3,
+        "net_set": 1
+      },
+      "Economics": {
+        "school": "SMS",
+        "total": 10,
+        "shift1": 10,
+        "shift2": 0,
+        "aided": 10,
+        "management": 0,
+        "phd": 8,
+        "net_set": 5
+      },
+      "HRM": {
+        "school": "SMS",
+        "total": 7,
+        "shift1": 5,
+        "shift2": 2,
+        "aided": 5,
+        "management": 2,
+        "phd": 5,
+        "net_set": 5
+      },
+      "Physical Education": {
+        "school": "SMS",
+        "total": 3,
+        "shift1": 1,
+        "shift2": 2,
+        "aided": 1,
+        "management": 2,
+        "phd": 2,
+        "net_set": 2
+      },
+      "Visual Communication": {
+        "school": "SMS",
+        "total": 11,
+        "shift1": 0,
+        "shift2": 11,
+        "aided": 0,
+        "management": 11,
+        "phd": 3,
+        "net_set": 3
+      },
+      "Chemistry": {
+        "school": "SPS",
+        "total": 22,
+        "shift1": 18,
+        "shift2": 4,
+        "aided": 18,
+        "management": 4,
+        "phd": 19,
+        "net_set": 9
+      },
+      "Electronics": {
+        "school": "SPS",
+        "total": 9,
+        "shift1": 0,
+        "shift2": 9,
+        "aided": 0,
+        "management": 9,
+        "phd": 6,
+        "net_set": 1
+      },
+      "Physics": {
+        "school": "SPS",
+        "total": 19,
+        "shift1": 19,
+        "shift2": 0,
+        "aided": 19,
+        "management": 0,
+        "phd": 17,
+        "net_set": 3
+      },
+      "Physics-Shift-II": {
+        "school": "SPS",
+        "total": 9,
+        "shift1": 0,
+        "shift2": 9,
+        "aided": 0,
+        "management": 9,
+        "phd": 7,
+        "net_set": 3
+      },
+      "Library": {
+        "school": "Other Departments",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 0
+      },
+      "Human Excellence": {
+        "school": "Other Departments",
+        "total": 6,
+        "shift1": 0,
+        "shift2": 6,
+        "aided": 0,
+        "management": 6,
+        "phd": 0,
+        "net_set": 0
+      },
+      "Placement Officer": {
+        "school": "Other Departments",
+        "total": 1,
+        "shift1": 0,
+        "shift2": 1,
+        "aided": 0,
+        "management": 1,
+        "phd": 1,
+        "net_set": 1
+      }
+    },
+    "2024-25": {
+      "Biochemistry": {
+        "school": "SBS",
+        "total": 3,
+        "shift1": 0,
+        "shift2": 3,
+        "aided": 0,
+        "management": 3,
+        "phd": 1,
+        "net_set": 3
+      },
+      "Biotechnology": {
+        "school": "SBS",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "aided": 0,
+        "management": 4,
+        "phd": 4,
+        "net_set": 0
+      },
+      "Botany": {
+        "school": "SBS",
+        "total": 12,
+        "shift1": 12,
+        "shift2": 0,
+        "aided": 12,
+        "management": 0,
+        "phd": 12,
+        "net_set": 2
+      },
+      "Commerce": {
+        "school": "SCM",
+        "total": 13,
+        "shift1": 13,
+        "shift2": 0,
+        "aided": 13,
+        "management": 0,
+        "phd": 12,
+        "net_set": 8
+      },
+      "Commerce-Shift-II": {
+        "school": "SCM",
+        "total": 13,
+        "shift1": 0,
+        "shift2": 13,
+        "aided": 0,
+        "management": 13,
+        "phd": 7,
+        "net_set": 5
+      },
+      "Commerce Business Analytics": {
+        "school": "SCM",
+        "total": 0,
+        "shift1": 0,
+        "shift2": 0,
+        "aided": 0,
+        "management": 0,
+        "phd": 0,
+        "net_set": 0
+      },
+      "Commerce CA": {
+        "school": "SCM",
+        "total": 10,
+        "shift1": 0,
+        "shift2": 10,
+        "aided": 0,
+        "management": 10,
+        "phd": 8,
+        "net_set": 3
+      },
+      "Commerce Honours": {
+        "school": "SCM",
+        "total": 3,
+        "shift1": 0,
+        "shift2": 3,
+        "aided": 0,
+        "management": 3,
+        "phd": 0,
+        "net_set": 3
+      },
+      "Commerce Strategic Finance": {
+        "school": "SCM",
+        "total": 1,
+        "shift1": 0,
+        "shift2": 1,
+        "aided": 0,
+        "management": 1,
+        "phd": 0,
+        "net_set": 1
+      },
+      "Artificial Intelligence": {
+        "school": "SCS",
+        "total": 2,
+        "shift1": 0,
+        "shift2": 2,
+        "aided": 0,
+        "management": 2,
+        "phd": 1,
+        "net_set": 0
+      },
+      "SD & SA": {
+        "school": "SCS",
+        "total": 7,
+        "shift1": 0,
+        "shift2": 7,
+        "aided": 0,
+        "management": 7,
+        "phd": 1,
+        "net_set": 1
+      },
+      "Computer Science": {
+        "school": "SCS",
+        "total": 11,
+        "shift1": 11,
+        "shift2": 0,
+        "aided": 11,
+        "management": 0,
+        "phd": 11,
+        "net_set": 6
+      },
+      "Computer Science-Shift-II": {
+        "school": "SCS",
+        "total": 15,
+        "shift1": 0,
+        "shift2": 15,
+        "aided": 0,
+        "management": 15,
+        "phd": 9,
+        "net_set": 5
+      },
+      "Data Science": {
+        "school": "SCS",
+        "total": 5,
+        "shift1": 0,
+        "shift2": 5,
+        "aided": 0,
+        "management": 5,
+        "phd": 5,
+        "net_set": 2
+      },
+      "Information Technology": {
+        "school": "SCS",
+        "total": 16,
+        "shift1": 0,
+        "shift2": 16,
+        "aided": 0,
+        "management": 16,
+        "phd": 12,
+        "net_set": 0
+      },
+      "Mathematics": {
+        "school": "SCS",
+        "total": 16,
+        "shift1": 16,
+        "shift2": 0,
+        "aided": 16,
+        "management": 0,
+        "phd": 15,
+        "net_set": 10
+      },
+      "Mathematics-Shift-II": {
+        "school": "SCS",
+        "total": 12,
+        "shift1": 0,
+        "shift2": 12,
+        "aided": 0,
+        "management": 12,
+        "phd": 9,
+        "net_set": 2
+      },
+      "Statistics": {
+        "school": "SCS",
+        "total": 5,
+        "shift1": 5,
+        "shift2": 0,
+        "aided": 5,
+        "management": 0,
+        "phd": 5,
+        "net_set": 0
+      },
+      "English": {
+        "school": "SLAC",
+        "total": 20,
+        "shift1": 20,
+        "shift2": 0,
+        "aided": 20,
+        "management": 0,
+        "phd": 14,
+        "net_set": 9
+      },
+      "English-Shift-II": {
+        "school": "SLAC",
+        "total": 18,
+        "shift1": 0,
+        "shift2": 18,
+        "aided": 0,
+        "management": 18,
+        "phd": 5,
+        "net_set": 10
+      },
+      "French": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 0,
+        "net_set": 1
+      },
+      "Hindi": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 1
+      },
+      "History": {
+        "school": "SLAC",
+        "total": 6,
+        "shift1": 5,
+        "shift2": 1,
+        "aided": 5,
+        "management": 1,
+        "phd": 5,
+        "net_set": 3
+      },
+      "Sanskrit": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 0
+      },
+      "Tamil": {
+        "school": "SLAC",
+        "total": 11,
+        "shift1": 11,
+        "shift2": 0,
+        "aided": 11,
+        "management": 0,
+        "phd": 11,
+        "net_set": 8
+      },
+      "Tamil-Shift-II": {
+        "school": "SLAC",
+        "total": 12,
+        "shift1": 0,
+        "shift2": 12,
+        "aided": 0,
+        "management": 12,
+        "phd": 8,
+        "net_set": 8
+      },
+      "BBA": {
+        "school": "SMS",
+        "total": 8,
+        "shift1": 0,
+        "shift2": 8,
+        "aided": 0,
+        "management": 8,
+        "phd": 3,
+        "net_set": 6
+      },
+      "MBA": {
+        "school": "SMS",
+        "total": 17,
+        "shift1": 0,
+        "shift2": 17,
+        "aided": 0,
+        "management": 17,
+        "phd": 14,
+        "net_set": 5
+      },
+      "Counselling Psy": {
+        "school": "SMS",
+        "total": 3,
+        "shift1": 0,
+        "shift2": 3,
+        "aided": 0,
+        "management": 3,
+        "phd": 2,
+        "net_set": 1
+      },
+      "Economics": {
+        "school": "SMS",
+        "total": 11,
+        "shift1": 10,
+        "shift2": 1,
+        "aided": 10,
+        "management": 1,
+        "phd": 9,
+        "net_set": 5
+      },
+      "HRM": {
+        "school": "SMS",
+        "total": 5,
+        "shift1": 5,
+        "shift2": 0,
+        "aided": 5,
+        "management": 0,
+        "phd": 4,
+        "net_set": 4
+      },
+      "Physical Education": {
+        "school": "SMS",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 1
+      },
+      "Visual Communication": {
+        "school": "SMS",
+        "total": 8,
+        "shift1": 0,
+        "shift2": 8,
+        "aided": 0,
+        "management": 8,
+        "phd": 2,
+        "net_set": 2
+      },
+      "Chemistry": {
+        "school": "SPS",
+        "total": 22,
+        "shift1": 18,
+        "shift2": 4,
+        "aided": 18,
+        "management": 4,
+        "phd": 19,
+        "net_set": 10
+      },
+      "Electronics": {
+        "school": "SPS",
+        "total": 8,
+        "shift1": 0,
+        "shift2": 8,
+        "aided": 0,
+        "management": 8,
+        "phd": 6,
+        "net_set": 1
+      },
+      "Physics": {
+        "school": "SPS",
+        "total": 19,
+        "shift1": 19,
+        "shift2": 0,
+        "aided": 19,
+        "management": 0,
+        "phd": 17,
+        "net_set": 3
+      },
+      "Physics-Shift-II": {
+        "school": "SPS",
+        "total": 10,
+        "shift1": 0,
+        "shift2": 10,
+        "aided": 0,
+        "management": 10,
+        "phd": 8,
+        "net_set": 3
+      },
+      "Library": {
+        "school": "Other Departments",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 0
+      },
+      "Human Excellence": {
+        "school": "Other Departments",
+        "total": 5,
+        "shift1": 0,
+        "shift2": 5,
+        "aided": 0,
+        "management": 5,
+        "phd": 0,
+        "net_set": 0
+      },
+      "Placement Officer": {
+        "school": "Other Departments",
+        "total": 1,
+        "shift1": 0,
+        "shift2": 1,
+        "aided": 0,
+        "management": 1,
+        "phd": 1,
+        "net_set": 1
+      }
+    },
+    "2023-24": {
+      "Biochemistry": {
+        "school": "SBS",
+        "total": 3,
+        "shift1": 0,
+        "shift2": 3,
+        "aided": 0,
+        "management": 3,
+        "phd": 1,
+        "net_set": 3
+      },
+      "Biotechnology": {
+        "school": "SBS",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "aided": 0,
+        "management": 4,
+        "phd": 4,
+        "net_set": 0
+      },
+      "Botany": {
+        "school": "SBS",
+        "total": 12,
+        "shift1": 12,
+        "shift2": 0,
+        "aided": 12,
+        "management": 0,
+        "phd": 12,
+        "net_set": 2
+      },
+      "Commerce": {
+        "school": "SCM",
+        "total": 13,
+        "shift1": 13,
+        "shift2": 0,
+        "aided": 13,
+        "management": 0,
+        "phd": 11,
+        "net_set": 8
+      },
+      "Commerce-Shift-II": {
+        "school": "SCM",
+        "total": 12,
+        "shift1": 0,
+        "shift2": 12,
+        "aided": 0,
+        "management": 12,
+        "phd": 7,
+        "net_set": 5
+      },
+      "Commerce Business Analytics": {
+        "school": "SCM",
+        "total": 0,
+        "shift1": 0,
+        "shift2": 0,
+        "aided": 0,
+        "management": 0,
+        "phd": 0,
+        "net_set": 0
+      },
+      "Commerce CA": {
+        "school": "SCM",
+        "total": 9,
+        "shift1": 0,
+        "shift2": 9,
+        "aided": 0,
+        "management": 9,
+        "phd": 8,
+        "net_set": 3
+      },
+      "Commerce Honours": {
+        "school": "SCM",
+        "total": 3,
+        "shift1": 0,
+        "shift2": 3,
+        "aided": 0,
+        "management": 3,
+        "phd": 0,
+        "net_set": 3
+      },
+      "Commerce Strategic Finance": {
+        "school": "SCM",
+        "total": 0,
+        "shift1": 0,
+        "shift2": 0,
+        "aided": 0,
+        "management": 0,
+        "phd": 0,
+        "net_set": 0
+      },
+      "Artificial Intelligence": {
+        "school": "SCS",
+        "total": 0,
+        "shift1": 0,
+        "shift2": 0,
+        "aided": 0,
+        "management": 0,
+        "phd": 0,
+        "net_set": 0
+      },
+      "SD & SA": {
+        "school": "SCS",
+        "total": 5,
+        "shift1": 0,
+        "shift2": 5,
+        "aided": 0,
+        "management": 5,
+        "phd": 1,
+        "net_set": 1
+      },
+      "Computer Science": {
+        "school": "SCS",
+        "total": 11,
+        "shift1": 11,
+        "shift2": 0,
+        "aided": 11,
+        "management": 0,
+        "phd": 9,
+        "net_set": 4
+      },
+      "Computer Science-Shift-II": {
+        "school": "SCS",
+        "total": 14,
+        "shift1": 0,
+        "shift2": 14,
+        "aided": 0,
+        "management": 14,
+        "phd": 8,
+        "net_set": 6
+      },
+      "Data Science": {
+        "school": "SCS",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "aided": 0,
+        "management": 4,
+        "phd": 4,
+        "net_set": 2
+      },
+      "Information Technology": {
+        "school": "SCS",
+        "total": 15,
+        "shift1": 0,
+        "shift2": 15,
+        "aided": 0,
+        "management": 15,
+        "phd": 12,
+        "net_set": 2
+      },
+      "Mathematics": {
+        "school": "SCS",
+        "total": 16,
+        "shift1": 16,
+        "shift2": 0,
+        "aided": 16,
+        "management": 0,
+        "phd": 15,
+        "net_set": 10
+      },
+      "Mathematics-Shift-II": {
+        "school": "SCS",
+        "total": 11,
+        "shift1": 0,
+        "shift2": 11,
+        "aided": 0,
+        "management": 11,
+        "phd": 10,
+        "net_set": 2
+      },
+      "Statistics": {
+        "school": "SCS",
+        "total": 5,
+        "shift1": 5,
+        "shift2": 0,
+        "aided": 5,
+        "management": 0,
+        "phd": 5,
+        "net_set": 0
+      },
+      "English": {
+        "school": "SLAC",
+        "total": 20,
+        "shift1": 20,
+        "shift2": 0,
+        "aided": 20,
+        "management": 0,
+        "phd": 14,
+        "net_set": 9
+      },
+      "English-Shift-II": {
+        "school": "SLAC",
+        "total": 19,
+        "shift1": 0,
+        "shift2": 19,
+        "aided": 0,
+        "management": 19,
+        "phd": 7,
+        "net_set": 11
+      },
+      "French": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 0,
+        "net_set": 1
+      },
+      "Hindi": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 1
+      },
+      "History": {
+        "school": "SLAC",
+        "total": 6,
+        "shift1": 5,
+        "shift2": 1,
+        "aided": 5,
+        "management": 1,
+        "phd": 5,
+        "net_set": 3
+      },
+      "Sanskrit": {
+        "school": "SLAC",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 0
+      },
+      "Tamil": {
+        "school": "SLAC",
+        "total": 11,
+        "shift1": 11,
+        "shift2": 0,
+        "aided": 11,
+        "management": 0,
+        "phd": 11,
+        "net_set": 8
+      },
+      "Tamil-Shift-II": {
+        "school": "SLAC",
+        "total": 12,
+        "shift1": 0,
+        "shift2": 12,
+        "aided": 0,
+        "management": 12,
+        "phd": 9,
+        "net_set": 8
+      },
+      "BBA": {
+        "school": "SMS",
+        "total": 8,
+        "shift1": 0,
+        "shift2": 8,
+        "aided": 0,
+        "management": 8,
+        "phd": 2,
+        "net_set": 7
+      },
+      "MBA": {
+        "school": "SMS",
+        "total": 16,
+        "shift1": 0,
+        "shift2": 16,
+        "aided": 0,
+        "management": 16,
+        "phd": 13,
+        "net_set": 3
+      },
+      "Counselling Psy": {
+        "school": "SMS",
+        "total": 3,
+        "shift1": 0,
+        "shift2": 3,
+        "aided": 0,
+        "management": 3,
+        "phd": 3,
+        "net_set": 0
+      },
+      "Economics": {
+        "school": "SMS",
+        "total": 10,
+        "shift1": 10,
+        "shift2": 0,
+        "aided": 10,
+        "management": 0,
+        "phd": 8,
+        "net_set": 5
+      },
+      "HRM": {
+        "school": "SMS",
+        "total": 5,
+        "shift1": 5,
+        "shift2": 0,
+        "aided": 5,
+        "management": 0,
+        "phd": 4,
+        "net_set": 4
+      },
+      "Physical Education": {
+        "school": "SMS",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 1
+      },
+      "Visual Communication": {
+        "school": "SMS",
+        "total": 8,
+        "shift1": 0,
+        "shift2": 8,
+        "aided": 0,
+        "management": 8,
+        "phd": 2,
+        "net_set": 2
+      },
+      "Chemistry": {
+        "school": "SPS",
+        "total": 22,
+        "shift1": 18,
+        "shift2": 4,
+        "aided": 18,
+        "management": 4,
+        "phd": 19,
+        "net_set": 10
+      },
+      "Electronics": {
+        "school": "SPS",
+        "total": 8,
+        "shift1": 0,
+        "shift2": 8,
+        "aided": 0,
+        "management": 8,
+        "phd": 3,
+        "net_set": 1
+      },
+      "Physics": {
+        "school": "SPS",
+        "total": 19,
+        "shift1": 19,
+        "shift2": 0,
+        "aided": 19,
+        "management": 0,
+        "phd": 17,
+        "net_set": 3
+      },
+      "Physics-Shift-II": {
+        "school": "SPS",
+        "total": 10,
+        "shift1": 0,
+        "shift2": 10,
+        "aided": 0,
+        "management": 10,
+        "phd": 8,
+        "net_set": 3
+      },
+      "Library": {
+        "school": "Other Departments",
+        "total": 1,
+        "shift1": 1,
+        "shift2": 0,
+        "aided": 1,
+        "management": 0,
+        "phd": 1,
+        "net_set": 0
+      },
+      "Human Excellence": {
+        "school": "Other Departments",
+        "total": 4,
+        "shift1": 0,
+        "shift2": 4,
+        "aided": 0,
+        "management": 4,
+        "phd": 0,
+        "net_set": 0
+      },
+      "Placement Officer": {
+        "school": "Other Departments",
+        "total": 1,
+        "shift1": 0,
+        "shift2": 1,
+        "aided": 0,
+        "management": 1,
+        "phd": 1,
+        "net_set": 1
+      }
+    }
+  }
+};
