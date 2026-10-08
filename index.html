@@ -65,8 +65,35 @@
 
 <div id="app" class="max-w-7xl mx-auto space-y-6">
 
+    <!-- LOGIN SCREEN OVERLAY -->
+    <div v-if="!isLoggedIn" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
+        <div class="glass-panel p-8 max-w-md w-full border-t-8 border-t-primary shadow-2xl text-center space-y-6 animate-fade-in">
+            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-20 mx-auto object-contain">
+            <div>
+                <h2 class="text-2xl font-bold text-primary">JosTEL Master Automation</h2>
+                <p class="text-xs text-slate-500 mt-1 font-medium">Unified End-to-End Control Portal</p>
+            </div>
+            
+            <form @submit.prevent="handleLogin" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Passcode / Access Key</label>
+                    <input v-model="loginPasscode" type="password" placeholder="Enter Administrator Key..." required class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div v-if="loginError" class="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs font-bold">
+                    {{ loginError }}
+                </div>
+                <button type="submit" class="w-full py-3 bg-primary hover:bg-blue-900 text-white font-bold rounded-lg shadow-lg text-sm transition-all transform active:scale-95">
+                    🔓 Authenticate & Access Portal
+                </button>
+            </form>
+            <div class="text-[11px] text-slate-400 font-medium">
+                Protected Institutional Platform • JosTEL Moodle Taskforce
+            </div>
+        </div>
+    </div>
+
     <!-- Header Banner -->
-    <div class="glass-panel p-6 flex flex-col md:flex-row items-center justify-between border-t-4 border-t-primary">
+    <div v-if="isLoggedIn" class="glass-panel p-6 flex flex-col md:flex-row items-center justify-between border-t-4 border-t-primary">
         <div class="flex items-center gap-4">
             <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-14 object-contain" onerror="this.style.display='none'">
             <div>
@@ -74,7 +101,7 @@
                 <p class="text-sm text-gray-500 mt-1">Unified End-to-End Portal for Moodle Course Creation, Quiz Lockdowns & Defaulter Auditing</p>
             </div>
         </div>
-        <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
+        <div class="mt-4 md:mt-0 flex flex-wrap items-center gap-2">
             <a href="Quiz_Format_Portal.html" target="_blank" class="bg-blue-100 hover:bg-blue-200 text-primary font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
                 📝 Word Quiz Formatter
             </a>
@@ -93,11 +120,14 @@
             <a href="Component_1_Master_Hub.html" target="_blank" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
                 ⚙️ Component 1 Master Hub
             </a>
+            <button @click="logout" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1 ml-1" title="Lock Portal">
+                🔒 Logout
+            </button>
         </div>
     </div>
 
     <!-- Step Navigation Bar -->
-    <div class="glass-panel flex border-b overflow-x-auto">
+    <div v-if="isLoggedIn" class="glass-panel flex border-b overflow-x-auto">
         <button @click="currentTab = 'step1'" :class="['tab-btn', currentTab === 'step1' ? 'active' : 'text-gray-500 hover:text-gray-800']">
             1️⃣ Bulk Upload CSV Generator
         </button>
@@ -110,7 +140,7 @@
     </div>
 
     <!-- TAB 1: BULK CSV GENERATOR -->
-    <div v-if="currentTab === 'step1'" class="glass-panel p-6 space-y-6">
+    <div v-if="isLoggedIn && currentTab === 'step1'" class="glass-panel p-6 space-y-6">
         <div class="border-b pb-4">
             <h2 class="text-xl font-bold text-primary">Step 1: Generate Course & Student Upload CSVs</h2>
             <p class="text-sm text-gray-500">Upload your student roster file (CSV or Excel) to automatically generate Moodle bulk upload files.</p>
@@ -151,7 +181,7 @@
     </div>
 
     <!-- TAB 2: MASTER BOT ORCHESTRATOR & SCRIPT DOWNLOADS -->
-    <div v-if="currentTab === 'step2'" class="glass-panel p-6 space-y-6">
+    <div v-if="isLoggedIn && currentTab === 'step2'" class="glass-panel p-6 space-y-6">
         <div class="border-b pb-4">
             <h2 class="text-xl font-bold text-primary">Step 2: Master Exam Automation Bot & Script Downloads</h2>
             <p class="text-sm text-gray-500">Download terminal bot scripts or copy execution commands to automate quiz timings, subnet IP locks, and quiz renames.</p>
@@ -206,7 +236,7 @@
     </div>
 
     <!-- TAB 3: DEFAULTER AUDITOR -->
-    <div v-if="currentTab === 'step3'" class="glass-panel p-6 space-y-6">
+    <div v-if="isLoggedIn && currentTab === 'step3'" class="glass-panel p-6 space-y-6">
         <div class="flex justify-between items-center border-b pb-4">
             <div>
                 <h2 class="text-xl font-bold text-primary">Step 3: Defaulter Faculty Auditor</h2>
@@ -273,6 +303,9 @@ const { createApp } = Vue;
 createApp({
     data() {
         return {
+            isLoggedIn: sessionStorage.getItem('jostel_auth') === 'true',
+            loginPasscode: '',
+            loginError: '',
             currentTab: 'step1',
             moodleUrl: 'https://service.sjctni.edu/jostel/moodle',
             apiToken: '20346d2c25c71285ffc0f147a3f9eab8',
@@ -303,6 +336,21 @@ createApp({
         }
     },
     methods: {
+        handleLogin() {
+            if (this.loginPasscode === 'admin123' || this.loginPasscode === 'jostel2026' || this.loginPasscode === 'jostel') {
+                this.isLoggedIn = true;
+                this.loginError = '';
+                sessionStorage.setItem('jostel_auth', 'true');
+                this.rescanQuizzes();
+            } else {
+                this.loginError = 'Invalid passcode. Please try again.';
+            }
+        },
+        logout() {
+            this.isLoggedIn = false;
+            this.loginPasscode = '';
+            sessionStorage.removeItem('jostel_auth');
+        },
         handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -457,7 +505,9 @@ createApp({
         }
     },
     mounted() {
-        this.rescanQuizzes();
+        if (this.isLoggedIn) {
+            this.rescanQuizzes();
+        }
     }
 }).mount('#app');
 </script>
