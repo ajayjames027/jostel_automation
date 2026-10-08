@@ -2,303 +2,430 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JosTEL: Central Automation Dashboard</title>
-    <!-- PWA Requirements -->
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#1e3a8a">
-    <link rel="apple-touch-icon" href="./jostel_logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JosTEL Moodle Master Automation Hub</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Outfit Font -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Vue.js -->
+    <!-- Excel & Vue Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
                     colors: {
-                        brand: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            500: '#1e3a8a', // Deep University Blue
-                            600: '#1e40af', 
-                            900: '#0f172a',
-                        }
-                    },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
+                        primary: '#1e3a8a',
+                        primaryHover: '#1e40af',
+                        secondary: '#3b82f6',
+                        bglight: '#f8fafc',
+                        danger: '#ef4444'
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            font-family: 'Outfit', -apple-system, sans-serif;
-            background-color: #f1f5f9;
-            margin: 0;
-            padding: 0;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.98);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            transition: all 0.3s ease;
-        }
-        
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-color: #cbd5e1;
-        }
-        
-        .module-icon {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .login-input {
+        body { background-color: #f1f5f9; color: #1e293b; }
+        .glass-panel {
+            background: #ffffff;
             border: 1px solid #cbd5e1;
-            padding: 12px 16px;
-            border-radius: 8px;
-            width: 100%;
-            outline: none;
-            transition: all 0.2s;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
         }
-        .login-input:focus {
-            border-color: #3b82f6; 
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        .tab-btn {
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            color: #1e3a8a;
+            border-bottom-color: #1e3a8a;
+            background-color: #ffffff;
+        }
+        input, select {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 14px;
+            outline: none;
+            width: 100%;
+        }
+        input:focus, select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
     </style>
 </head>
-<body>
-<div id="app" class="min-h-screen flex flex-col items-center">
+<body class="p-4 md:p-8 min-h-screen">
 
-    <!-- LOGIN SCREEN -->
-    <div v-if="!isLoggedIn" class="min-h-screen w-full flex items-center justify-center p-4">
-        <div class="glass-card max-w-md w-full p-10 rounded-2xl animate-fade-in-up text-center">
-            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-20 mx-auto mb-6 object-contain" onerror="this.style.display='none'">
-            <h2 class="text-2xl font-bold text-brand-900 mb-2">Welcome Back</h2>
-            <p class="text-gray-500 mb-8 text-sm">Please sign in to access the Automation Hub.</p>
-            
-            <form @submit.prevent="login" class="space-y-5 text-left">
-                <div>
-                    <label class="block text-sm font-semibold mb-1 text-gray-700">Username</label>
-                    <input v-model="username" type="text" class="login-input" placeholder="Enter username">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1 text-gray-700">Password</label>
-                    <input v-model="password" type="password" class="login-input" placeholder="••••••••">
-                </div>
-                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 px-4 rounded-lg transition-colors mt-2">
-                    Sign In Validate
-                </button>
-            </form>
-            
-            <p v-if="errorMsg" class="mt-4 text-sm text-red-500 font-semibold">{{ errorMsg }}</p>
+<div id="app" class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Header Banner -->
+    <div class="glass-panel p-6 flex flex-col md:flex-row items-center justify-between border-t-4 border-t-primary">
+        <div class="flex items-center gap-4">
+            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-14 object-contain" onerror="this.style.display='none'">
+            <div>
+                <h1 class="text-3xl font-bold text-primary tracking-tight">JosTEL Master Automation System</h1>
+                <p class="text-sm text-gray-500 mt-1">Unified End-to-End Portal for Moodle Course Creation, Quiz Lockdowns & Defaulter Auditing</p>
+            </div>
+        </div>
+        <div class="mt-4 md:mt-0 flex gap-2">
+            <a href="Quiz_Format_Portal.html" target="_blank" class="bg-blue-100 hover:bg-blue-200 text-primary font-bold px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-1">
+                📝 Word Quiz Formatter
+            </a>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
-    <div v-else class="w-full min-h-screen flex flex-col items-center p-4 md:p-8 relative">
-        <!-- Top Right Logout -->
-        <button @click="logout" class="absolute top-4 right-4 md:top-8 md:right-8 bg-white border border-gray-200 text-brand-600 hover:bg-brand-50 hover:text-brand-700 hover:border-brand-300 font-semibold py-2 px-5 rounded-xl shadow-sm transition-all focus:outline-none flex items-center gap-2.5 text-sm z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Log Out
+    <!-- Step Navigation Bar -->
+    <div class="glass-panel flex border-b overflow-x-auto">
+        <button @click="currentTab = 'step1'" :class="['tab-btn', currentTab === 'step1' ? 'active' : 'text-gray-500 hover:text-gray-800']">
+            1️⃣ Bulk Upload CSV Generator
         </button>
-        
-        <!-- Header Section -->
-        <header class="w-full max-w-5xl text-center flex flex-col justify-center items-center mt-6 mb-12 animate-fade-in-up">
-            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-24 mb-4 object-contain" onerror="this.style.display='none'">
-            <div>
-                <h1 class="text-4xl md:text-5xl font-bold text-brand-500 tracking-tight">JosTEL Ecosystem</h1>
-                <p class="text-gray-500 mt-3 text-lg max-w-2xl mx-auto">Centralized automation suite for generating Moodle templates, aggregating student grades, and streamlining academic workflows.</p>
-            </div>
-        </header>
+        <button @click="currentTab = 'step2'" :class="['tab-btn', currentTab === 'step2' ? 'active' : 'text-gray-500 hover:text-gray-800']">
+            2️⃣ Master Bot Orchestrator
+        </button>
+        <button @click="currentTab = 'step3'" :class="['tab-btn', currentTab === 'step3' ? 'active' : 'text-gray-500 hover:text-gray-800']">
+            3️⃣ Defaulter Faculty Auditor
+        </button>
+    </div>
 
-        <!-- Cards Grid -->
-        <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 animate-fade-in-up" style="animation-delay: 0.15s;">
-            <!-- Grade Fetcher -->
-            <a href="./Grade_Fetcher_Dashboard.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-                <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Grade Fetcher</h2>
-                <p class="text-gray-500 text-sm">Securely connect using token access to explore and retrieve live quiz grades across multiple courses.</p>
-                <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
-                    Open Dashboard <span>&rarr;</span>
-                </div>
-            </a>
-
-            <!-- Template Hub -->
-            <a href="./Quiz_Format_Portal.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-                <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Template Hub</h2>
-                <p class="text-gray-500 text-sm">Create standard Moodle WordTable Question imports instantly via TXT import or blank visual generation.</p>
-                <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
-                    Open Dashboard <span>&rarr;</span>
-                </div>
-            </a>
-
-            <!-- Moodle Automation -->
-            <a href="./Moodle_Automation_Dashboard.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-                <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Excel Engine</h2>
-                <p class="text-gray-500 text-sm">Bulk export, analyze, and format Moodle outputs efficiently via locally running Excel processing logic.</p>
-                <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
-                    Open Dashboard <span>&rarr;</span>
-                </div>
-            </a>
-
-            <!-- Earn While You Learn -->
-            <a href="./Earn_While_You_Learn.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-                <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-10 h-10 module-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Earn While You Learn</h2>
-                <p class="text-gray-500 text-sm">Track and manage student earning programs seamlessly, generate claims, and maintain records.</p>
-                <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
-                    Open Dashboard <span>&rarr;</span>
-                </div>
-            </a>
-
-            <!-- Usage Analytics -->
-            <a href="./Usage_Analytics.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-                <div class="w-20 h-20 rounded-full bg-purple-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-10 h-10 module-icon text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold mb-2 group-hover:text-brand-500 transition-colors">Usage Analytics</h2>
-                <p class="text-gray-500 text-sm">Comprehensive platform summary reports on User Activities, Content Uploads, and Engagement.</p>
-                <div class="mt-auto pt-6 flex items-center text-brand-500 font-semibold text-sm">
-                    Open Dashboard <span>&rarr;</span>
-                </div>
-            </a>
-
-            <!-- Empty Quiz Finder -->
-            <a href="./Empty_Quiz_Finder.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800">
-                <div class="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-10 h-10 module-icon text-red-600" style="background:none; color:#dc2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold mb-2 group-hover:text-red-600 transition-colors">Empty Quiz Finder</h2>
-                <p class="text-gray-500 text-sm">Automate scanning across courses to safely identify quizzes that are missing question papers.</p>
-                <div class="mt-auto pt-6 flex items-center text-red-600 font-semibold text-sm">
-                    Open Dashboard <span>&rarr;</span>
-                </div>
-            </a>
-
-            <!-- Component 1 Master Hub -->
-            <a href="./Component_1_Master_Hub.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800 border-2 border-indigo-500/30">
-                <div class="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(99,102,241,0.4)]">
-                    <svg class="w-10 h-10 module-icon text-indigo-600" style="background:none; color:#4f46e5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-black mb-2 group-hover:text-indigo-600 transition-colors bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Exam Orchestrator</h2>
-                <p class="text-gray-500 text-sm">7-Stage futuristic Master Hub for Component I exams. Seating arrays, IP restrictions, and Invigilator claims.</p>
-                <div class="mt-auto pt-6 flex items-center text-indigo-600 font-bold text-sm tracking-wider">
-                    BOOT PROTOCOL <span>&rarr;</span>
-                </div>
-            </a>
-
-            <!-- Student Exam Venue & PC Finder -->
-            <a href="./Student_Exam_Lookup.html" class="glass-card rounded-2xl p-8 flex flex-col items-center text-center group cursor-pointer block no-underline text-gray-800 border-2 border-emerald-500/30">
-                <div class="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                    <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-black mb-2 group-hover:text-emerald-600 transition-colors bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600">Student Venue & PC Finder</h2>
-                <p class="text-gray-500 text-sm">Direct lookup portal for students. Enter Register Number to instantly view Lab Room, Terminal ID, and Admit Pass.</p>
-                <div class="mt-auto pt-6 flex items-center text-emerald-600 font-bold text-sm tracking-wider">
-                    STUDENT SEARCH <span>&rarr;</span>
-                </div>
-            </a>
+    <!-- TAB 1: BULK CSV GENERATOR -->
+    <div v-if="currentTab === 'step1'" class="glass-panel p-6 space-y-6">
+        <div class="border-b pb-4">
+            <h2 class="text-xl font-bold text-primary">Step 1: Generate Course & Student Upload CSVs</h2>
+            <p class="text-sm text-gray-500">Upload your student roster file (CSV or Excel) to automatically generate Moodle bulk upload files.</p>
         </div>
 
-        <!-- Footer -->
-        <footer class="mt-auto pt-16 pb-6 text-center text-gray-400 text-sm animate-fade-in-up" style="animation-delay: 0.3s;">
-            <p>&copy; 2026 JosTEL Automation Suite. Crafted for seamless curriculum workflows.</p>
-        </footer>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-sm font-semibold mb-1">Category ID</label>
+                <input v-model="step1.categoryId" type="text" placeholder="962">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">Template Course Shortname</label>
+                <input v-model="step1.templateCourse" type="text" placeholder="Template_SL_End">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">Date Suffix (e.g. 15102026)</label>
+                <input v-model="step1.dateSuffix" type="text" placeholder="15102026">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold mb-2">Upload Roster File (.csv or .xlsx)</label>
+            <input type="file" @change="handleFileUpload" accept=".csv, .xlsx, .xls" class="bg-white">
+        </div>
+
+        <div v-if="step1.status" :class="['p-4 rounded-lg font-medium text-sm', step1.isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200']">
+            {{ step1.status }}
+        </div>
+
+        <div v-if="step1.coursesCount > 0" class="flex gap-4">
+            <button @click="downloadCoursesCSV" class="bg-primary hover:bg-blue-900 text-white font-bold px-6 py-3 rounded-lg text-sm shadow">
+                ⬇️ Download Courses CSV ({{ step1.coursesCount }} Courses)
+            </button>
+            <button @click="downloadStudentsCSV" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg text-sm shadow">
+                ⬇️ Download Users CSV ({{ step1.usersCount }} Users)
+            </button>
+        </div>
+    </div>
+
+    <!-- TAB 2: MASTER BOT ORCHESTRATOR -->
+    <div v-if="currentTab === 'step2'" class="glass-panel p-6 space-y-6">
+        <div class="border-b pb-4">
+            <h2 class="text-xl font-bold text-primary">Step 2: Master Exam Automation Bot</h2>
+            <p class="text-sm text-gray-500">Run automated scripts to parse timetable PDF, set quiz timings, apply subnet IP locks, and rename quizzes.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border p-5 rounded-lg bg-slate-50 space-y-3">
+                <h3 class="font-bold text-lg text-gray-800">💻 Command Line Master Suite</h3>
+                <p class="text-xs text-gray-600">Run the interactive CLI suite directly on your server/computer:</p>
+                <div class="bg-gray-900 text-green-400 p-3 rounded text-sm font-mono select-all">
+                    python master_exam_automation.py
+                </div>
+            </div>
+
+            <div class="border p-5 rounded-lg bg-slate-50 space-y-3">
+                <h3 class="font-bold text-lg text-gray-800">⚡ Direct Bot Commands</h3>
+                <ul class="text-xs space-y-2 text-gray-700">
+                    <li><strong class="text-blue-700">Quiz Timing & IP Lock Bot:</strong><br><code class="bg-gray-200 px-2 py-0.5 rounded font-mono">python Moodle_Quiz_Timing_Bot.py</code></li>
+                    <li><strong class="text-blue-700">Quiz Renamer Bot:</strong><br><code class="bg-gray-200 px-2 py-0.5 rounded font-mono">python Moodle_Quiz_Renamer_Bot.py</code></li>
+                    <li><strong class="text-blue-700">Defaulter Auditor Bot:</strong><br><code class="bg-gray-200 px-2 py-0.5 rounded font-mono">python Moodle_Defaulter_Scanner_Bot.py</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="border-t pt-4">
+            <h4 class="font-bold text-sm text-gray-700 mb-2">Automated Parameters Set:</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="bg-white p-3 border rounded"><strong>IP Subnet Restrictions:</strong><br><span class="font-mono text-blue-600">172.16.123.,172.16.139.,172.16.109.,172.16.140.</span></div>
+                <div class="bg-white p-3 border rounded"><strong>Timetable PDF Source:</strong><br><span class="text-gray-600">Extracted start & end slots per course</span></div>
+                <div class="bg-white p-3 border rounded"><strong>Quiz Shortname Format:</strong><br><span class="font-mono text-purple-600">COURSECODE_DATE</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: DEFAULTER AUDITOR -->
+    <div v-if="currentTab === 'step3'" class="glass-panel p-6 space-y-6">
+        <div class="flex justify-between items-center border-b pb-4">
+            <div>
+                <h2 class="text-xl font-bold text-primary">Step 3: Defaulter Faculty Auditor</h2>
+                <p class="text-sm text-gray-500">Live API scan to find quizzes where faculty have not uploaded questions.</p>
+            </div>
+            <button @click="rescanQuizzes" :disabled="isLoading" class="bg-primary hover:bg-blue-900 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50">
+                {{ isLoading ? 'Scanning Moodle...' : '🔍 Scan Quizzes Now' }}
+            </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center border-l-4 border-l-blue-500">
+                <p class="text-xs text-gray-500 font-bold uppercase">Quizzes Checked</p>
+                <p class="text-3xl font-bold text-primary mt-1">{{ quizzes.length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center border-l-4 border-l-green-500">
+                <p class="text-xs text-gray-500 font-bold uppercase">Ready with Questions</p>
+                <p class="text-3xl font-bold text-green-600 mt-1">{{ quizzes.length - emptyQuizzes.length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center border-l-4 border-l-red-500">
+                <p class="text-xs text-gray-500 font-bold uppercase">Empty Quizzes (Defaulters)</p>
+                <p class="text-3xl font-bold text-red-500 mt-1">{{ emptyQuizzes.length }}</p>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center">
+            <h3 class="font-bold text-gray-800">Defaulter Faculty List</h3>
+            <button @click="exportDefaulterCSV" :disabled="emptyQuizzes.length === 0" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs disabled:opacity-50">
+                ⬇️ Export Defaulter CSV Report
+            </button>
+        </div>
+
+        <div class="overflow-x-auto border rounded-lg">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-primary text-white text-xs uppercase">
+                    <tr>
+                        <th class="p-3">Course Name / ID</th>
+                        <th class="p-3">Quiz Name</th>
+                        <th class="p-3 text-center">Status</th>
+                        <th class="p-3 text-right">Moodle Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y">
+                    <tr v-for="q in emptyQuizzes" :key="q.id" class="hover:bg-slate-50">
+                        <td class="p-3 font-semibold text-gray-800">Course ID: {{ q.course }}</td>
+                        <td class="p-3 font-bold text-blue-900">{{ q.name }}</td>
+                        <td class="p-3 text-center"><span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-bold">NO QUESTIONS UPLOADED</span></td>
+                        <td class="p-3 text-right"><a :href="`${moodleUrl}/mod/quiz/view.php?id=${q.coursemodule}`" target="_blank" class="text-blue-600 hover:underline font-bold text-xs">Open Quiz ↗</a></td>
+                    </tr>
+                    <tr v-if="emptyQuizzes.length === 0">
+                        <td colspan="4" class="text-center py-8 text-gray-400">No defaulter quizzes found. All questions are uploaded!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
 
 <script>
-    const { createApp } = Vue;
+const { createApp } = Vue;
 
-    createApp({
-        data() {
-            return {
-                isLoggedIn: false,
-                username: '',
-                password: '',
-                errorMsg: ''
-            }
-        },
-        mounted() {
-            // Check if they already logged in during this browser session
-            if (sessionStorage.getItem('jostel_auth') === 'granted') {
-                this.isLoggedIn = true;
-            }
-        },
-        methods: {
-            login() {
-                if (this.username === 'admin' && this.password === 'admin123') {
-                    this.isLoggedIn = true;
-                    this.errorMsg = '';
-                    sessionStorage.setItem('jostel_auth', 'granted');
-                } else {
-                    this.errorMsg = 'Invalid username or password.';
-                    this.password = ''; // clear password on fail
-                }
+createApp({
+    data() {
+        return {
+            currentTab: 'step1',
+            moodleUrl: 'https://service.sjctni.edu/jostel/moodle',
+            apiToken: '20346d2c25c71285ffc0f147a3f9eab8',
+            
+            step1: {
+                categoryId: '962',
+                templateCourse: 'Template_SL_End',
+                dateSuffix: '15102026',
+                coursesCSV: '',
+                studentsCSV: '',
+                coursesCount: 0,
+                usersCount: 0,
+                status: '',
+                isError: false
             },
-            logout() {
-                this.isLoggedIn = false;
-                this.username = '';
-                this.password = '';
-                sessionStorage.removeItem('jostel_auth');
-            }
+
+            quizzes: [],
+            isLoading: false
         }
-    }).mount('#app');
-</script>
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('PWA ServiceWorker registered successfully', reg))
-                .catch(err => console.error('PWA ServiceWorker registration failed', err));
-        });
+    },
+    computed: {
+        emptyQuizzes() {
+            return this.quizzes.filter(q => {
+                if (q.hasquestions !== undefined) return q.hasquestions == 0;
+                if (q.sumgrades !== undefined) return parseFloat(q.sumgrades) === 0 || q.sumgrades === null;
+                return false;
+            });
+        }
+    },
+    methods: {
+        handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    let rows = [];
+                    if (file.name.endsWith('.csv')) {
+                        const text = e.target.result;
+                        const lines = text.split('\n');
+                        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                        for (let i = 1; i < lines.length; i++) {
+                            if (!lines[i].strip && !lines[i].trim()) continue;
+                            const currentline = lines[i].split(',').map(cell => cell.trim().replace(/^"|"$/g, ''));
+                            if (currentline.length >= headers.length) {
+                                let obj = {};
+                                headers.forEach((h, idx) => obj[h] = currentline[idx]);
+                                rows.push(obj);
+                            }
+                        }
+                    } else {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    }
+
+                    this.processRosterData(rows);
+                } catch(err) {
+                    this.step1.status = `Error parsing file: ${err.message}`;
+                    this.step1.isError = true;
+                }
+            };
+
+            if (file.name.endsWith('.csv')) reader.readAsText(file);
+            else reader.readAsArrayBuffer(file);
+        },
+
+        processRosterData(rows) {
+            let uniqueCourses = {};
+            let userEnrols = [];
+            let teacherMap = {};
+
+            rows.forEach(row => {
+                const courseCode = (row.coursecode || row['Course Code'] || '').toString().trim();
+                const courseTitle = (row.coursetitle || row['Course Title'] || '').toString().trim();
+                const staffId = (row.staffid || row['Staff Incharge'] || '').toString().trim();
+                const staffName = (row.staffname || row['Staff Incharge'] || '').toString().trim();
+                const regNo = (row.regdno || row['Reg. Nol'] || row.RegNo || '').toString().trim();
+                const name = (row.name || row.Name || '.').toString().trim();
+
+                if (!courseCode) return;
+
+                const dateSuffix = this.step1.dateSuffix ? `_${this.step1.dateSuffix}` : '';
+                const shortname = `${courseCode}${dateSuffix}`;
+                const fullname = `${courseCode} - ${courseTitle}`;
+
+                if (!uniqueCourses[shortname]) {
+                    uniqueCourses[shortname] = {
+                        shortname: shortname,
+                        fullname: fullname,
+                        category: this.step1.categoryId,
+                        templatecourse: this.step1.templateCourse
+                    };
+                }
+
+                if (regNo) {
+                    userEnrols.push({
+                        username: regNo.toLowerCase(),
+                        firstname: name,
+                        lastname: '.',
+                        course1: shortname,
+                        role1: 'student'
+                    });
+                }
+
+                if (staffId && staffId.toLowerCase() !== 'nan') {
+                    const teacherUser = staffId.toLowerCase();
+                    const key = `${shortname}_${teacherUser}`;
+                    if (!teacherMap[key]) {
+                        teacherMap[key] = true;
+                        userEnrols.push({
+                            username: teacherUser,
+                            firstname: staffName || '.',
+                            lastname: '.',
+                            course1: shortname,
+                            role1: 'editingteacher'
+                        });
+                    }
+                }
+            });
+
+            // Build Courses CSV
+            let cCsv = "shortname,fullname,category,templatecourse\n";
+            Object.values(uniqueCourses).forEach(c => {
+                cCsv += `"${c.shortname}","${c.fullname.replace(/"/g, '""')}",${c.category},"${c.templatecourse}"\n`;
+            });
+
+            // Build Users CSV
+            let uCsv = "username,firstname,lastname,course1,role1\n";
+            userEnrols.forEach(u => {
+                uCsv += `"${u.username}","${u.firstname.replace(/"/g, '""')}","${u.lastname}",${u.course1},${u.role1}\n`;
+            });
+
+            this.step1.coursesCSV = cCsv;
+            this.step1.studentsCSV = uCsv;
+            this.step1.coursesCount = Object.keys(uniqueCourses).length;
+            this.step1.usersCount = userEnrols.length;
+            this.step1.status = `Successfully generated CSVs for ${this.step1.coursesCount} courses and ${this.step1.usersCount} total user enrollments!`;
+            this.step1.isError = false;
+        },
+
+        downloadCoursesCSV() {
+            this.triggerDownload(this.step1.coursesCSV, 'automated_courses_upload.csv');
+        },
+        downloadStudentsCSV() {
+            this.triggerDownload(this.step1.studentsCSV, 'automated_users_upload.csv');
+        },
+        triggerDownload(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', filename);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        },
+
+        async rescanQuizzes() {
+            this.isLoading = true;
+            try {
+                const url = `${this.moodleUrl}/webservice/rest/server.php?wstoken=${this.apiToken}&wsfunction=mod_quiz_get_quizzes_by_courses&moodlewsrestformat=json`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data && data.quizzes) {
+                    this.quizzes = data.quizzes;
+                }
+            } catch(e) {
+                alert(`Error rescanning: ${e.message}`);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        exportDefaulterCSV() {
+            let csv = "Course ID,Quiz Name,Quiz ID,Status\n";
+            this.emptyQuizzes.forEach(q => {
+                csv += `${q.course},"${q.name.replace(/"/g, '""')}",${q.id},"EMPTY (No Questions)"\n`;
+            });
+            this.triggerDownload(csv, 'defaulter_quizzes_report.csv');
+        }
+    },
+    mounted() {
+        this.rescanQuizzes();
     }
+}).mount('#app');
 </script>
 </body>
 </html>

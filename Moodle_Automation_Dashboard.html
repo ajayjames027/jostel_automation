@@ -140,16 +140,20 @@
         <div class="form-grid">
             <div class="input-group">
                 <label>Target Category ID</label>
-                <input type="text" id="categoryId" value="956" placeholder="e.g. 956">
+                <input type="text" id="categoryId" value="962" placeholder="e.g. 962">
             </div>
             <div class="input-group">
                 <label>Template Course Shortname</label>
-                <input type="text" id="templateCourse" value="SL_TEMPLATE" placeholder="Course containing Quiz">
+                <input type="text" id="templateCourse" value="Template_SL_End" placeholder="Course containing Quiz">
+            </div>
+            <div class="input-group">
+                <label>Date Suffix (for Shortname)</label>
+                <input type="text" id="dateSuffix" value="15102026" placeholder="e.g. 15102026">
             </div>
             
-            <div class="input-group" style="grid-column: span 2;">
-                <label>Upload Main Excel Roster (Courses & Students)</label>
-                <input type="file" id="excelFile" accept=".xlsx, .xls">
+            <div class="input-group">
+                <label>Upload Main Roster File (CSV or Excel)</label>
+                <input type="file" id="excelFile" accept=".csv, .xlsx, .xls">
             </div>
         </div>
 
@@ -161,8 +165,8 @@
 
         <div class="instructions">
             <h3>How to use this dashboard:</h3>
-            <p>1. Ensure your Excel file has headers matching your standard format (e.g. <b>Course Code</b>, <b>Course Title</b>, <b>Staff Incharge</b>, <b>Shift</b>, <b>Reg. Nol</b>, <b>Name</b>).</p>
-            <p>2. Set your Category ID (where the courses will be built) and your Template Course shortname (the master shell containing your quiz).</p>
+            <p>1. Ensure your file is a CSV (like <b>end_spl.csv</b>) or Excel file with headers (e.g. <b>coursecode</b>, <b>coursetitle</b>, <b>staffname</b> / <b>staffid</b>, <b>shift</b>, <b>regdno</b> / <b>Reg. Nol</b>).</p>
+            <p>2. Set your Category ID, Template Course shortname, and Date Suffix (e.g. 15102026).</p>
             <p>3. Click Generate. Two files will automatically download:</p>
             <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
                 <li><b>Upload Courses</b>: Upload this in your LMS > Courses > Upload courses.</li>
@@ -174,49 +178,59 @@
     <script>
         document.getElementById('generateBtn').addEventListener('click', () => {
             const fileInput = document.getElementById('excelFile');
-            const categoryId = document.getElementById('categoryId').value || '956';
-            const templateCourse = document.getElementById('templateCourse').value || 'SL_TEMPLATE';
+            const categoryId = document.getElementById('categoryId').value || '962';
+            const templateCourse = document.getElementById('templateCourse').value || 'Template_SL_End';
+            const dateSuffix = document.getElementById('dateSuffix').value.trim() || '15102026';
 
             if (!fileInput.files.length) {
-                alert('Please upload an Excel file first!');
+                alert('Please upload a CSV or Excel file first!');
                 return;
             }
 
             const file = fileInput.files[0];
-            const reader = new FileReader();
+            const isCsv = file.name.endsWith('.csv');
 
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                
-                const sheetName = workbook.SheetNames.length > 1 ? workbook.SheetNames[1] : workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
-
-                processRoster(json, categoryId, templateCourse);
-            };
-
-            reader.readAsArrayBuffer(file);
+            if (isCsv) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const workbook = XLSX.read(text, {type: 'string'});
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+                    processRoster(json, categoryId, templateCourse, dateSuffix);
+                };
+                reader.readAsText(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheetName = workbook.SheetNames.length > 1 ? workbook.SheetNames[1] : workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+                    processRoster(json, categoryId, templateCourse, dateSuffix);
+                };
+                reader.readAsArrayBuffer(file);
+            }
         });
 
         function slugify(text) {
             return (text || 'Unknown').toString().replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
         }
 
-        function processRoster(data, categoryId, templateCourse) {
+        function processRoster(data, categoryId, templateCourse, dateSuffix) {
             let uniqueCourses = {};
-            let studentEnrols = [];
+            let userEnrols = [];
+            let teacherMap = {};
 
             data.forEach(row => {
-                const courseCode = row['Course Code'] || row['CourseCode'] || '';
-                const staffRaw = row['Staff Incharge'] || row['Staff'] || 'Unknown';
-                const shiftRaw = row['Shift'] || '';
-                const courseTitle = row['Course Title'] || row['CourseTitle'] || 'Untitled Course';
+                const courseCode = row['coursecode'] || row['Course Code'] || row['CourseCode'] || '';
+                const courseTitle = row['coursetitle'] || row['Course Title'] || row['CourseTitle'] || 'Untitled Course';
+                const staffId = row['staffid'] || row['Staff ID'] || row['StaffId'] || '';
+                const staffName = row['staffname'] || row['Staff Incharge'] || row['Staff'] || '.';
                 
-                const staffSlug = slugify(staffRaw);
-                const shiftSlug = slugify(shiftRaw);
-                const shortname = `${courseCode}_${shiftSlug}_${staffSlug}`;
-                const fullname = `${courseTitle} (${shiftRaw} - ${staffRaw})`;
+                const shortname = dateSuffix ? `${courseCode}_${dateSuffix}` : courseCode;
+                const fullname = `${courseCode} - ${courseTitle}`;
 
                 if (courseCode && !uniqueCourses[shortname]) {
                     uniqueCourses[shortname] = {
@@ -227,11 +241,12 @@
                     };
                 }
 
-                const regNo = row['Reg. Nol'] || row['RegNo'] || row['Username'] || '';
-                const name = row['Name'] || '.';
+                // Enrol Student
+                const regNo = row['regdno'] || row['Reg. Nol'] || row['RegNo'] || row['Username'] || '';
+                const name = row['name'] || row['Name'] || '.';
                 
                 if (regNo && courseCode) {
-                    studentEnrols.push({
+                    userEnrols.push({
                         username: regNo.toString().trim().toLowerCase(),
                         firstname: name,
                         lastname: '.',
@@ -239,13 +254,29 @@
                         role1: 'student'
                     });
                 }
+
+                // Enrol Teacher (editingteacher)
+                if (staffId && courseCode) {
+                    const teacherUsername = staffId.toString().trim().toLowerCase();
+                    const key = `${shortname}_${teacherUsername}`;
+                    if (!teacherMap[key]) {
+                        teacherMap[key] = true;
+                        userEnrols.push({
+                            username: teacherUsername,
+                            firstname: staffName,
+                            lastname: '.',
+                            course1: shortname,
+                            role1: 'editingteacher'
+                        });
+                    }
+                }
             });
 
             const coursesCsv = convertToCsv(Object.values(uniqueCourses));
-            const studentsCsv = convertToCsv(studentEnrols);
+            const usersCsv = convertToCsv(userEnrols);
 
             downloadFile('automated_courses_upload.csv', coursesCsv);
-            setTimeout(() => downloadFile('automated_students_upload.csv', studentsCsv), 500);
+            setTimeout(() => downloadFile('automated_users_upload.csv', usersCsv), 500);
 
             const status = document.getElementById('statusMessage');
             status.style.display = 'block';
