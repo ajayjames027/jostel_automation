@@ -1,0 +1,83 @@
+Course_Shortname,Course_Code,Faculty_Name,Faculty_ID,Status,Quiz_URL
+23UBC53SP01_15102026,23UBC53SP01,Dr I Carol,16TIT02,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13615
+23UBO53SP01_15102026,23UBO53SP01,Dr A Johny Kumar Tagore,18FBO01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13616
+23UBU53SP01A_15102026,23UBU53SP01A,Mr B Ananda Raj,26SBU51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13617
+23UBU53SP01B_15102026,23UBU53SP01B,Ms P Sindhuja,26SBU52,"ERROR: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6bec89d55+5a55]
+	chromedriver!(No symbol) [0x7ff6bebaf540]
+	chromedriver!(No symbol) [0x7ff6be9d45fd]
+	chromedriver!(No symbol) [0x7ff6bea2fca1]
+	chromedriver!(No symbol) [0x7ff6bea2ff6c]
+	chromedriver!(No symbol) [0x7ff6bea83077]
+	chromedriver!(No symbol) [0x7ff6bea7fcd9]
+	chromedriver!(No symbol) [0x7ff6bea21a12]
+	chromedriver!(No symbol) [0x7ff6bea22823]
+	chromedriver!GetHandleVerifier [0x7ff6bf0a04b1+41c1b1]
+	chromedriver!GetHandleVerifier [0x7ff6bf0ce26b+449f6b]
+	chromedriver!GetHandleVerifier [0x7ff6bf0c274e+43e44e]
+	chromedriver!GetHandleVerifier [0x7ff6bed832fe+feffe]
+	chromedriver!(No symbol) [0x7ff6bebbcb55]
+	chromedriver!(No symbol) [0x7ff6bebb7f64]
+	chromedriver!(No symbol) [0x7ff6bebb80f4]
+	chromedriver!(No symbol) [0x7ff6beba2e4c]
+	KERNEL32!BaseThreadInitThunk [0x7ffae402cdf7+17]
+	ntdll!RtlUserThreadStart [0x7ffae477ee4c+2c]
+",N/A
+23UCC53SP01A_15102026,23UCC53SP01A,Dr J Arputha Sahaya Raj,12TCM06,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13619
+23UCC53SP01B_15102026,23UCC53SP01B,Dr B Fathima Mary,14tcc01,"ERROR: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6bec89d55+5a55]
+	chromedriver!(No symbol) [0x7ff6bebaf540]
+	chromedriver!(No symbol) [0x7ff6be9d45fd]
+	chromedriver!(No symbol) [0x7ff6bea2fca1]
+	chromedriver!(No symbol) [0x7ff6bea2ff6c]
+	chromedriver!(No symbol) [0x7ff6bea83077]
+	chromedriver!(No symbol) [0x7ff6bea7fcd9]
+	chromedriver!(No symbol) [0x7ff6bea21a12]
+	chromedriver!(No symbol) [0x7ff6bea22823]
+	chromedriver!GetHandleVerifier [0x7ff6bf0a04b1+41c1b1]
+	chromedriver!GetHandleVerifier [0x7ff6bf0ce26b+449f6b]
+	chromedriver!GetHandleVerifier [0x7ff6bf0c274e+43e44e]
+	chromedriver!GetHandleVerifier [0x7ff6bed832fe+feffe]
+	chromedriver!(No symbol) [0x7ff6bebbcb55]
+	chromedriver!(No symbol) [0x7ff6bebb7f64]
+	chromedriver!(No symbol) [0x7ff6bebb80f4]
+	chromedriver!(No symbol) [0x7ff6beba2e4c]
+	KERNEL32!BaseThreadInitThunk [0x7ffae402cdf7+17]
+	ntdll!RtlUserThreadStart [0x7ffae477ee4c+2c]
+",N/A
+23UCH53SP01_15102026,23UCH53SP01,Dr A S Stella Shalini,12FCH02,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13620
+23UCO53SP01A_15102026,23UCO53SP01A,Dr S Aruldass,18FCO03,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13621
+23UCS53SP01_15102026,23UCS53SP01,Dr G Arockia Sahaya Sheela,24FCS02,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13622
+23UEC53SP01_15102026,23UEC53SP01,Dr G Iruthayaraj,01FEC07,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13623
+23UEL53SP01B_15102026,23UEL53SP01B,Dr K Priyadharshini,24CEL52,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13624
+23UEN53SP01_15102026,23UEN53SP01,Ms A Annie Lumina,26SEN51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13613
+23UHS53SP01_15102026,23UHS53SP01,Dr M Britto Stalin,21FHS01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13625
+23UMA53SP01_15102026,23UMA53SP01,Dr R Lenin,18FMA02,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13626
+23UPH53SP01_15102026,23UPH53SP01,Dr A J Clement Lourduraj,12FPH02,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13627
+23UST53SP01_15102026,23UST53SP01,Dr J Glorypersial,16FST01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13628
+23UTA53SP01_15102026,23UTA53SP01,Dr J Saleth,22FTA01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13629
+23UVC53SP01_15102026,23UVC53SP01,Ms K Ramya,21CVC51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13630
+24UAI53SP01_15102026,24UAI53SP01,Dr J Hirudhaya Mary Asha,25CAI51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13614
+24UCB53SP01_15102026,24UCB53SP01,Dr V Benhar Charles,26SCB51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13618
+25PAI3SL03_15102026,25PAI3SL03,Mr C Mohanraja,26SAI52,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13631
+25PBI3SL03_15102026,25PBI3SL03,Mr T Antony Diwakar Chandran,01TBI05,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13632
+25PBO3SL03_15102026,25PBO3SL03,Dr M Francis Sathiyaseelan,07FPB03,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13633
+25PBT3SL03_15102026,25PBT3SL03,Dr Asha Monica,23CBT51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13634
+25PCA3SL03_15102026,25PCA3SL03,Dr George Gabriel Richard Roy,23FCS02,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13635
+25PCC3SL03_15102026,25PCC3SL03,Dr B Fathima Mary,14TCC01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13636
+25PCH3SL03_15102026,25PCH3SL03,Dr A Edwin Vasu,07FCH01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13637
+25PCO3SL03_15102026,25PCO3SL03,Dr V Bastin Jerome,07FCM12,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13638
+25PCP3SL03_15102026,25PCP3SL03,Mr V S Sarabeshwaraa,26scp51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13639
+25PCS3SL03_15102026,25PCS3SL03,Dr D Richard,16TIT01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13640
+25PDS3SL03_15102026,25PDS3SL03,Dr M Kriushanth,21CDS51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13641
+25PEC3SL03_15102026,25PEC3SL03,Dr J Vasantha Arockia Selvi,14FEC01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13642
+25PEL3SL03A_15102026,25PEL3SL03A,Dr P Subbuthai,20CEL51,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13643
+25PEN3SL03_15102026,25PEN3SL03,Ms G Annie Rose,21FEN01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13644
+25PHR3SL03_15102026,25PHR3SL03,Mr G Louis Victor,13FHR02,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13645
+25PHS3SL03_15102026,25PHS3SL03,Mr M R Gowtham Rajan,26CHS52,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13646
+25PMA3SL03_15102026,25PMA3SL03,Dr J Amalorpava Jerline,18FMA01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13647
+25PPH3SL03A_15102026,25PPH3SL03A,Dr A Maggie Dayana,07FPH01,"ERROR: HTTPConnectionPool(host='localhost', port=56650): Read timed out. (read timeout=120)",N/A
+25PTA3SL03_15102026,25PTA3SL03,Dr R Murali Krishnan,16TTA05,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13649
+25PVC3SL03_15102026,25PVC3SL03,Dr S Tamilarasi,14TBV01,EMPTY (No Questions Uploaded),https://service.sjctni.edu/jostel/moodle/mod/quiz/view.php?id=13650

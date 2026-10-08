@@ -1,0 +1,90 @@
+1472 |   5 | <div class="flex justify-center">
+1473 |   5 | <button @click="downloadMoodleDeploymentKit" :disabled="allocatedStudents.length === 0" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 text-white font-black text-lg py-4 px-8 rounded-xl shadow-lg transition flex items-center gap-3">
+1474 |   5 | <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+1475 |   5 | Download Auto-Pilot Deployment Kit (.zip)
+1476 |   5 | </button>
+1477 |   4 | </div>
+1478 |   3 | </div>
+1479 |   2 | </div>
+1480 |   1 | </div>
+1481 |   1 | 
+1482 |   1 | <!-- CMS MANAGER TAB -->
+1483 |   2 | <div v-show="activeTab === 'cms'" class="space-y-6 max-w-5xl mx-auto pb-20">
+1484 |   3 | <div class="flex justify-between items-end flex-wrap gap-4">
+1485 |   4 | <div>
+1486 |   4 | <h2 class="text-2xl font-bold text-slate-800">Faculty Hub CMS Engine</h2>
+1487 |   4 | <p class="text-slate-500 text-sm">Manage dynamic web content injected directly into the live public Faculty Resources portal.</p>
+1488 |   3 | </div>
+1489 |   3 | <button @click="publishCMSToCloud" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition flex items-center gap-2">
+1490 |   3 | <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V6m0 0l-3 3m3-3l3 3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+1491 |   3 | Publish to Public Web
+1492 |   3 | </button>
+1493 |   2 | </div>
+1494 |   2 | 
+1495 |   3 | <div v-show="cmsStatus" class="p-3 bg-rose-50 text-rose-700 border border-rose-200 rounded font-bold text-sm">
+1496 |   3 | {{ cmsStatus }}
+1497 |   2 | </div>
+1498 |   2 | 
+1499 |   2 | <!-- Videos Management -->
+1500 |   3 | <div class="glass-panel p-6 bg-white border-t-4 border-rose-500">
+1501 |   4 | <div class="flex justify-between mb-4">
+1502 |   4 | <h3 class="text-lg font-bold text-slate-800">Training Video Modules</h3>
+1503 |   4 | <button @click="cmsData.videos.push({title:'New Training Module', desc:'Description here...', embedUrl:'https://', thumbUrl:''})" class="text-rose-600 text-sm font-bold bg-rose-50 px-3 py-1 rounded hover:bg-rose-100">+ Add Video</button>
+1504 |   3 | </div>
+1505 |   3 | 
+1506 |   4 | <div class="space-y-4">
+1507 |   5 | <div v-for="(vid, i) in cmsData.videos" :key="'v'+i" class="p-4 border rounded relative bg-gray-50/50">
+1508 |   5 | <button @click="cmsData.videos.splice(i,1)" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-xl">&times;</button>
+1509 |   5 | <input type="text" v-model="vid.title" class="futuristic-input font-bold text-slate-800 mb-2" placeholder="Video Title">
+1510 |   5 | <input type="text" v-model="vid.desc" class="futuristic-input text-slate-600 text-sm mb-2" placeholder="Short description">
+1511 |   5 | <input type="text" v-model="vid.embedUrl" class="futuristic-input text-blue-600 text-sm font-mono mb-2" placeholder="Target Link (e.g. YouTube)">
+1512 |   5 | <input type="text" v-model="vid.thumbUrl" class="futuristic-input text-gray-500 text-sm" placeholder="Image Thumbnail URL (Unsplash or Imgur)">
+1513 |   4 | </div>
+1514 |   4 | <div v-if="cmsData.videos.length===0" class="text-center text-gray-500 text-sm py-4">No video modules. Everything is hidden on the web.</div>
+1515 |   3 | </div>
+1516 |   2 | </div>
+1517 |   2 | 
+1518 |   2 | <!-- Template Management -->
+1519 |   3 | <div class="glass-panel p-6 bg-white border-t-4 border-indigo-500">
+1520 |   4 | <div class="flex justify-between mb-4">
+1521 |   4 | <h3 class="text-lg font-bold text-slate-800">Downloadable Templates</h3>
+1522 |   4 | <button @click="cmsData.templates.push({title:'New Template', tag:'DOCX', desc:'Description here...', url:'#'})" class="text-indigo-600 text-sm font-bold bg-indigo-50 px-3 py-1 rounded hover:bg-indigo-100">+ Add Template</button>
+1523 |   3 | </div>
+1524 |   3 | 
+1525 |   4 | <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+1526 |   5 | <div v-for="(tmp, i) in cmsData.templates" :key="'t'+i" class="p-4 border rounded relative bg-gray-50/50 flex flex-col gap-2">
+1527 |   5 | <button @click="cmsData.templates.splice(i,1)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 font-bold">&times;</button>
+1528 |   6 | <div class="flex gap-2">
+1529 |   6 | <input type="text" v-model="tmp.tag" class="futuristic-input font-black uppercase text-xs w-24 text-center text-indigo-700 bg-indigo-50" placeholder="TAG">
+1530 |   6 | <input type="text" v-model="tmp.title" class="futuristic-input font-bold text-slate-800 flex-1" placeholder="Template Name">
+1531 |   5 | </div>
+1532 |   5 | <input type="text" v-model="tmp.desc" class="futuristic-input text-slate-600 text-xs" placeholder="Description">
+1533 |   6 | <div class="flex flex-wrap items-center gap-2 mt-auto">
+1534 |   6 | <input type="text" v-model="tmp.url" class="futuristic-input text-blue-600 text-xs font-mono flex-1 mb-0" placeholder="Download Link URL">
+1535 |   6 | <label class="cursor-pointer bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold px-3 py-1.5 rounded text-xs whitespace-nowrap transition border border-indigo-200 shadow-sm">
+1536 |   6 | <input type="file" class="hidden" @change="uploadTemplateFile($event, i)">
+1537 |   6 | Upload File
+1538 |   6 | </label>
+1539 |   5 | </div>
+1540 |   4 | </div>
+1541 |   3 | </div>
+1542 |   3 | <div v-if="cmsData.templates.length===0" class="text-center text-gray-500 text-sm py-4">No templates active.</div>
+1543 |   2 | </div>
+1544 |   1 | </div>
+1545 |   1 | 
+1546 |   0 | </div>
+1547 |   0 | 
+1548 |  -1 | </div>
+1549 |  -2 | </div>
+1550 |  -2 | 
+1551 |  -2 | <script>
+1552 |  -2 | // Non-blocking lazy Firebase module loader
+1553 |  -2 | async function initFirebase() {
+1554 |  -2 | if (window.fsDb && window.fsSetDoc && window.fsDoc && window.fsGetDoc && window.fsStorage) {
+1555 |  -2 | return { db: window.fsDb, setDoc: window.fsSetDoc, doc: window.fsDoc, getDoc: window.fsGetDoc, storage: window.fsStorage, ref: window.fsRef, uploadBytes: window.fsUpload, getDownloadURL: window.fsGetUrl };
+1556 |  -2 | }
+1557 |  -2 | try {
+1558 |  -2 | const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js");
+1559 |  -2 | const { getFirestore, doc, setDoc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+1560 |  -2 | const { getStorage, ref, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js");
+1561 |  -2 | 

@@ -1,0 +1,5 @@
+﻿Category,Sub_Category,Course_Shortname,Course_Name,Quiz_Name,Faculty_Email,Quiz_Start,Quiz_End,Subnet_IP
+2026-2027 A.Y.,II UG,B Com,B Com,04 Oct 2026_B Com,georgegabrielrichardroy_cs1@mail.sjctni.edu,04-10-2026 08:30,04-10-2026 09:30,192.168.1.0/24
+2026-2027 A.Y.,II UG,B Sc Computer Science,B Sc Computer Science,04 Oct 2026_B Sc Computer Science,georgegabrielrichardroy_cs1@mail.sjctni.edu,04-10-2026 08:30,04-10-2026 09:30,192.168.1.0/24
+2026-2027 A.Y.,II UG,B Com Computer Application,B Com Computer Application,04 Oct 2026_B Com Computer Application,georgegabrielrichardroy_cs1@mail.sjctni.edu,04-10-2026 09:40,04-10-2026 10:40,192.168.1.0/24
+2026-2027 A.Y.,II UG,B Com Computer Application,B Com Computer Application,test_2,georgegabrielrichardroy_cs1@mail.sjctni.edu,04-10-2026 09:40,04-10-2026 10:40,192.168.1.0/24

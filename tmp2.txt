@@ -1,0 +1,18 @@
+97: <div class="sidebar-item" :class="{'active': activeTab === 'overview'}" @click="activeTab = 'overview'">
+103: <div class="sidebar-item" :class="{'active': activeTab === 'labs'}" @click="activeTab = 'labs'">
+110: <div class="sidebar-item" :class="{'active': activeTab === 'timetable'}" @click="activeTab = 'timetable'">
+114: <div class="sidebar-item" :class="{'active': activeTab === 'seating'}" @click="activeTab = 'seating'">
+120: <div class="sidebar-item" :class="{'active': activeTab === 'docs'}" @click="activeTab = 'docs'">
+124: <div class="sidebar-item" :class="{'active': activeTab === 'invigilators'}" @click="activeTab = 'invigilators'">
+130: <div class="sidebar-item" :class="{'active': activeTab === 'moodle'}" @click="activeTab = 'moodle'" style="display: none;">
+136: <div class="sidebar-item" :class="{'active': activeTab === 'cms'}" @click="activeTab = 'cms'">
+142: <div class="sidebar-item" :class="{'active': activeTab === 'studentLookup'}" @click="activeTab = 'studentLookup'">
+152: <div v-show="activeTab === 'overview'" class="space-y-6 max-w-6xl mx-auto pb-20">
+247: <div v-show="activeTab === 'labs'" class="space-y-6 max-w-5xl mx-auto pb-20">
+305: <div v-show="activeTab === 'timetable'" class="space-y-4 max-w-6xl mx-auto pb-20 h-full flex flex-col">
+637: <div v-show="activeTab === 'seating'" class="space-y-4 max-w-6xl mx-auto pb-20 h-full flex flex-col">
+689: <div v-show="activeTab === 'docs'" class="space-y-6 max-w-5xl mx-auto pb-20 h-full">
+756: <div v-show="activeTab === 'invigilators'" class="space-y-6 max-w-6xl mx-auto pb-20 h-full">
+1288: <div v-show="activeTab === 'studentLookup'" class="space-y-6 max-w-4xl mx-auto pb-20 h-full">
+1442: <div v-show="activeTab === 'moodle'" class="space-y-6 max-w-5xl mx-auto pb-20 h-full">
+1483: <div v-show="activeTab === 'cms'" class="space-y-6 max-w-5xl mx-auto pb-20">

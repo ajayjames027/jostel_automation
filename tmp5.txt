@@ -1,0 +1,29 @@
+1532: 8 | <input type="text" v-model="tmp.url" class="futuristic-input text-blue-600 text-xs font-mono flex-1 mb-0" placeholder="Download Link URL">
+1533: 8 | <label class="cursor-pointer bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold px-3 py-1.5 rounded text-xs whitespace-nowrap transition border border-indigo-200 shadow-sm">
+1534: 8 | <input type="file" class="hidden" @change="uploadTemplateFile($event, i)">
+1535: 8 | Upload File
+1536: 8 | </label>
+1537: 7 | </div>
+1538: 6 | </div>
+1539: 5 | </div>
+1540: 5 | <div v-if="cmsData.templates.length===0" class="text-center text-gray-500 text-sm py-4">No templates active.</div>
+1541: 4 | </div>
+1542: 3 | </div>
+1543: 3 | 
+1544: 2 | </div>
+1545: 2 | 
+1546: 1 | </div>
+1547: 0 | </div>
+1548: 0 | 
+1549: 0 | <script>
+1550: 0 | // Non-blocking lazy Firebase module loader
+1551: 0 | async function initFirebase() {
+1552: 0 | if (window.fsDb && window.fsSetDoc && window.fsDoc && window.fsGetDoc && window.fsStorage) {
+1553: 0 | return { db: window.fsDb, setDoc: window.fsSetDoc, doc: window.fsDoc, getDoc: window.fsGetDoc, storage: window.fsStorage, ref: window.fsRef, uploadBytes: window.fsUpload, getDownloadURL: window.fsGetUrl };
+1554: 0 | }
+1555: 0 | try {
+1556: 0 | const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js");
+1557: 0 | const { getFirestore, doc, setDoc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+1558: 0 | const { getStorage, ref, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js");
+1559: 0 | 
+1560: 0 | const firebaseConfig = {

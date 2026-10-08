@@ -1,0 +1,97 @@
+1288: 4 | <div v-show="activeTab === 'studentLookup'" class="space-y-6 max-w-4xl mx-auto pb-20 h-full">
+1289: 5 | <div class="flex flex-wrap justify-between items-end gap-4">
+1290: 6 | <div>
+1293: 5 | </div>
+1294: 6 | <div class="flex items-center gap-2">
+1303: 5 | </div>
+1304: 4 | </div>
+1307: 5 | <div v-if="allocatedStudents.length === 0" class="glass-panel p-10 text-center text-amber-800 bg-amber-50 border border-amber-200 rounded-xl">
+1311: 4 | </div>
+1313: 5 | <div v-else class="space-y-6">
+1315: 6 | <div class="glass-panel p-6 bg-white border border-gray-200 rounded-2xl shadow-sm">
+1317: 7 | <div class="relative">
+1323: 6 | </div>
+1324: 7 | <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
+1327: 6 | </div>
+1328: 5 | </div>
+1331: 6 | <div v-if="matchedStudents.length > 0" class="space-y-4">
+1333: 7 | <div v-if="matchedStudents.length > 1" class="glass-panel p-3 bg-slate-100 rounded-xl flex items-center gap-2 overflow-x-auto text-xs">
+1338: 6 | </div>
+1341: 7 | <div v-if="selectedStudentAdmit" class="glass-panel bg-white border-2 border-blue-500 rounded-2xl shadow-xl overflow-hidden animate-fade-in-up">
+1343: 8 | <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-6 flex flex-wrap justify-between items-center gap-4">
+1344: 9 | <div class="flex items-center gap-4">
+1345: 10 | <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+1347: 9 | </div>
+1348: 10 | <div>
+1349: 10 | <div class="text-[10px] uppercase font-bold tracking-widest text-blue-200">Venue Navigator</div>
+1351: 9 | </div>
+1352: 8 | </div>
+1353: 7 | </div>
+1356: 8 | <div class="p-6 space-y-6">
+1358: 9 | <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b border-gray-200">
+1359: 10 | <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+1360: 10 | <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Candidate Name</div>
+1361: 10 | <div class="text-lg font-black text-slate-800 mt-0.5 truncate">{{ selectedStudentAdmit.Name }}</div>
+1362: 9 | </div>
+1363: 10 | <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+1364: 10 | <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Register Number</div>
+1365: 10 | <div class="text-lg font-mono font-black text-blue-800 mt-0.5">{{ selectedStudentAdmit['Reg No'] }}</div>
+1366: 9 | </div>
+1367: 10 | <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+1368: 10 | <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Department / Class</div>
+1369: 10 | <div class="text-lg font-bold text-slate-800 mt-0.5 truncate">{{ selectedStudentAdmit.Class }}</div>
+1370: 9 | </div>
+1371: 8 | </div>
+1374: 9 | <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+1375: 10 | <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border-2 border-blue-200 flex items-center gap-4">
+1376: 11 | <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/30">
+1378: 10 | </div>
+1379: 11 | <div>
+1380: 11 | <div class="text-xs font-bold uppercase tracking-wider text-blue-600">Assigned Exam Venue / Lab</div>
+1381: 11 | <div class="text-2xl font-black text-blue-950">{{ selectedStudentAdmit['Lab Room'] }}</div>
+1382: 11 | <div class="text-xs text-blue-700 font-semibold mt-0.5">Please report directly to this laboratory</div>
+1383: 10 | </div>
+1384: 9 | </div>
+1386: 10 | <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-2xl border-2 border-emerald-200 flex items-center gap-4">
+1387: 11 | <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-600/30">
+1389: 10 | </div>
+1390: 11 | <div>
+1391: 11 | <div class="text-xs font-bold uppercase tracking-wider text-emerald-600">Computer Terminal / Seat ID</div>
+1392: 11 | <div class="text-2xl font-black text-emerald-950">PC # {{ selectedStudentAdmit['Seat Number'] }}</div>
+1393: 11 | <div class="text-xs text-emerald-700 font-semibold mt-0.5">Dedicated workstation reserved for you</div>
+1394: 10 | </div>
+1395: 9 | </div>
+1396: 8 | </div>
+1399: 9 | <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 flex flex-wrap justify-between items-center gap-3">
+1400: 10 | <div class="flex items-center gap-3">
+1401: 11 | <div class="w-10 h-10 rounded-lg bg-amber-200 text-amber-800 flex items-center justify-center font-bold">
+1403: 10 | </div>
+1404: 11 | <div>
+1405: 11 | <div class="text-xs font-bold text-amber-800 uppercase">Scheduled Exam Date</div>
+1406: 11 | <div class="text-base font-black text-amber-950">{{ selectedStudentAdmit.Date }}</div>
+1407: 10 | </div>
+1408: 9 | </div>
+1409: 10 | <div class="flex items-center gap-3">
+1410: 11 | <div class="w-10 h-10 rounded-lg bg-amber-200 text-amber-800 flex items-center justify-center font-bold">
+1412: 10 | </div>
+1413: 11 | <div>
+1414: 11 | <div class="text-xs font-bold text-amber-800 uppercase">Exam Time Slot</div>
+1415: 11 | <div class="text-base font-black text-amber-950">{{ selectedStudentAdmit.Timing }}</div>
+1416: 10 | </div>
+1417: 9 | </div>
+1418: 8 | </div>
+1421: 9 | <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
+1422: 9 | <div class="font-bold text-slate-800 uppercase mb-1">Important Instructions for Candidates:</div>
+1426: 8 | </div>
+1427: 7 | </div>
+1428: 6 | </div>
+1429: 5 | </div>
+1432: 6 | <div v-else-if="studentSearchQuery" class="glass-panel p-8 text-center text-gray-500 bg-white border rounded-2xl">
+1434: 6 | <div class="font-bold text-base text-gray-700">No student found matching "{{ studentSearchQuery }}"</div>
+1435: 6 | <div class="text-xs text-gray-400 mt-1">Please double check the Register Number format (e.g. 24UCO101) or try searching by candidate name.</div>
+1436: 5 | </div>
+1437: 4 | </div>
+1438: 3 | </div>
+1439: 2 | </div>
+1442: 3 | <div v-show="activeTab === 'moodle'" class="space-y-6 max-w-5xl mx-auto pb-20 h-full">
+1443: 4 | <div class="bg-orange-50 p-8 rounded-2xl border-2 border-orange-200">

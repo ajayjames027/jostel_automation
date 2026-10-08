@@ -1,0 +1,31 @@
+1422: 9 | <div class="font-bold text-slate-800 uppercase mb-1">Important Instructions for Candidates:</div>
+1426: 8 | </div>
+1427: 7 | </div>
+1428: 6 | </div>
+1429: 5 | </div>
+1432: 6 | <div v-else-if="studentSearchQuery" class="glass-panel p-8 text-center text-gray-500 bg-white border rounded-2xl">
+1434: 6 | <div class="font-bold text-base text-gray-700">No student found matching "{{ studentSearchQuery }}"</div>
+1435: 6 | <div class="text-xs text-gray-400 mt-1">Please double check the Register Number format (e.g. 24UCO101) or try searching by candidate name.</div>
+1436: 5 | </div>
+1437: 4 | </div>
+1438: 3 | </div>
+1439: 2 | </div>
+1442: 3 | <div v-show="activeTab === 'moodle'" class="space-y-6 max-w-5xl mx-auto pb-20 h-full">
+1443: 4 | <div class="bg-orange-50 p-8 rounded-2xl border-2 border-orange-200">
+1444: 5 | <div class="flex items-center gap-4 mb-4">
+1445: 6 | <div class="bg-orange-100 p-3 rounded-full border border-orange-300">
+1447: 5 | </div>
+1448: 6 | <div>
+1451: 5 | </div>
+1452: 4 | </div>
+1454: 5 | <div class="bg-white rounded-xl p-6 shadow-sm border border-orange-100 mb-6">
+1470: 4 | </div>
+1472: 5 | <div class="flex justify-center">
+1477: 4 | </div>
+1478: 3 | </div>
+1479: 2 | </div>
+1480: 1 | </div>
+1483: 2 | <div v-show="activeTab === 'cms'" class="space-y-6 max-w-5xl mx-auto pb-20">
+1484: 3 | <div class="flex justify-between items-end flex-wrap gap-4">
+1485: 4 | <div>
+1488: 3 | </div>

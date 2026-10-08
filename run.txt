@@ -1,0 +1,72 @@
+end_spl.csv
+
+categoryid=962
+quiz template --> Template_SL_End
+
+course name - coursecode - title
+course shortname - coursecode_date
+keep the quiz name as course code_date
+
+
+set the following ip as extra restriction for all quiz: 172.16.123.,172.16.139.,172.16.140.,172.16.109.
+
+
+default list: python Moodle_Defaulter_Scanner_Bot.py
+
+timing: python Moodle_Quiz_Timing_Bot.py
+
+ip setting: python Moodle_Quiz_Timing_Bot.py
+-----
+
+--
+
+o run and execute the bots, you don't need to upload them anywhere online—they run locally on your own computer or server where Python and Google Chrome are installed.
+
+Here is the exact step-by-step process of where and how to use them:
+
+Step 1: Download the Files
+Go to the live master web portal: https://ajayjames027.github.io/jostel_automation/ (or click Moodle Deploy Engine & Bots inside the Exam Operations Platform).
+Click Download for:
+
+master_exam_automation.py
+ (The complete interactive bot suite)
+Or any individual bot script you need (e.g., 
+
+Moodle_Quiz_Timing_Bot.py
+).
+Step 2: Where to Place the Files on Your Computer
+Put the downloaded 
+
+.py
+ script files inside a folder on your computer (for example: C:\Users\ajayj\Downloads\jostel_quiz or any folder of your choice).
+
+Make sure the following inputs are in the same folder:
+
+Student_Roster.xlsx or .csv (Your candidate list).
+Timetable.pdf (The exam timetable PDF for start/end time extraction).
+Step 3: Run the Bot Suite in Your Terminal / Command Prompt
+Open your terminal or Command Prompt (cmd or PowerShell) in that folder and run:
+
+bash
+python master_exam_automation.py
+📋 Interactive Menu Options:
+When you run the command above, an interactive menu will pop up in your command window:
+
+text
+==================================================
+        MASTER EXAM AUTOMATION SUITE
+==================================================
+ 1. Process Roster CSV/Excel (Generate Courses & Groups)
+ 2. Parse Timetable PDF (Extract Exam Dates & Slots)
+ 3. Run Quiz Timing & IP Lock Bot (Selenium Auto-Pilot)
+ 4. Run Bulk Quiz Renamer Bot (Standardize Quiz Names)
+ 5. Run Defaulter Faculty Auditor (Scan for Empty Quizzes)
+ 6. Run FULL Suite (Sequential Auto-Pilot)
+ 0. Exit
+==================================================
+Select an option (0-6):
+🌐 Alternative: Browser-Based Defaulter Finder (No Python Required)
+If you just want to check which faculty haven't uploaded questions without running Python, you can run the scanner live in your browser:
+
+Go to: https://ajayjames027.github.io/jostel_automation/Empty_Quiz_Finder.html
+Click "Scan Quizzes Now" to scan Moodle live and download the Defaulter CSV report in 1-click!
