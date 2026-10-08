@@ -485,12 +485,24 @@ createApp({
             try {
                 const url = `${this.moodleUrl}/webservice/rest/server.php?wstoken=${this.apiToken}&wsfunction=mod_quiz_get_quizzes_by_courses&moodlewsrestformat=json`;
                 const res = await fetch(url);
-                const data = await res.json();
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch(jsonErr) {
+                    console.warn("Moodle response was not JSON:", text);
+                    // Server returned HTML (e.g. firewall/SSO/VPN page or 404/500 page)
+                    this.quizzes = [];
+                    return;
+                }
+
                 if (data && data.quizzes) {
                     this.quizzes = data.quizzes;
+                } else if (data && data.exception) {
+                    console.warn("Moodle Exception:", data.message);
                 }
             } catch(e) {
-                alert(`Error rescanning: ${e.message}`);
+                console.error("Error rescanning quizzes:", e.message);
             } finally {
                 this.isLoading = false;
             }
