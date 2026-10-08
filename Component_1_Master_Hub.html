@@ -126,10 +126,10 @@
                 Invigilator Remuneration
             </div>
             
-            <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2 mt-4 px-2" style="display: none;">LMS Integration</div>
-            <div class="sidebar-item" :class="{'active': activeTab === 'moodle'}" @click="activeTab = 'moodle'" style="display: none;">
+            <div class="text-xs font-bold text-orange-500 uppercase tracking-wider mb-2 mt-4 px-2">LMS Integration</div>
+            <div class="sidebar-item" :class="{'active': activeTab === 'moodle'}" @click="activeTab = 'moodle'">
                 <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
-                Moodle Deploy Engine
+                Moodle Deploy Engine & Bots
             </div>
             
             <div class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-2 mt-4 px-2">Web Architecture</div>
@@ -1456,6 +1456,44 @@
                         <div>
                             <h2 class="text-2xl font-black text-orange-900">Moodle Server Deployment Kit</h2>
                             <p class="text-orange-700 font-medium">Auto-Pilot sync engine bridging physical timetables straight into Moodle automated setups.</p>
+                        </div>
+                    <!-- Bot Scripts Download Box -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm border border-orange-200 mb-6 space-y-4">
+                        <h3 class="font-bold text-slate-800 border-b pb-2 flex items-center justify-between">
+                            <span>🤖 Download Automation Bots & Master Suite:</span>
+                            <a href="Empty_Quiz_Finder.html" target="_blank" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm transition">
+                                🔍 Open Live Defaulter Quiz Finder ↗
+                            </a>
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <a href="master_exam_automation.py" download class="p-3 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-sm">master_exam_automation.py</div>
+                                    <div class="text-[10px] text-blue-200">Interactive Master CLI Suite (All-in-One)</div>
+                                </div>
+                                <span class="bg-blue-700 px-2 py-1 rounded text-xs font-bold">Download ⬇️</span>
+                            </a>
+                            <a href="Moodle_Quiz_Timing_Bot.py" download class="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-sm">Moodle_Quiz_Timing_Bot.py</div>
+                                    <div class="text-[10px] text-blue-100">Timing & IP Lock Automation Bot</div>
+                                </div>
+                                <span class="bg-blue-500 px-2 py-1 rounded text-xs font-bold">Download ⬇️</span>
+                            </a>
+                            <a href="Moodle_Quiz_Renamer_Bot.py" download class="p-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-sm">Moodle_Quiz_Renamer_Bot.py</div>
+                                    <div class="text-[10px] text-indigo-100">Bulk Quiz Renaming Bot</div>
+                                </div>
+                                <span class="bg-indigo-500 px-2 py-1 rounded text-xs font-bold">Download ⬇️</span>
+                            </a>
+                            <a href="Moodle_Defaulter_Scanner_Bot.py" download class="p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-sm">Moodle_Defaulter_Scanner_Bot.py</div>
+                                    <div class="text-[10px] text-purple-100">Defaulter Faculty & Empty Quiz Auditor Bot</div>
+                                </div>
+                                <span class="bg-purple-500 px-2 py-1 rounded text-xs font-bold">Download ⬇️</span>
+                            </a>
                         </div>
                     </div>
                     
