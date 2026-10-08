@@ -36,9 +36,9 @@
             border-radius: 12px;
         }
         .tab-btn {
-            padding: 12px 20px;
-            font-weight: 600;
-            font-size: 0.95rem;
+            padding: 14px 24px;
+            font-weight: 700;
+            font-size: 1rem;
             border-bottom: 3px solid transparent;
             transition: all 0.2s;
             cursor: pointer;
@@ -87,7 +87,7 @@
             1️⃣ Bulk Upload CSV Generator
         </button>
         <button @click="currentTab = 'step2'" :class="['tab-btn', currentTab === 'step2' ? 'active' : 'text-gray-500 hover:text-gray-800']">
-            2️⃣ Master Bot Orchestrator
+            2️⃣ Master Bot Orchestrator & Downloads
         </button>
         <button @click="currentTab = 'step3'" :class="['tab-btn', currentTab === 'step3' ? 'active' : 'text-gray-500 hover:text-gray-800']">
             3️⃣ Defaulter Faculty Auditor
@@ -135,11 +135,30 @@
         </div>
     </div>
 
-    <!-- TAB 2: MASTER BOT ORCHESTRATOR -->
+    <!-- TAB 2: MASTER BOT ORCHESTRATOR & SCRIPT DOWNLOADS -->
     <div v-if="currentTab === 'step2'" class="glass-panel p-6 space-y-6">
         <div class="border-b pb-4">
-            <h2 class="text-xl font-bold text-primary">Step 2: Master Exam Automation Bot</h2>
-            <p class="text-sm text-gray-500">Run automated scripts to parse timetable PDF, set quiz timings, apply subnet IP locks, and rename quizzes.</p>
+            <h2 class="text-xl font-bold text-primary">Step 2: Master Exam Automation Bot & Script Downloads</h2>
+            <p class="text-sm text-gray-500">Download terminal bot scripts or copy execution commands to automate quiz timings, subnet IP locks, and quiz renames.</p>
+        </div>
+
+        <!-- Download Buttons Bar -->
+        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
+            <h3 class="font-bold text-primary text-sm uppercase">⬇️ Download Python Bot Scripts Directly:</h3>
+            <div class="flex flex-wrap gap-3">
+                <a href="master_exam_automation.py" download class="bg-primary hover:bg-blue-900 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition-colors">
+                    📥 master_exam_automation.py (All-in-One CLI)
+                </a>
+                <a href="Moodle_Quiz_Timing_Bot.py" download class="bg-secondary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition-colors">
+                    📥 Moodle_Quiz_Timing_Bot.py
+                </a>
+                <a href="Moodle_Quiz_Renamer_Bot.py" download class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition-colors">
+                    📥 Moodle_Quiz_Renamer_Bot.py
+                </a>
+                <a href="Moodle_Defaulter_Scanner_Bot.py" download class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition-colors">
+                    📥 Moodle_Defaulter_Scanner_Bot.py
+                </a>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
