@@ -125,9 +125,12 @@
                     <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                     <h3 class="font-bold text-base text-gray-800">Filters</h3>
                 </div>
-                <span class="badge-pill bg-blue-100 text-primary font-mono text-[11px]">
-                    {{ filteredAllQuizzes.length }} / {{ quizzes.length }}
-                </span>
+                <div class="flex items-center gap-1">
+                    <svg v-if="isFetchingQuizzes" class="animate-spin h-3.5 w-3.5 text-blue-600 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <span class="badge-pill bg-blue-100 text-primary font-mono text-[11px]">
+                        {{ filteredAllQuizzes.length }} Qz
+                    </span>
+                </div>
             </div>
 
             <!-- Quick Keyword Live Search -->
@@ -137,7 +140,7 @@
                     <span v-if="searchQuery" @click="searchQuery=''" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear</span>
                 </label>
                 <div class="relative">
-                    <input v-model="searchQuery" type="text" placeholder="Search Quiz, Course code, Name..." class="pr-7 text-xs">
+                    <input v-model="searchQuery" @input="onSearchQueryChange" type="text" placeholder="Search Quiz, Course code, Name..." class="pr-7 text-xs">
                     <svg class="w-4 h-4 text-gray-400 absolute right-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
             </div>
@@ -146,13 +149,13 @@
             <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Shift / Stream</label>
                 <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg">
-                    <button @click="selectedShift = 'all'" :class="selectedShift === 'all' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                    <button @click="setShift('all')" :class="selectedShift === 'all' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
                         All
                     </button>
-                    <button @click="selectedShift = 'shift1'" :class="selectedShift === 'shift1' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                    <button @click="setShift('shift1')" :class="selectedShift === 'shift1' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
                         Shift 1
                     </button>
-                    <button @click="selectedShift = 'shift2'" :class="selectedShift === 'shift2' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                    <button @click="setShift('shift2')" :class="selectedShift === 'shift2' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
                         Shift 2
                     </button>
                 </div>
@@ -218,8 +221,9 @@
             <!-- Quiz Selector -->
             <div class="grid grid-cols-4 gap-2">
                 <div class="col-span-3">
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                        Quiz ({{ filteredQuizzes.length }})
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>Quiz ({{ filteredQuizzes.length }})</span>
+                        <span v-if="isFetchingQuizzes" class="text-[10px] text-blue-600 font-normal animate-pulse">Fetching...</span>
                     </label>
                     <select v-model="selectedQuiz" class="text-xs">
                         <option value="">All Quizzes ({{ filteredQuizzes.length }})</option>
@@ -248,17 +252,21 @@
             <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200 gap-3">
                 <div>
                     <h2 class="text-lg font-bold text-gray-800">Scan Results</h2>
-                    <p class="text-xs text-gray-500" v-if="isLoading">Scanning live courses and question counts...</p>
-                    <p class="text-xs text-gray-500" v-else>Found <strong class="text-gray-900">{{ filteredAllQuizzes.length }}</strong> matching quizzes (Showing <strong class="text-red-600">{{ filteredEmptyQuizzes.length }}</strong> empty quizzes without questions).</p>
+                    <p class="text-xs text-gray-500" v-if="isFetchingQuizzes">
+                        <span class="inline-block animate-spin mr-1">↻</span> Fetching live quiz structures across courses...
+                    </p>
+                    <p class="text-xs text-gray-500" v-else>
+                        Found <strong class="text-gray-900">{{ filteredAllQuizzes.length }}</strong> matching quizzes (Showing <strong class="text-red-600">{{ filteredEmptyQuizzes.length }}</strong> empty quizzes without questions).
+                    </p>
                 </div>
                 <div class="flex gap-2 flex-wrap">
-                    <button @click="rescan" :disabled="isLoading" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3.5 py-2 rounded-lg shadow-sm font-semibold text-xs transition-colors disabled:opacity-50 flex items-center gap-1.5">
+                    <button @click="rescan" :disabled="isLoading || isFetchingQuizzes" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3.5 py-2 rounded-lg shadow-sm font-semibold text-xs transition-colors disabled:opacity-50 flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         {{ isLoading ? 'Scanning...' : 'Rescan All' }}
                     </button>
                     <button @click="exportCSV" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg shadow-sm font-semibold text-xs transition-colors disabled:opacity-50 flex items-center gap-1.5" :disabled="filteredEmptyQuizzes.length === 0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        Export Empty Quizzes
+                        Export Empty Quizzes ({{ filteredEmptyQuizzes.length }})
                     </button>
                 </div>
             </div>
@@ -325,13 +333,23 @@
                                 </td>
                             </tr>
                         </tbody>
-                        <tbody v-else-if="!isLoading">
+                        <tbody v-else-if="!isLoading && !isFetchingQuizzes">
                             <tr>
                                 <td colspan="5" class="text-center py-14 text-gray-400 font-medium">
                                     <div v-if="filteredAllQuizzes.length === 0" class="text-sm">No quizzes match your filter criteria.</div>
                                     <div v-else class="text-emerald-600 text-base font-bold flex flex-col items-center justify-center gap-2">
                                         <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        <span>All quizzes in this selection have question papers uploaded!</span>
+                                        <span>All {{ filteredAllQuizzes.length }} quizzes in this selection have question papers uploaded!</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody v-else-if="isFetchingQuizzes">
+                            <tr>
+                                <td colspan="5" class="text-center py-12 text-blue-600 font-medium">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <svg class="animate-spin h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                        <span>Fetching quiz data for courses...</span>
                                     </div>
                                 </td>
                             </tr>
@@ -353,11 +371,13 @@ createApp({
             moodleUrl: 'https://service.sjctni.edu/jostel/moodle',
             isConnected: false,
             isLoading: false,
+            isFetchingQuizzes: false,
             status: '',
             
             categories: [],
             courses: [],
             quizzes: [],
+            loadedCourseQuizIds: new Set(),
             
             // Filters
             searchQuery: '',
@@ -365,7 +385,8 @@ createApp({
             courseShortnameInput: '',
             selectedCategory: '',
             selectedCourse: '',
-            selectedQuiz: ''
+            selectedQuiz: '',
+            searchDebounceTimer: null
         }
     },
     computed: {
@@ -445,20 +466,24 @@ createApp({
         },
         filteredEmptyQuizzes() {
             return this.filteredAllQuizzes.filter(q => {
-                if (q.hasquestions !== undefined) {
+                if (q.hasquestions !== undefined && q.hasquestions !== null) {
                     return q.hasquestions == 0;
                 }
-                if (q.sumgrades !== undefined) {
-                    return parseFloat(q.sumgrades) === 0 || q.sumgrades === null;
+                if (q.sumgrades !== undefined && q.sumgrades !== null) {
+                    return parseFloat(q.sumgrades) === 0;
                 }
                 return false;
             });
         }
     },
     watch: {
-        selectedCategory() {
+        async selectedCategory(newVal) {
             this.selectedCourse = '';
             this.selectedQuiz = '';
+            if (newVal) {
+                await this.$nextTick();
+                this.triggerFetchForFilteredCourses();
+            }
         },
         async selectedCourse(newVal) {
             this.selectedQuiz = '';
@@ -467,16 +492,7 @@ createApp({
                 if (c && c.shortname) {
                     this.courseShortnameInput = c.shortname;
                 }
-                try {
-                    const qzs = await this.request('mod_quiz_get_quizzes_by_courses', `&courseids[0]=${newVal}`);
-                    if (qzs && qzs.quizzes) {
-                        qzs.quizzes.forEach(newQ => {
-                            if (!this.quizzes.find(ex => ex.id == newQ.id)) {
-                                this.quizzes.push(newQ);
-                            }
-                        });
-                    }
-                } catch(e) { } 
+                await this.fetchQuizzesForCourses([newVal]);
             }
         }
     },
@@ -497,8 +513,9 @@ createApp({
         },
         async rescan() {
             this.isLoading = true;
-            this.status = 'Fetching Data Hierarchy...';
+            this.status = 'Fetching Course Hierarchy...';
             this.quizzes = [];
+            this.loadedCourseQuizIds.clear();
             
             try {
                 // Fetch Categories
@@ -513,17 +530,52 @@ createApp({
                     this.courses = Array.isArray(crs) ? crs.filter(c => c.id !== 1) : []; 
                 } catch(e) { this.courses = []; }
                 
-                // Fetch all visible Quizzes
-                const qzs = await this.request('mod_quiz_get_quizzes_by_courses');
-                if (qzs && qzs.quizzes) {
-                    this.quizzes = qzs.quizzes;
-                }
-
                 this.status = '';
+                // Automatically fetch quizzes for initial visible category/courses
+                this.triggerFetchForFilteredCourses();
             } catch (error) {
                 this.status = `Connection failed: ${error.message}`;
             } finally {
                 this.isLoading = false;
+            }
+        },
+        async fetchQuizzesForCourses(courseIds) {
+            if (!courseIds || courseIds.length === 0) return;
+            const missing = courseIds.filter(id => !this.loadedCourseQuizIds.has(id));
+            if (missing.length === 0) return;
+            
+            missing.forEach(id => this.loadedCourseQuizIds.add(id));
+            this.isFetchingQuizzes = true;
+
+            const chunkSize = 40;
+            for (let i = 0; i < missing.length; i += chunkSize) {
+                const chunk = missing.slice(i, i + chunkSize);
+                let params = '';
+                chunk.forEach((cid, idx) => {
+                    params += `&courseids[${idx}]=${cid}`;
+                });
+                try {
+                    const res = await this.request('mod_quiz_get_quizzes_by_courses', params);
+                    if (res && res.quizzes) {
+                        res.quizzes.forEach(newQ => {
+                            const exIdx = this.quizzes.findIndex(ex => ex.id == newQ.id);
+                            if (exIdx === -1) {
+                                this.quizzes.push(newQ);
+                            } else {
+                                this.quizzes[exIdx] = newQ;
+                            }
+                        });
+                    }
+                } catch(e) {
+                    console.warn('Quiz batch fetch error', e);
+                }
+            }
+            this.isFetchingQuizzes = false;
+        },
+        triggerFetchForFilteredCourses() {
+            const courseIds = this.filteredCourses.map(c => c.id);
+            if (courseIds.length > 0 && courseIds.length <= 150) {
+                this.fetchQuizzesForCourses(courseIds);
             }
         },
         getCourseShortname(courseId) {
@@ -544,10 +596,15 @@ createApp({
             if (exact) {
                 this.selectedCourse = exact.id;
             }
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = setTimeout(() => {
+                this.triggerFetchForFilteredCourses();
+            }, 300);
         },
         clearCourseShortname() {
             this.courseShortnameInput = '';
             this.selectedCourse = '';
+            this.triggerFetchForFilteredCourses();
         },
         onCourseSelectChange() {
             if (this.selectedCourse) {
@@ -556,6 +613,18 @@ createApp({
                     this.courseShortnameInput = c.shortname;
                 }
             }
+        },
+        onSearchQueryChange() {
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = setTimeout(() => {
+                this.triggerFetchForFilteredCourses();
+            }, 300);
+        },
+        setShift(shift) {
+            this.selectedShift = shift;
+            this.$nextTick(() => {
+                this.triggerFetchForFilteredCourses();
+            });
         },
         formatDate(timestamp) {
             if (!timestamp) return 'No close date';

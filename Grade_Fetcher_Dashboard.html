@@ -125,9 +125,12 @@
                     <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                     <h3 class="font-bold text-base text-gray-800">Search & Filters</h3>
                 </div>
-                <span class="badge-pill bg-blue-100 text-primary font-mono text-[11px]">
-                    {{ filteredQuizzes.length }} / {{ quizzes.length }} Qz
-                </span>
+                <div class="flex items-center gap-1">
+                    <svg v-if="isFetchingQuizzes" class="animate-spin h-3.5 w-3.5 text-blue-600 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <span class="badge-pill bg-blue-100 text-primary font-mono text-[11px]">
+                        {{ filteredQuizzes.length }} Qz
+                    </span>
+                </div>
             </div>
 
             <!-- Quick Keyword Live Search -->
@@ -137,7 +140,7 @@
                     <span v-if="quickKeyword" @click="quickKeyword=''" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear</span>
                 </label>
                 <div class="relative">
-                    <input v-model="quickKeyword" type="text" placeholder="Search Quiz, Course code, Name..." class="pr-7 text-xs">
+                    <input v-model="quickKeyword" @input="onQuickKeywordChange" type="text" placeholder="Search Quiz, Course code, Name..." class="pr-7 text-xs">
                     <svg class="w-4 h-4 text-gray-400 absolute right-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
             </div>
@@ -146,13 +149,13 @@
             <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Shift / Stream</label>
                 <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg">
-                    <button @click="selectedShift = 'all'" :class="selectedShift === 'all' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                    <button @click="setShift('all')" :class="selectedShift === 'all' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
                         All
                     </button>
-                    <button @click="selectedShift = 'shift1'" :class="selectedShift === 'shift1' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                    <button @click="setShift('shift1')" :class="selectedShift === 'shift1' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
                         Shift 1
                     </button>
-                    <button @click="selectedShift = 'shift2'" :class="selectedShift === 'shift2' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                    <button @click="setShift('shift2')" :class="selectedShift === 'shift2' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
                         Shift 2
                     </button>
                 </div>
@@ -218,8 +221,9 @@
             <!-- Quiz Selector -->
             <div class="grid grid-cols-4 gap-2">
                 <div class="col-span-3">
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                        Quiz ({{ filteredQuizzes.length }})
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>Quiz ({{ filteredQuizzes.length }})</span>
+                        <span v-if="isFetchingQuizzes" class="text-[10px] text-blue-600 font-normal animate-pulse">Fetching...</span>
                     </label>
                     <select v-model="selectedQuiz" class="text-xs">
                         <option value="">All Quizzes ({{ filteredQuizzes.length }})</option>
@@ -270,7 +274,7 @@
 
             <!-- Action Buttons -->
             <div class="flex gap-2 pt-2">
-                <button @click="searchRecords" :disabled="isLoading" class="flex-1 bg-primary hover:bg-primaryHover text-white font-bold py-2.5 rounded-lg transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs">
+                <button @click="searchRecords" :disabled="isLoading || isFetchingQuizzes" class="flex-1 bg-primary hover:bg-primaryHover text-white font-bold py-2.5 rounded-lg transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs">
                     <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                     <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     <span>{{ isLoading ? 'SCANNING...' : 'SEARCH ATTEMPTS' }}</span>
@@ -406,12 +410,14 @@ createApp({
             moodleUrl: 'https://service.sjctni.edu/jostel/moodle',
             isConnected: false,
             isLoading: false,
+            isFetchingQuizzes: false,
             status: '',
             statusType: 'info',
             
             categories: [],
             courses: [],
             quizzes: [],
+            loadedCourseQuizIds: new Set(),
             
             // Filters
             quickKeyword: '',
@@ -423,6 +429,7 @@ createApp({
             fromDate: '',
             toDate: '',
             studentSearch: '',
+            searchDebounceTimer: null,
             
             scannedAttempts: [] // Fetched attempt rows
         }
@@ -548,30 +555,22 @@ createApp({
         }
     },
     watch: {
-        selectedCategory() {
+        async selectedCategory(newVal) {
             this.selectedCourse = '';
             this.selectedQuiz = '';
+            if (newVal) {
+                await this.$nextTick();
+                this.triggerFetchForFilteredCourses();
+            }
         },
         async selectedCourse(newVal) {
             this.selectedQuiz = '';
             if (newVal) {
-                // Auto sync courseShortnameInput if exact course selected
                 const c = this.courses.find(item => item.id == newVal);
                 if (c && c.shortname) {
                     this.courseShortnameInput = c.shortname;
                 }
-                
-                // Pull quizzes for this course if not already loaded
-                try {
-                    const qzs = await this.request('mod_quiz_get_quizzes_by_courses', `&courseids[0]=${newVal}`);
-                    if (qzs && qzs.quizzes) {
-                        qzs.quizzes.forEach(newQ => {
-                            if (!this.quizzes.find(ex => ex.id == newQ.id)) {
-                                this.quizzes.push(newQ);
-                            }
-                        });
-                    }
-                } catch(e) { }
+                await this.fetchQuizzesForCourses([newVal]);
             }
         }
     },
@@ -599,6 +598,8 @@ createApp({
             }
             this.isLoading = true;
             this.setStatus('Authenticating & loading course hierarchy...');
+            this.loadedCourseQuizIds.clear();
+            this.quizzes = [];
             
             try {
                 // Fetch Categories
@@ -612,17 +613,53 @@ createApp({
                     const crs = await this.request('core_course_get_courses');
                     this.courses = Array.isArray(crs) ? crs.filter(c => c.id !== 1) : []; // skip site course
                 } catch(e) { this.courses = []; }
-                
-                // Fetch all visible Quizzes
-                const qzs = await this.request('mod_quiz_get_quizzes_by_courses');
-                this.quizzes = qzs.quizzes || [];
 
                 this.isConnected = true;
                 this.setStatus('');
+                this.triggerFetchForFilteredCourses();
             } catch (error) {
                 this.setStatus(`Connection failed: ${error.message}`, 'error');
             } finally {
                 this.isLoading = false;
+            }
+        },
+        async fetchQuizzesForCourses(courseIds) {
+            if (!courseIds || courseIds.length === 0) return;
+            const missing = courseIds.filter(id => !this.loadedCourseQuizIds.has(id));
+            if (missing.length === 0) return;
+            
+            missing.forEach(id => this.loadedCourseQuizIds.add(id));
+            this.isFetchingQuizzes = true;
+
+            const chunkSize = 40;
+            for (let i = 0; i < missing.length; i += chunkSize) {
+                const chunk = missing.slice(i, i + chunkSize);
+                let params = '';
+                chunk.forEach((cid, idx) => {
+                    params += `&courseids[${idx}]=${cid}`;
+                });
+                try {
+                    const res = await this.request('mod_quiz_get_quizzes_by_courses', params);
+                    if (res && res.quizzes) {
+                        res.quizzes.forEach(newQ => {
+                            const exIdx = this.quizzes.findIndex(ex => ex.id == newQ.id);
+                            if (exIdx === -1) {
+                                this.quizzes.push(newQ);
+                            } else {
+                                this.quizzes[exIdx] = newQ;
+                            }
+                        });
+                    }
+                } catch(e) {
+                    console.warn('Quiz batch fetch error', e);
+                }
+            }
+            this.isFetchingQuizzes = false;
+        },
+        triggerFetchForFilteredCourses() {
+            const courseIds = this.filteredCourses.map(c => c.id);
+            if (courseIds.length > 0 && courseIds.length <= 150) {
+                this.fetchQuizzesForCourses(courseIds);
             }
         },
         getCourseShortname(courseId) {
@@ -639,15 +676,19 @@ createApp({
                 this.selectedCourse = '';
                 return;
             }
-            // If exact match found with course shortname, auto select it
             const exact = this.courses.find(c => c.shortname && c.shortname.toLowerCase() === term);
             if (exact) {
                 this.selectedCourse = exact.id;
             }
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = setTimeout(() => {
+                this.triggerFetchForFilteredCourses();
+            }, 300);
         },
         clearCourseShortname() {
             this.courseShortnameInput = '';
             this.selectedCourse = '';
+            this.triggerFetchForFilteredCourses();
         },
         onCourseSelectChange() {
             if (this.selectedCourse) {
@@ -656,6 +697,18 @@ createApp({
                     this.courseShortnameInput = c.shortname;
                 }
             }
+        },
+        onQuickKeywordChange() {
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = setTimeout(() => {
+                this.triggerFetchForFilteredCourses();
+            }, 300);
+        },
+        setShift(shift) {
+            this.selectedShift = shift;
+            this.$nextTick(() => {
+                this.triggerFetchForFilteredCourses();
+            });
         },
         setDatePreset(preset) {
             const today = new Date();
