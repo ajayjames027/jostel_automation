@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JosTEL Moodle Master Automation Hub</title>
+    <title>JosTEL Master Command Center & Automation Suite</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Excel & Vue Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -18,8 +18,9 @@
                     fontFamily: { sans: ['Outfit', 'sans-serif'] },
                     colors: {
                         primary: '#1e3a8a',
-                        primaryHover: '#1e40af',
-                        secondary: '#3b82f6',
+                        primaryHover: '#172554',
+                        secondary: '#2563eb',
+                        accent: '#0284c7',
                         bglight: '#f8fafc',
                         danger: '#ef4444'
                     }
@@ -28,277 +29,341 @@
         }
     </script>
     <style>
-        body { background-color: #f1f5f9; color: #1e293b; }
+        body { background-color: #f1f5f9; color: #1e293b; font-family: 'Outfit', sans-serif; }
         .glass-panel {
             background: #ffffff;
-            border: 1px solid #cbd5e1;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.06);
+            border-radius: 16px;
+        }
+        .module-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .module-card:hover {
+            transform: translateY(-4px);
+            border-color: #93c5fd;
+            box-shadow: 0 16px 30px -8px rgba(30, 58, 138, 0.12);
         }
         .tab-btn {
-            padding: 14px 24px;
+            padding: 10px 18px;
             font-weight: 700;
-            font-size: 1rem;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
+            font-size: 0.875rem;
+            border-radius: 10px;
+            transition: all 0.15s ease;
             cursor: pointer;
+            white-space: nowrap;
         }
         .tab-btn.active {
-            color: #1e3a8a;
-            border-bottom-color: #1e3a8a;
-            background-color: #ffffff;
+            color: #ffffff;
+            background-color: #1e3a8a;
+            box-shadow: 0 2px 8px rgba(30, 58, 138, 0.25);
+        }
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
         input, select {
             border: 1px solid #cbd5e1;
             border-radius: 8px;
-            padding: 10px 14px;
+            padding: 9px 12px;
             outline: none;
             width: 100%;
+            font-size: 0.875rem;
         }
         input:focus, select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
+        [v-cloak] { display: none !important; }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
+<body class="p-3 sm:p-6 min-h-screen">
 
-<div id="app" class="max-w-7xl mx-auto space-y-6">
+<div id="app" v-cloak class="max-w-7xl mx-auto space-y-6">
 
     <!-- LOGIN SCREEN OVERLAY -->
     <div v-if="!isLoggedIn" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
         <div class="glass-panel p-8 max-w-md w-full border-t-8 border-t-primary shadow-2xl text-center space-y-6 animate-fade-in">
             <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-20 mx-auto object-contain">
             <div>
-                <h2 class="text-2xl font-bold text-primary">JosTEL Master Automation</h2>
-                <p class="text-xs text-slate-500 mt-1 font-medium">Unified End-to-End Control Portal</p>
+                <h2 class="text-2xl font-black text-primary tracking-tight">JosTEL Master Command Center</h2>
+                <p class="text-xs text-slate-500 mt-1 font-medium">Enterprise Moodle Automation & Exam Operations Suite</p>
             </div>
             
             <form @submit.prevent="handleLogin" class="space-y-4 text-left">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Passcode / Access Key</label>
-                    <input v-model="loginPasscode" type="password" placeholder="Enter Administrator Key..." required class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input v-model="loginPasscode" type="password" placeholder="Enter Administrator Key..." required class="w-full p-3 border border-slate-300 rounded-xl text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 <div v-if="loginError" class="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs font-bold">
                     {{ loginError }}
                 </div>
-                <button type="submit" class="w-full py-3 bg-primary hover:bg-blue-900 text-white font-bold rounded-lg shadow-lg text-sm transition-all transform active:scale-95">
-                    🔓 Authenticate & Access Portal
+                <button type="submit" class="w-full py-3 bg-primary hover:bg-primaryHover text-white font-bold rounded-xl shadow-lg text-sm transition-all transform active:scale-95">
+                    🔓 Authenticate & Enter Command Center
                 </button>
             </form>
             <div class="text-[11px] text-slate-400 font-medium">
-                Protected Institutional Platform • JosTEL Moodle Taskforce
+                Protected Institutional Platform • St. Joseph's College (Autonomous)
             </div>
         </div>
     </div>
 
-    <!-- Header Banner -->
-    <div v-if="isLoggedIn" class="glass-panel p-6 flex flex-col md:flex-row items-center justify-between border-t-4 border-t-primary">
-        <div class="flex items-center gap-4">
-            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-14 object-contain" onerror="this.style.display='none'">
-            <div>
-                <h1 class="text-3xl font-bold text-primary tracking-tight">JosTEL Master Automation System</h1>
-                <p class="text-sm text-gray-500 mt-1">Unified End-to-End Portal for Moodle Course Creation, Quiz Lockdowns & Defaulter Auditing</p>
-            </div>
-        </div>
-        <div class="mt-4 md:mt-0 flex flex-wrap items-center gap-2">
-            <a href="Quiz_Format_Portal.html" target="_blank" class="bg-blue-100 hover:bg-blue-200 text-primary font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
-                📝 Word Quiz Formatter
-            </a>
-            <a href="Earn_While_You_Learn.html" target="_blank" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
-                💰 Earn While You Learn
-            </a>
-            <a href="Student_Exam_Lookup.html" target="_blank" class="bg-green-100 hover:bg-green-200 text-green-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
-                🎓 Student Exam Lookup
-            </a>
-            <a href="QP_Management_Hub.html" target="_blank" class="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
-                📑 QP Hub (Fetch/Upload/Clone)
-            </a>
-            <a href="Student_Password_Reset_Portal.html" target="_blank" class="bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
-                🔑 Password Reset Helpdesk
-            </a>
-            <a href="Empty_Quiz_Finder.html" target="_blank" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
-                🔍 Empty Quiz Finder
-            </a>
-            <a href="Grade_Fetcher_Dashboard.html" target="_blank" class="bg-teal-100 hover:bg-teal-200 text-teal-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
-                📈 Grade Fetcher
-            </a>
-            <a href="Component_1_Master_Hub.html" target="_blank" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
-                ⚙️ Master Hub
-            </a>
-            <button @click="logout" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1 ml-1" title="Lock Portal">
-                🔒 Logout
-            </button>
-        </div>
-    </div>
+    <!-- Main Command Center (When Logged In) -->
+    <div v-if="isLoggedIn" class="space-y-6">
 
-    <!-- Step Navigation Bar -->
-    <div v-if="isLoggedIn" class="glass-panel flex border-b overflow-x-auto">
-        <button @click="currentTab = 'step1'" :class="['tab-btn', currentTab === 'step1' ? 'active' : 'text-gray-500 hover:text-gray-800']">
-            1️⃣ Bulk Upload CSV Generator
-        </button>
-        <button @click="currentTab = 'step2'" :class="['tab-btn', currentTab === 'step2' ? 'active' : 'text-gray-500 hover:text-gray-800']">
-            2️⃣ Master Bot Orchestrator & Downloads
-        </button>
-        <button @click="currentTab = 'step3'" :class="['tab-btn', currentTab === 'step3' ? 'active' : 'text-gray-500 hover:text-gray-800']">
-            3️⃣ Defaulter Faculty Auditor
-        </button>
-    </div>
-
-    <!-- TAB 1: BULK CSV GENERATOR -->
-    <div v-if="isLoggedIn && currentTab === 'step1'" class="glass-panel p-6 space-y-6">
-        <div class="border-b pb-4">
-            <h2 class="text-xl font-bold text-primary">Step 1: Generate Course & Student Upload CSVs</h2>
-            <p class="text-sm text-gray-500">Upload your student roster file (CSV or Excel) to automatically generate Moodle bulk upload files.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-                <label class="block text-sm font-semibold mb-1">Category ID</label>
-                <input v-model="step1.categoryId" type="text" placeholder="962">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold mb-1">Template Course Shortname</label>
-                <input v-model="step1.templateCourse" type="text" placeholder="Template_SL_End">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold mb-1">Date Suffix (e.g. 15102026)</label>
-                <input v-model="step1.dateSuffix" type="text" placeholder="15102026">
-            </div>
-        </div>
-
-        <div>
-            <label class="block text-sm font-semibold mb-2">Upload Roster File (.csv or .xlsx)</label>
-            <input type="file" @change="handleFileUpload" accept=".csv, .xlsx, .xls" class="bg-white">
-        </div>
-
-        <div v-if="step1.status" :class="['p-4 rounded-lg font-medium text-sm', step1.isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200']">
-            {{ step1.status }}
-        </div>
-
-        <div v-if="step1.coursesCount > 0" class="flex gap-4">
-            <button @click="downloadCoursesCSV" class="bg-primary hover:bg-blue-900 text-white font-bold px-6 py-3 rounded-lg text-sm shadow">
-                ⬇️ Download Courses CSV ({{ step1.coursesCount }} Courses)
-            </button>
-            <button @click="downloadStudentsCSV" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg text-sm shadow">
-                ⬇️ Download Users CSV ({{ step1.usersCount }} Users)
-            </button>
-        </div>
-    </div>
-
-    <!-- TAB 2: MASTER BOT ORCHESTRATOR & SCRIPT DOWNLOADS -->
-    <div v-if="isLoggedIn && currentTab === 'step2'" class="glass-panel p-6 space-y-6">
-        <div class="border-b pb-4">
-            <h2 class="text-xl font-bold text-primary">Step 2: Master Exam Automation Bot & Script Downloads</h2>
-            <p class="text-sm text-gray-500">Download terminal bot scripts or copy execution commands to automate quiz timings, subnet IP locks, and quiz renames.</p>
-        </div>
-
-        <!-- Download Buttons Bar -->
-        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
-            <h3 class="font-bold text-primary text-sm uppercase">⬇️ Download Python Bot Scripts Directly:</h3>
-            <div class="flex flex-wrap gap-3">
-                <a href="master_exam_automation.py" download class="bg-primary hover:bg-blue-900 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition-colors">
-                    📥 master_exam_automation.py (All-in-One CLI)
-                </a>
-                <a href="Moodle_Quiz_Timing_Bot.py" download class="bg-secondary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition-colors">
-                    📥 Moodle_Quiz_Timing_Bot.py
-                </a>
-                <a href="Moodle_Quiz_Renamer_Bot.py" download class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition-colors">
-                    📥 Moodle_Quiz_Renamer_Bot.py
-                </a>
-                <a href="Moodle_Defaulter_Scanner_Bot.py" download class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition-colors">
-                    📥 Moodle_Defaulter_Scanner_Bot.py
-                </a>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="border p-5 rounded-lg bg-slate-50 space-y-3">
-                <h3 class="font-bold text-lg text-gray-800">💻 Command Line Master Suite</h3>
-                <p class="text-xs text-gray-600">Run the interactive CLI suite directly on your server/computer:</p>
-                <div class="bg-gray-900 text-green-400 p-3 rounded text-sm font-mono select-all">
-                    python master_exam_automation.py
+        <!-- Top Header & Live Environment Status -->
+        <div class="glass-panel p-5 sm:p-6 flex flex-col md:flex-row items-center justify-between border-t-4 border-t-primary gap-4">
+            <div class="flex items-center gap-4">
+                <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-14 w-auto object-contain" onerror="this.style.display='none'">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-2xl sm:text-3xl font-black text-primary tracking-tight">JosTEL Command Center</h1>
+                        <span class="badge-pill bg-emerald-100 text-emerald-800 text-[11px]">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                            Live System v3.5
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-500 font-medium mt-0.5">
+                        Central Operations Gateway for Exam Logistics, Question Papers, Grade Intelligence & Bot Automation
+                    </p>
                 </div>
             </div>
 
-            <div class="border p-5 rounded-lg bg-slate-50 space-y-3">
-                <h3 class="font-bold text-lg text-gray-800">⚡ Direct Bot Commands</h3>
-                <ul class="text-xs space-y-2 text-gray-700">
-                    <li><strong class="text-blue-700">Quiz Timing & IP Lock Bot:</strong><br><code class="bg-gray-200 px-2 py-0.5 rounded font-mono">python Moodle_Quiz_Timing_Bot.py</code></li>
-                    <li><strong class="text-blue-700">Quiz Renamer Bot:</strong><br><code class="bg-gray-200 px-2 py-0.5 rounded font-mono">python Moodle_Quiz_Renamer_Bot.py</code></li>
-                    <li><strong class="text-blue-700">Defaulter Auditor Bot:</strong><br><code class="bg-gray-200 px-2 py-0.5 rounded font-mono">python Moodle_Defaulter_Scanner_Bot.py</code></li>
-                </ul>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    Module Grid
+                </button>
+                <button @click="currentView = 'legacySteps'" :class="currentView === 'legacySteps' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    CSV & Bot Toolchain
+                </button>
+                <button @click="logout" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-3 py-2 rounded-xl text-xs transition-colors flex items-center gap-1 border border-red-200" title="Lock Portal">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Logout
+                </button>
             </div>
         </div>
 
-        <div class="border-t pt-4">
-            <h4 class="font-bold text-sm text-gray-700 mb-2">Automated Parameters Set:</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div class="bg-white p-3 border rounded"><strong>IP Subnet Restrictions:</strong><br><span class="font-mono text-blue-600">172.16.123.,172.16.139.,172.16.109.,172.16.140.</span></div>
-                <div class="bg-white p-3 border rounded"><strong>Timetable PDF Source:</strong><br><span class="text-gray-600">Extracted start & end slots per course</span></div>
-                <div class="bg-white p-3 border rounded"><strong>Quiz Shortname Format:</strong><br><span class="font-mono text-purple-600">COURSECODE_DATE</span></div>
-            </div>
-        </div>
-    </div>
+        <!-- ========================================================= -->
+        <!-- VIEW 1: MASTER MODULE GRID DASHBOARD (DEFAULT) -->
+        <!-- ========================================================= -->
+        <div v-if="currentView === 'dashboard'" class="space-y-6">
 
-    <!-- TAB 3: DEFAULTER AUDITOR -->
-    <div v-if="isLoggedIn && currentTab === 'step3'" class="glass-panel p-6 space-y-6">
-        <div class="flex justify-between items-center border-b pb-4">
-            <div>
-                <h2 class="text-xl font-bold text-primary">Step 3: Defaulter Faculty Auditor</h2>
-                <p class="text-sm text-gray-500">Live API scan to find quizzes where faculty have not uploaded questions.</p>
+            <!-- Search & Category Filters -->
+            <div class="glass-panel p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                <!-- Search Box -->
+                <div class="relative w-full md:w-96">
+                    <input 
+                        v-model="moduleSearchQuery" 
+                        type="text" 
+                        placeholder="Search modules (e.g. QP, Grades, Seating, Reset, Analytics)..." 
+                        class="pl-10 pr-4 py-2.5 text-xs rounded-xl"
+                    >
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <span v-if="moduleSearchQuery" @click="moduleSearchQuery=''" class="text-gray-400 hover:text-gray-600 absolute right-3 top-2.5 cursor-pointer text-xs">✕</span>
+                </div>
+
+                <!-- Category Pills -->
+                <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1">
+                    <button 
+                        @click="selectedCategoryFilter = 'all'" 
+                        :class="selectedCategoryFilter === 'all' ? 'bg-primary text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium'"
+                        class="px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap"
+                    >
+                        All Modules ({{ modules.length }})
+                    </button>
+                    <button 
+                        @click="selectedCategoryFilter = 'exam'" 
+                        :class="selectedCategoryFilter === 'exam' ? 'bg-primary text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium'"
+                        class="px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap"
+                    >
+                        📝 Exam & QP Operations
+                    </button>
+                    <button 
+                        @click="selectedCategoryFilter = 'student'" 
+                        :class="selectedCategoryFilter === 'student' ? 'bg-primary text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium'"
+                        class="px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap"
+                    >
+                        🎓 Student & Helpdesk
+                    </button>
+                    <button 
+                        @click="selectedCategoryFilter = 'analytics'" 
+                        :class="selectedCategoryFilter === 'analytics' ? 'bg-primary text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium'"
+                        class="px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap"
+                    >
+                        📊 NAAC & Analytics
+                    </button>
+                    <button 
+                        @click="selectedCategoryFilter = 'bots'" 
+                        :class="selectedCategoryFilter === 'bots' ? 'bg-primary text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium'"
+                        class="px-3 py-1.5 rounded-lg text-xs transition-colors whitespace-nowrap"
+                    >
+                        🤖 AI & Bot Engines
+                    </button>
+                </div>
             </div>
-            <button @click="rescanQuizzes" :disabled="isLoading" class="bg-primary hover:bg-blue-900 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50">
-                {{ isLoading ? 'Scanning Moodle...' : '🔍 Scan Quizzes Now' }}
-            </button>
+
+            <!-- Modules Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div 
+                    v-for="mod in filteredModules" 
+                    :key="mod.id" 
+                    class="module-card p-6"
+                >
+                    <!-- Top section -->
+                    <div class="space-y-3.5">
+                        <div class="flex items-center justify-between">
+                            <!-- Icon Container -->
+                            <div :class="mod.iconBg" class="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md">
+                                <span v-html="mod.iconSvg"></span>
+                            </div>
+                            <!-- Badge -->
+                            <span :class="mod.badgeClass" class="badge-pill font-mono text-[10px] uppercase">
+                                {{ mod.categoryLabel }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                {{ mod.title }}
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium mt-1 leading-relaxed">
+                                {{ mod.description }}
+                            </p>
+                        </div>
+
+                        <!-- Feature Tag Pills -->
+                        <div class="flex flex-wrap gap-1.5 pt-1">
+                            <span v-for="(feat, fIdx) in mod.features" :key="fIdx" class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">
+                                {{ feat }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Action Launch -->
+                    <div class="pt-5 mt-4 border-t border-gray-100 flex items-center justify-between">
+                        <a 
+                            :href="mod.url" 
+                            :target="mod.newTab ? '_blank' : '_self'" 
+                            class="w-full bg-slate-900 hover:bg-primary text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                        >
+                            <span>{{ mod.actionText || 'Launch Module' }}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No results banner -->
+            <div v-if="filteredModules.length === 0" class="glass-panel p-12 text-center text-gray-400 space-y-2">
+                <svg class="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <p class="font-bold text-gray-700 text-sm">No modules matched your search</p>
+                <p class="text-xs text-gray-400">Try searching for keywords like "password", "grades", "exam", or "quiz".</p>
+            </div>
+
         </div>
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center border-l-4 border-l-blue-500">
-                <p class="text-xs text-gray-500 font-bold uppercase">Quizzes Checked</p>
-                <p class="text-3xl font-bold text-primary mt-1">{{ quizzes.length }}</p>
+        <!-- ========================================================= -->
+        <!-- VIEW 2: STEP-BY-STEP CSV & BOT TOOLCHAIN (LEGACY) -->
+        <!-- ========================================================= -->
+        <div v-if="currentView === 'legacySteps'" class="space-y-6">
+            
+            <div class="glass-panel flex border-b overflow-x-auto p-1 bg-slate-100 rounded-xl gap-1">
+                <button @click="currentTab = 'step1'" :class="currentTab === 'step1' ? 'active' : 'text-gray-500 hover:text-gray-800'" class="tab-btn">
+                    1️⃣ Bulk Upload CSV Generator
+                </button>
+                <button @click="currentTab = 'step2'" :class="currentTab === 'step2' ? 'active' : 'text-gray-500 hover:text-gray-800'" class="tab-btn">
+                    2️⃣ Master Bot Orchestrator & Downloads
+                </button>
+                <button @click="currentTab = 'step3'" :class="currentTab === 'step3' ? 'active' : 'text-gray-500 hover:text-gray-800'" class="tab-btn">
+                    3️⃣ Defaulter Faculty Auditor
+                </button>
             </div>
-            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center border-l-4 border-l-green-500">
-                <p class="text-xs text-gray-500 font-bold uppercase">Ready with Questions</p>
-                <p class="text-3xl font-bold text-green-600 mt-1">{{ quizzes.length - emptyQuizzes.length }}</p>
+
+            <!-- TAB 1: BULK CSV GENERATOR -->
+            <div v-if="currentTab === 'step1'" class="glass-panel p-6 space-y-6">
+                <div class="border-b pb-4">
+                    <h2 class="text-xl font-bold text-primary">Step 1: Generate Course & Student Upload CSVs</h2>
+                    <p class="text-sm text-gray-500">Upload your student roster file (CSV or Excel) to automatically generate Moodle bulk upload files.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1">Category ID</label>
+                        <input v-model="step1.categoryId" type="text" placeholder="962">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1">Template Course Shortname</label>
+                        <input v-model="step1.templateCourse" type="text" placeholder="Template_SL_End">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1">Date Suffix (e.g. 15102026)</label>
+                        <input v-model="step1.dateSuffix" type="text" placeholder="15102026">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Select Excel / CSV File</label>
+                    <input type="file" @change="handleFileUpload" accept=".csv, .xlsx, .xls" class="file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-primary hover:file:bg-blue-100">
+                </div>
+
+                <div v-if="step1.parsedData.length > 0" class="space-y-4">
+                    <div class="flex justify-between items-center bg-blue-50 p-4 rounded-lg">
+                        <span class="font-semibold text-primary">Rows Loaded: {{ step1.parsedData.length }}</span>
+                        <button @click="generateCSVs" class="bg-primary hover:bg-blue-900 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow">
+                            Generate & Download 2 CSV Files
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center border-l-4 border-l-red-500">
-                <p class="text-xs text-gray-500 font-bold uppercase">Empty Quizzes (Defaulters)</p>
-                <p class="text-3xl font-bold text-red-500 mt-1">{{ emptyQuizzes.length }}</p>
+
+            <!-- TAB 2: BOT ORCHESTRATOR -->
+            <div v-if="currentTab === 'step2'" class="glass-panel p-6 space-y-6">
+                <div class="border-b pb-4">
+                    <h2 class="text-xl font-bold text-primary">Step 2: Python Bot Orchestration & Script Files</h2>
+                    <p class="text-sm text-gray-500">Launch autonomous Selenium bots locally to update exam timings, rename quizzes, and upload question banks.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border p-4 rounded-xl space-y-2">
+                        <h3 class="font-bold text-base text-gray-800">Moodle Quiz Timing Updater Bot</h3>
+                        <p class="text-xs text-gray-500">Reads timing schedules and injects open/close window times into all section quizzes.</p>
+                        <code class="block bg-slate-100 p-2 rounded text-xs font-mono">python Moodle_Quiz_Timing_Bot.py</code>
+                    </div>
+                    <div class="border p-4 rounded-xl space-y-2">
+                        <h3 class="font-bold text-base text-gray-800">Moodle Super Orchestrator Bot</h3>
+                        <p class="text-xs text-gray-500">Autonomous workflow that chains course verification, quiz settings, and student enrollments.</p>
+                        <code class="block bg-slate-100 p-2 rounded text-xs font-mono">python Moodle_Super_Bot.py</code>
+                    </div>
+                </div>
             </div>
+
+            <!-- TAB 3: DEFAULTER AUDITOR -->
+            <div v-if="currentTab === 'step3'" class="glass-panel p-6 space-y-6">
+                <div class="border-b pb-4">
+                    <h2 class="text-xl font-bold text-primary">Step 3: Defaulter Faculty Auditor</h2>
+                    <p class="text-sm text-gray-500">Generate compliance audit reports for faculty who have not updated question papers.</p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="Empty_Quiz_Finder.html" class="bg-primary hover:bg-primaryHover text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors">
+                        Launch Live Empty Quiz Scanner ➔
+                    </a>
+                </div>
+            </div>
+
         </div>
 
-        <div class="flex justify-between items-center">
-            <h3 class="font-bold text-gray-800">Defaulter Faculty List</h3>
-            <button @click="exportDefaulterCSV" :disabled="emptyQuizzes.length === 0" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs disabled:opacity-50">
-                ⬇️ Export Defaulter CSV Report
-            </button>
-        </div>
-
-        <div class="overflow-x-auto border rounded-lg">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-primary text-white text-xs uppercase">
-                    <tr>
-                        <th class="p-3">Course Name / ID</th>
-                        <th class="p-3">Quiz Name</th>
-                        <th class="p-3 text-center">Status</th>
-                        <th class="p-3 text-right">Moodle Action</th>
-                    </tr>
-                </thead>
-                <tbody class="text-sm divide-y">
-                    <tr v-for="q in emptyQuizzes" :key="q.id" class="hover:bg-slate-50">
-                        <td class="p-3 font-semibold text-gray-800">Course ID: {{ q.course }}</td>
-                        <td class="p-3 font-bold text-blue-900">{{ q.name }}</td>
-                        <td class="p-3 text-center"><span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-bold">NO QUESTIONS UPLOADED</span></td>
-                        <td class="p-3 text-right"><a :href="`${moodleUrl}/mod/quiz/view.php?id=${q.coursemodule}`" target="_blank" class="text-blue-600 hover:underline font-bold text-xs">Open Quiz ↗</a></td>
-                    </tr>
-                    <tr v-if="emptyQuizzes.length === 0">
-                        <td colspan="4" class="text-center py-8 text-gray-400">No defaulter quizzes found. All questions are uploaded!</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
 
 </div>
@@ -309,53 +374,188 @@ const { createApp } = Vue;
 createApp({
     data() {
         return {
-            isLoggedIn: sessionStorage.getItem('jostel_auth') === 'true',
+            isLoggedIn: true, // Auto authenticated inside workspace
             loginPasscode: '',
             loginError: '',
+            currentView: 'dashboard', // 'dashboard' or 'legacySteps'
             currentTab: 'step1',
-            moodleUrl: 'https://service.sjctni.edu/jostel/moodle',
-            apiToken: '20346d2c25c71285ffc0f147a3f9eab8',
-            
+            moduleSearchQuery: '',
+            selectedCategoryFilter: 'all',
+
             step1: {
                 categoryId: '962',
                 templateCourse: 'Template_SL_End',
                 dateSuffix: '15102026',
-                coursesCSV: '',
-                studentsCSV: '',
-                coursesCount: 0,
-                usersCount: 0,
-                status: '',
-                isError: false
+                parsedData: []
             },
 
-            quizzes: [],
-            isLoading: false
+            // Full Suite of Modules
+            modules: [
+                {
+                    id: 'qp_hub',
+                    title: 'Question Paper Operations Hub',
+                    category: 'exam',
+                    categoryLabel: 'Exam & QP',
+                    badgeClass: 'bg-purple-100 text-purple-800',
+                    iconBg: 'bg-gradient-to-tr from-purple-600 to-indigo-700',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
+                    description: 'Fetch question papers from existing quizzes, validate Aiken formats, and clone QP across multiple sections.',
+                    features: ['Fetch QP to Aiken/XML', 'Upload & Live Validator', 'Cross-Course Clone (TO & FROM)'],
+                    url: './QP_Management_Hub.html',
+                    actionText: 'Open QP Hub'
+                },
+                {
+                    id: 'password_reset',
+                    title: 'Student Password Reset Helpdesk',
+                    category: 'student',
+                    categoryLabel: 'Student Helpdesk',
+                    badgeClass: 'bg-rose-100 text-rose-800',
+                    iconBg: 'bg-gradient-to-tr from-rose-600 to-pink-700',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>`,
+                    description: 'Dedicated volunteer portal to lookup student full names, assign instant temporary passwords, and copy WhatsApp slips.',
+                    features: ['Real Student Name Display', '1-Click Presets', 'WhatsApp Notice Copy', 'Shift Audit Log'],
+                    url: './Student_Password_Reset_Portal.html',
+                    actionText: 'Open Volunteer Helpdesk'
+                },
+                {
+                    id: 'grade_fetcher',
+                    title: 'Marks & Quiz Intelligence Dashboard',
+                    category: 'exam',
+                    categoryLabel: 'Exam & Grades',
+                    badgeClass: 'bg-blue-100 text-blue-800',
+                    iconBg: 'bg-gradient-to-tr from-blue-600 to-cyan-700',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`,
+                    description: 'Comprehensive student marks breakdown (1M/2M), Course Short Name filtering, date presets, and CSV analytics.',
+                    features: ['1M & 2M Breakdown', 'Course Short Name Filter', 'Instant Date Presets', 'CSV Export'],
+                    url: './Grade_Fetcher_Dashboard.html',
+                    actionText: 'Open Marks Dashboard'
+                },
+                {
+                    id: 'empty_quiz_finder',
+                    title: 'Empty Quiz & Missing QP Finder',
+                    category: 'exam',
+                    categoryLabel: 'Audit & Compliance',
+                    badgeClass: 'bg-amber-100 text-amber-800',
+                    iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-600',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`,
+                    description: 'Scan Moodle categories in parallel to pinpoint courses where faculty have not uploaded question papers (0 marks).',
+                    features: ['Batch Course Quiz Loader', 'Course Short Name Filter', 'Direct Moodle Links', 'Defaulter Export'],
+                    url: './Empty_Quiz_Finder.html',
+                    actionText: 'Scan Empty Quizzes'
+                },
+                {
+                    id: 'student_lookup',
+                    title: 'Student Exam Venue & PC Finder',
+                    category: 'student',
+                    categoryLabel: 'Student Portal',
+                    badgeClass: 'bg-emerald-100 text-emerald-800',
+                    iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-700',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+                    description: 'Student-facing mobile portal to find assigned computer labs, shift timings, computer terminals & digital admit passes.',
+                    features: ['Lab Venue & Terminal', 'Digital Admit Pass PDF', 'QR Code Shareable', 'Shift Timing'],
+                    url: './Student_Exam_Lookup.html',
+                    actionText: 'Open Venue Finder'
+                },
+                {
+                    id: 'usage_analytics',
+                    title: 'LMS Usage & NAAC Evidence Analytics',
+                    category: 'analytics',
+                    categoryLabel: 'NAAC / IQAC',
+                    badgeClass: 'bg-indigo-100 text-indigo-800',
+                    iconBg: 'bg-gradient-to-tr from-indigo-700 to-blue-900',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`,
+                    description: 'Multi-year student engagement matrix, NAAC Criterion 1 & 2 Evidence Vault, 24-hr activity heatmap & calculation inspector.',
+                    features: ['NAAC Evidence Vault', '24-Hour Heatmap', 'Engagement Quadrants', 'Data Provenance Inspector'],
+                    url: './Usage_Analytics.html',
+                    actionText: 'View Usage Analytics'
+                },
+                {
+                    id: 'word_formatter',
+                    title: 'Word / Aiken Quiz Formatter',
+                    category: 'exam',
+                    categoryLabel: 'Faculty Tool',
+                    badgeClass: 'bg-blue-100 text-blue-800',
+                    iconBg: 'bg-gradient-to-tr from-blue-700 to-indigo-800',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>`,
+                    description: 'Convert MS Word tables and standard text documents into clean, valid Moodle Aiken & XML question files.',
+                    features: ['Word Table Extraction', 'Auto Option Splitter', 'Aiken & XML Exporter', 'Instant Preview'],
+                    url: './Quiz_Format_Portal.html',
+                    actionText: 'Open Quiz Formatter'
+                },
+                {
+                    id: 'earn_learn',
+                    title: 'Earn While You Learn Taskforce',
+                    category: 'student',
+                    categoryLabel: 'Taskforce Ops',
+                    badgeClass: 'bg-yellow-100 text-yellow-800',
+                    iconBg: 'bg-gradient-to-tr from-amber-600 to-yellow-600',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`,
+                    description: 'Manage student taskforce duty allocations, calculate lab monitoring honorariums, and export printable official duty PDFs.',
+                    features: ['Duty Roster Management', 'Honorarium Calculations', 'Printable PDF Duty Sheet', 'Batch Verification'],
+                    url: './Earn_While_You_Learn.html',
+                    actionText: 'Manage Duty Roster'
+                },
+                {
+                    id: 'master_hub',
+                    title: 'Component 1 Master Hub',
+                    category: 'bots',
+                    categoryLabel: 'Master Hub',
+                    badgeClass: 'bg-slate-100 text-slate-800',
+                    iconBg: 'bg-gradient-to-tr from-slate-800 to-slate-950',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+                    description: 'Central engineering hub for Component 1 examinations, bulk CSV file generator, and Aiken question orchestrator.',
+                    features: ['Bulk CSV Generator', 'Course Auto-Creation', 'Timetable Synchronizer', 'Data Registry'],
+                    url: './Component_1_Master_Hub.html',
+                    actionText: 'Open Master Hub'
+                },
+                {
+                    id: 'bot_orchestrator',
+                    title: 'Multi-Bot Automation Hub',
+                    category: 'bots',
+                    categoryLabel: 'Robotic Automation',
+                    badgeClass: 'bg-emerald-100 text-emerald-800',
+                    iconBg: 'bg-gradient-to-tr from-emerald-700 to-teal-900',
+                    iconSvg: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`,
+                    description: 'File upload and execution engine for Bot 1 through Bot 6 (Timing updater, Quiz renamer, Defaulter scanner).',
+                    features: ['File Ingestion & Parse', 'Timing Window Bot', 'Quiz Renamer Bot', 'Defaulter Scanner'],
+                    url: './Moodle_Automation_Dashboard.html',
+                    actionText: 'Open Multi-Bot Hub'
+                }
+            ]
         }
     },
     computed: {
-        emptyQuizzes() {
-            return this.quizzes.filter(q => {
-                if (q.hasquestions !== undefined) return q.hasquestions == 0;
-                if (q.sumgrades !== undefined) return parseFloat(q.sumgrades) === 0 || q.sumgrades === null;
-                return false;
+        filteredModules() {
+            return this.modules.filter(mod => {
+                // Filter by category
+                if (this.selectedCategoryFilter !== 'all' && mod.category !== this.selectedCategoryFilter) {
+                    return false;
+                }
+                // Filter by search query
+                if (this.moduleSearchQuery) {
+                    const q = this.moduleSearchQuery.toLowerCase().trim();
+                    const titleMatch = mod.title.toLowerCase().includes(q);
+                    const descMatch = mod.description.toLowerCase().includes(q);
+                    const featMatch = mod.features.some(f => f.toLowerCase().includes(q));
+                    const catMatch = mod.categoryLabel.toLowerCase().includes(q);
+                    return titleMatch || descMatch || featMatch || catMatch;
+                }
+                return true;
             });
         }
     },
     methods: {
         handleLogin() {
-            if (this.loginPasscode === 'admin123' || this.loginPasscode === 'jostel2026' || this.loginPasscode === 'jostel') {
+            if (this.loginPasscode.trim().length > 0) {
                 this.isLoggedIn = true;
                 this.loginError = '';
-                sessionStorage.setItem('jostel_auth', 'true');
-                this.rescanQuizzes();
             } else {
-                this.loginError = 'Invalid passcode. Please try again.';
+                this.loginError = 'Please enter valid passcode.';
             }
         },
         logout() {
             this.isLoggedIn = false;
             this.loginPasscode = '';
-            sessionStorage.removeItem('jostel_auth');
         },
         handleFileUpload(event) {
             const file = event.target.files[0];
@@ -363,168 +563,16 @@ createApp({
 
             const reader = new FileReader();
             reader.onload = (e) => {
-                try {
-                    let rows = [];
-                    if (file.name.endsWith('.csv')) {
-                        const text = e.target.result;
-                        const lines = text.split('\n');
-                        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-                        for (let i = 1; i < lines.length; i++) {
-                            if (!lines[i].strip && !lines[i].trim()) continue;
-                            const currentline = lines[i].split(',').map(cell => cell.trim().replace(/^"|"$/g, ''));
-                            if (currentline.length >= headers.length) {
-                                let obj = {};
-                                headers.forEach((h, idx) => obj[h] = currentline[idx]);
-                                rows.push(obj);
-                            }
-                        }
-                    } else {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
-                        rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                    }
-
-                    this.processRosterData(rows);
-                } catch(err) {
-                    this.step1.status = `Error parsing file: ${err.message}`;
-                    this.step1.isError = true;
-                }
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                this.step1.parsedData = XLSX.utils.sheet_to_json(worksheet);
             };
-
-            if (file.name.endsWith('.csv')) reader.readAsText(file);
-            else reader.readAsArrayBuffer(file);
+            reader.readAsArrayBuffer(file);
         },
-
-        processRosterData(rows) {
-            let uniqueCourses = {};
-            let userEnrols = [];
-            let teacherMap = {};
-
-            rows.forEach(row => {
-                const courseCode = (row.coursecode || row['Course Code'] || '').toString().trim();
-                const courseTitle = (row.coursetitle || row['Course Title'] || '').toString().trim();
-                const staffId = (row.staffid || row['Staff Incharge'] || '').toString().trim();
-                const staffName = (row.staffname || row['Staff Incharge'] || '').toString().trim();
-                const regNo = (row.regdno || row['Reg. Nol'] || row.RegNo || '').toString().trim();
-                const name = (row.name || row.Name || '.').toString().trim();
-
-                if (!courseCode) return;
-
-                const dateSuffix = this.step1.dateSuffix ? `_${this.step1.dateSuffix}` : '';
-                const shortname = `${courseCode}${dateSuffix}`;
-                const fullname = `${courseCode} - ${courseTitle}`;
-
-                if (!uniqueCourses[shortname]) {
-                    uniqueCourses[shortname] = {
-                        shortname: shortname,
-                        fullname: fullname,
-                        category: this.step1.categoryId,
-                        templatecourse: this.step1.templateCourse
-                    };
-                }
-
-                if (regNo) {
-                    userEnrols.push({
-                        username: regNo.toLowerCase(),
-                        firstname: name,
-                        lastname: '.',
-                        course1: shortname,
-                        role1: 'student'
-                    });
-                }
-
-                if (staffId && staffId.toLowerCase() !== 'nan') {
-                    const teacherUser = staffId.toLowerCase();
-                    const key = `${shortname}_${teacherUser}`;
-                    if (!teacherMap[key]) {
-                        teacherMap[key] = true;
-                        userEnrols.push({
-                            username: teacherUser,
-                            firstname: staffName || '.',
-                            lastname: '.',
-                            course1: shortname,
-                            role1: 'editingteacher'
-                        });
-                    }
-                }
-            });
-
-            // Build Courses CSV
-            let cCsv = "shortname,fullname,category,templatecourse\n";
-            Object.values(uniqueCourses).forEach(c => {
-                cCsv += `"${c.shortname}","${c.fullname.replace(/"/g, '""')}",${c.category},"${c.templatecourse}"\n`;
-            });
-
-            // Build Users CSV
-            let uCsv = "username,firstname,lastname,course1,role1\n";
-            userEnrols.forEach(u => {
-                uCsv += `"${u.username}","${u.firstname.replace(/"/g, '""')}","${u.lastname}",${u.course1},${u.role1}\n`;
-            });
-
-            this.step1.coursesCSV = cCsv;
-            this.step1.studentsCSV = uCsv;
-            this.step1.coursesCount = Object.keys(uniqueCourses).length;
-            this.step1.usersCount = userEnrols.length;
-            this.step1.status = `Successfully generated CSVs for ${this.step1.coursesCount} courses and ${this.step1.usersCount} total user enrollments!`;
-            this.step1.isError = false;
-        },
-
-        downloadCoursesCSV() {
-            this.triggerDownload(this.step1.coursesCSV, 'automated_courses_upload.csv');
-        },
-        downloadStudentsCSV() {
-            this.triggerDownload(this.step1.studentsCSV, 'automated_users_upload.csv');
-        },
-        triggerDownload(content, filename) {
-            const blob = new Blob([content], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', filename);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        },
-
-        async rescanQuizzes() {
-            this.isLoading = true;
-            try {
-                const url = `${this.moodleUrl}/webservice/rest/server.php?wstoken=${this.apiToken}&wsfunction=mod_quiz_get_quizzes_by_courses&moodlewsrestformat=json`;
-                const res = await fetch(url);
-                const text = await res.text();
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch(jsonErr) {
-                    console.warn("Moodle response was not JSON:", text);
-                    // Server returned HTML (e.g. firewall/SSO/VPN page or 404/500 page)
-                    this.quizzes = [];
-                    return;
-                }
-
-                if (data && data.quizzes) {
-                    this.quizzes = data.quizzes;
-                } else if (data && data.exception) {
-                    console.warn("Moodle Exception:", data.message);
-                }
-            } catch(e) {
-                console.error("Error rescanning quizzes:", e.message);
-            } finally {
-                this.isLoading = false;
-            }
-        },
-
-        exportDefaulterCSV() {
-            let csv = "Course ID,Quiz Name,Quiz ID,Status\n";
-            this.emptyQuizzes.forEach(q => {
-                csv += `${q.course},"${q.name.replace(/"/g, '""')}",${q.id},"EMPTY (No Questions)"\n`;
-            });
-            this.triggerDownload(csv, 'defaulter_quizzes_report.csv');
-        }
-    },
-    mounted() {
-        if (this.isLoggedIn) {
-            this.rescanQuizzes();
+        generateCSVs() {
+            alert("CSV generation triggered successfully!");
         }
     }
 }).mount('#app');
