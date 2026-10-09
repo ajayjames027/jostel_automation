@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JosTEL - Missing Question Paper Finder</title>
+    <title>JosTEL - Empty Quiz & Missing QP Finder</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
@@ -17,8 +17,9 @@
                     fontFamily: { sans: ['Outfit', 'sans-serif'] },
                     colors: {
                         primary: '#1e3a8a',
+                        primaryHover: '#172554',
                         secondary: '#3b82f6',
-                        bglight: '#f1f5f9',
+                        bglight: '#f8fafc',
                         danger: '#ef4444'
                     }
                 }
@@ -26,115 +27,216 @@
         }
     </script>
     <style>
-        body { background-color: #f1f5f9; color: #1e293b; }
+        body { background-color: #f1f5f9; color: #1e293b; font-family: 'Outfit', sans-serif; }
         .glass-panel {
             background: #ffffff;
-            border: 1px solid #cbd5e1;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
             border-radius: 12px;
         }
         select, input[type="text"], input[type="password"] {
             border: 1px solid #cbd5e1;
             border-radius: 6px;
-            padding: 8px 12px;
+            padding: 7px 10px;
             outline: none;
             width: 100%;
+            background-color: #ffffff;
+            font-size: 0.875rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
-        select:focus, input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+        select:focus, input:focus { 
+            border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); 
+        }
         
-        table { border-collapse: collapse; width: 100%; border-radius: 8px; overflow: hidden; }
-        th { background-color: #1e3a8a; color: white; font-weight: 600; text-align: left; padding: 12px; }
-        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        table { border-collapse: collapse; width: 100%; border-radius: 8px; }
+        th { background-color: #1e3a8a; color: white; font-weight: 600; text-align: left; padding: 10px 14px; font-size: 0.825rem; text-transform: uppercase; letter-spacing: 0.025em; }
+        td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; font-size: 0.875rem; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f8fafc; }
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        [v-cloak] { display: none !important; }
     </style>
 </head>
-<body class="p-4 md:p-8 relative">
+<body class="p-3 md:p-6 relative">
 
-<div id="app" class="max-w-7xl mx-auto space-y-6">
+<div id="app" v-cloak class="max-w-7xl mx-auto space-y-6">
 
     <!-- Header -->
-    <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-primary tracking-tight">JosTEL Missing QP Finder</h1>
-        <p class="text-gray-600 mt-2">Identify quizzes where faculty have not uploaded question papers.</p>
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm">
+        <div class="flex items-center gap-3">
+            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
+            <div>
+                <h1 class="text-2xl font-bold text-primary tracking-tight">JosTEL Missing Question Paper Finder</h1>
+                <p class="text-xs text-gray-500 font-medium">Instantly scan courses to pinpoint empty quizzes lacking uploaded questions</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="./Component_1_Master_Hub.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-primary rounded-lg text-xs font-bold transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Master Hub
+            </a>
+            <a href="./Grade_Fetcher_Dashboard.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 rounded-lg text-xs font-bold transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Marks & Quiz Dashboard
+            </a>
+            <span v-if="isConnected" class="badge-pill bg-emerald-100 text-emerald-800">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                Live Connected
+            </span>
+        </div>
     </div>
 
     <!-- Connection Setup -->
     <div v-if="!isConnected" class="glass-panel p-6 max-w-xl mx-auto border-t-4 border-t-primary">
-        <h2 class="text-xl font-semibold mb-4 text-center">Connect to Moodle</h2>
+        <h2 class="text-xl font-bold text-gray-800 mb-2 text-center">Connect to Moodle</h2>
+        <p class="text-xs text-gray-500 mb-4 text-center">Authenticate with Moodle REST API to scan courses and verify question bank bindings.</p>
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-semibold mb-1">Moodle Base URL</label>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Moodle Base URL</label>
                 <input v-model="moodleUrl" type="text" placeholder="https://service.sjctni.edu/jostel/moodle">
             </div>
             <div>
-                <label class="block text-sm font-semibold mb-1">API Token</label>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">API Token</label>
                 <input v-model="apiToken" type="password" placeholder="Moodle Token">
             </div>
-            <button @click="connect" :disabled="isLoading" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50">
-                {{ isLoading ? 'Connecting...' : 'Connect & Scan Quizzes' }}
+            <button @click="connect" :disabled="isLoading" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3 rounded-lg shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                <svg v-if="isLoading" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                {{ isLoading ? 'Connecting & Scanning...' : 'Connect & Scan Quizzes' }}
             </button>
-            <p v-if="status" class="text-sm text-center text-red-500 mt-2">{{ status }}</p>
+            <p v-if="status" class="text-xs text-center text-red-500 font-semibold mt-2">{{ status }}</p>
         </div>
     </div>
 
     <!-- Main Dashboard -->
-    <div v-if="isConnected" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div v-if="isConnected" class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        <!-- Sidebar Filters  -->
-        <div class="glass-panel p-5 md:col-span-1 space-y-4 self-start">
-            <h3 class="font-bold text-lg border-b pb-2 mb-2">Filters</h3>
-            
-            <div class="grid grid-cols-4 gap-2">
-                <div class="col-span-3">
-                    <label class="block text-xs font-semibold mb-1">Category</label>
-                    <select v-model="selectedCategory" class="text-sm">
-                        <option value="">All Categories</option>
-                        <option v-for="cat in categories" :value="cat.id">{{ cat.name }}</option>
-                    </select>
+        <!-- Sidebar Filters -->
+        <div class="glass-panel p-5 lg:col-span-1 space-y-4 self-start">
+            <div class="flex items-center justify-between border-b pb-2">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    <h3 class="font-bold text-base text-gray-800">Filters</h3>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-500">Cat ID</label>
-                    <input v-model="selectedCategory" type="text" placeholder="ID" class="text-sm text-center font-mono">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-4 gap-2">
-                <div class="col-span-3">
-                    <label class="block text-xs font-semibold mb-1">Course</label>
-                    <select v-model="selectedCourse" class="text-sm">
-                        <option value="">All Courses</option>
-                        <option v-for="c in filteredCourses" :value="c.id">{{ c.fullname }}</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-500">Crs ID</label>
-                    <input v-model="selectedCourse" type="text" placeholder="ID" class="text-sm text-center font-mono">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-4 gap-2">
-                <div class="col-span-3">
-                    <label class="block text-xs font-semibold mb-1">Quiz</label>
-                    <select v-model="selectedQuiz" class="text-sm">
-                        <option value="">All Quizzes</option>
-                        <option v-for="q in filteredQuizzes" :value="q.id">{{ q.name }}</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-500">Qz ID</label>
-                    <input v-model="selectedQuiz" type="text" placeholder="ID" class="text-sm text-center font-mono">
-                </div>
-            </div>
-            
-            <div class="mt-2">
-                <label class="block text-sm font-semibold mb-1">Search Keywords</label>
-                <input v-model="searchQuery" type="text" placeholder="e.g. math, science...">
+                <span class="badge-pill bg-blue-100 text-primary font-mono text-[11px]">
+                    {{ filteredAllQuizzes.length }} / {{ quizzes.length }}
+                </span>
             </div>
 
-            <div class="flex gap-2 pt-4">
-                <!-- Search is instant for this Vue app as data is preloaded, but we keep reset -->
-                <button @click="resetFilters" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 rounded transition-colors">
+            <!-- Quick Keyword Live Search -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                    <span>Quick Live Search</span>
+                    <span v-if="searchQuery" @click="searchQuery=''" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear</span>
+                </label>
+                <div class="relative">
+                    <input v-model="searchQuery" type="text" placeholder="Search Quiz, Course code, Name..." class="pr-7 text-xs">
+                    <svg class="w-4 h-4 text-gray-400 absolute right-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+            </div>
+
+            <!-- Shift Filter -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Shift / Stream</label>
+                <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg">
+                    <button @click="selectedShift = 'all'" :class="selectedShift === 'all' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                        All
+                    </button>
+                    <button @click="selectedShift = 'shift1'" :class="selectedShift === 'shift1' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                        Shift 1
+                    </button>
+                    <button @click="selectedShift = 'shift2'" :class="selectedShift === 'shift2' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                        Shift 2
+                    </button>
+                </div>
+            </div>
+
+            <!-- Course Short Name Filter (Datalist Autocomplete) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                        Course Short Name
+                    </span>
+                    <span v-if="courseShortnameInput" @click="clearCourseShortname" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear</span>
+                </label>
+                <input 
+                    v-model="courseShortnameInput" 
+                    @input="onCourseShortnameInput"
+                    list="emptyCourseShortnamesList" 
+                    type="text" 
+                    placeholder="e.g. 22UCO101, 23UPH204" 
+                    class="font-mono text-xs uppercase"
+                >
+                <datalist id="emptyCourseShortnamesList">
+                    <option v-for="sn in uniqueCourseShortnames" :key="sn" :value="sn">{{ sn }}</option>
+                </datalist>
+                <p v-if="courseShortnameInput && !selectedCourse" class="text-[11px] text-gray-500 mt-1">
+                    Matching {{ filteredCourses.length }} courses
+                </p>
+            </div>
+            
+            <!-- Category Filter -->
+            <div class="grid grid-cols-4 gap-2">
+                <div class="col-span-3">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Category</label>
+                    <select v-model="selectedCategory" class="text-xs">
+                        <option value="">All Categories ({{ categories.length }})</option>
+                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Cat ID</label>
+                    <input v-model="selectedCategory" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                </div>
+            </div>
+            
+            <!-- Course Selector -->
+            <div class="grid grid-cols-4 gap-2">
+                <div class="col-span-3">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Course</label>
+                    <select v-model="selectedCourse" @change="onCourseSelectChange" class="text-xs">
+                        <option value="">All Courses ({{ filteredCourses.length }})</option>
+                        <option v-for="c in filteredCourses" :key="c.id" :value="c.id">
+                            {{ c.shortname ? '[' + c.shortname + '] ' : '' }}{{ c.fullname }}
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Crs ID</label>
+                    <input v-model="selectedCourse" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                </div>
+            </div>
+            
+            <!-- Quiz Selector -->
+            <div class="grid grid-cols-4 gap-2">
+                <div class="col-span-3">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Quiz ({{ filteredQuizzes.length }})
+                    </label>
+                    <select v-model="selectedQuiz" class="text-xs">
+                        <option value="">All Quizzes ({{ filteredQuizzes.length }})</option>
+                        <option v-for="q in filteredQuizzes" :key="q.id" :value="q.id">
+                            {{ getCourseShortname(q.course) ? '[' + getCourseShortname(q.course) + '] ' : '' }}{{ q.name }}
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Qz ID</label>
+                    <input v-model="selectedQuiz" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2 pt-2">
+                <button @click="resetFilters" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2.5 rounded-lg transition-colors text-xs">
                     RESET FILTERS
                 </button>
             </div>
@@ -142,89 +244,100 @@
         </div>
 
         <!-- Data Area -->
-        <div class="md:col-span-3 space-y-6">
-            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <div class="lg:col-span-3 space-y-5">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200 gap-3">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">Scan Results</h2>
-                    <p class="text-sm text-gray-500" v-if="isLoading">Scanning data...</p>
-                    <p class="text-sm text-gray-500" v-else>Found {{ filteredAllQuizzes.length }} matching quizzes.</p>
+                    <h2 class="text-lg font-bold text-gray-800">Scan Results</h2>
+                    <p class="text-xs text-gray-500" v-if="isLoading">Scanning live courses and question counts...</p>
+                    <p class="text-xs text-gray-500" v-else>Found <strong class="text-gray-900">{{ filteredAllQuizzes.length }}</strong> matching quizzes (Showing <strong class="text-red-600">{{ filteredEmptyQuizzes.length }}</strong> empty quizzes without questions).</p>
                 </div>
-                <div class="flex gap-2">
-                    <button @click="rescan" :disabled="isLoading" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded shadow-sm font-semibold text-sm transition-colors disabled:opacity-50">
+                <div class="flex gap-2 flex-wrap">
+                    <button @click="rescan" :disabled="isLoading" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3.5 py-2 rounded-lg shadow-sm font-semibold text-xs transition-colors disabled:opacity-50 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         {{ isLoading ? 'Scanning...' : 'Rescan All' }}
                     </button>
-                    <button @click="exportCSV" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow-sm font-semibold text-sm transition-colors disabled:opacity-50" :disabled="filteredEmptyQuizzes.length === 0">
+                    <button @click="exportCSV" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg shadow-sm font-semibold text-xs transition-colors disabled:opacity-50 flex items-center gap-1.5" :disabled="filteredEmptyQuizzes.length === 0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Export Empty Quizzes
                     </button>
                 </div>
             </div>
             
             <!-- Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="glass-panel p-4 text-center border-l-4 border-l-blue-500">
-                    <p class="text-xs text-gray-500 font-bold uppercase">Quizzes Checked</p>
-                    <p class="text-3xl font-bold text-primary mt-2">{{ filteredAllQuizzes.length }}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="glass-panel p-4 text-center border-l-4 border-l-blue-600">
+                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Quizzes Checked</p>
+                    <p class="text-3xl font-extrabold text-primary mt-1">{{ filteredAllQuizzes.length }}</p>
                 </div>
-                <div class="glass-panel p-4 text-center border-l-4 border-l-green-500">
-                    <p class="text-xs text-gray-500 font-bold uppercase">With Assignments</p>
-                    <p class="text-3xl font-bold text-green-600 mt-2">{{ filteredAllQuizzes.length - filteredEmptyQuizzes.length }}</p>
+                <div class="glass-panel p-4 text-center border-l-4 border-l-emerald-600">
+                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">With Questions</p>
+                    <p class="text-3xl font-extrabold text-emerald-700 mt-1">{{ filteredAllQuizzes.length - filteredEmptyQuizzes.length }}</p>
                 </div>
-                <div class="glass-panel p-4 text-center border-l-4 border-l-red-500">
-                    <p class="text-xs text-gray-500 font-bold uppercase">Empty Quizzes (No QP)</p>
-                    <p class="text-3xl font-bold text-red-500 mt-2">{{ filteredEmptyQuizzes.length }}</p>
+                <div class="glass-panel p-4 text-center border-l-4 border-l-red-600 bg-red-50/20">
+                    <p class="text-[11px] text-red-700 font-bold uppercase tracking-wider">Empty Quizzes (No QP)</p>
+                    <p class="text-3xl font-extrabold text-red-600 mt-1">{{ filteredEmptyQuizzes.length }}</p>
                 </div>
             </div>
 
             <!-- Main Table -->
-            <div class="glass-panel overflow-x-auto shadow-sm">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Course Name / ID</th>
-                            <th>Quiz Name</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Flags</th>
-                            <th class="text-right">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody v-if="filteredEmptyQuizzes.length > 0">
-                        <tr v-for="q in filteredEmptyQuizzes" :key="q.id">
-                            <td class="font-medium text-gray-800">
-                                <div class="text-sm font-semibold">{{ getCourseName(q.course) }}</div>
-                                <div class="text-xs text-gray-400">Course ID: {{ q.course }}</div>
-                            </td>
-                            <td>
-                                <div class="font-bold text-sm">{{ q.name }}</div>
-                                <div class="text-xs text-gray-500" v-if="q.timeclose">Closes: {{ formatDate(q.timeclose) }}</div>
-                            </td>
-                            <td class="text-center">
-                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider">
-                                    NO QUESTIONS
-                                </span>
-                            </td>
-                            <td class="text-center text-xs text-gray-600 font-mono">
-                                <div v-if="q.sumgrades !== undefined">Grades: {{ q.sumgrades }}</div>
-                                <div v-if="q.hasquestions !== undefined">has_q: {{ q.hasquestions == 1 ? 'Yes' : 'No' }}</div>
-                            </td>
-                            <td class="text-right">
-                                <a :href="`${moodleUrl}/mod/quiz/view.php?id=${q.coursemodule}`" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-bold underline">
-                                    View Link
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tbody v-else-if="!isLoading">
-                        <tr>
-                            <td colspan="5" class="text-center py-12 text-gray-400 font-medium">
-                                <div v-if="filteredAllQuizzes.length === 0">No quizzes match your filter criteria.</div>
-                                <div v-else class="text-green-500 text-lg flex items-center justify-center gap-2">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    All quizzes in this selection have questions uploaded!
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="glass-panel overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Course Name / Short Name</th>
+                                <th>Quiz Name & ID</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Questions / Grades</th>
+                                <th class="text-right">Direct Action</th>
+                            </tr>
+                        </thead>
+                        <tbody v-if="filteredEmptyQuizzes.length > 0">
+                            <tr v-for="q in filteredEmptyQuizzes" :key="q.id">
+                                <td class="font-medium text-gray-800">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span v-if="getCourseShortname(q.course)" class="badge-pill bg-blue-50 text-blue-800 border border-blue-200 font-mono text-[11px]">
+                                            {{ getCourseShortname(q.course) }}
+                                        </span>
+                                        <span class="text-xs text-gray-400 font-mono">ID: {{ q.course }}</span>
+                                    </div>
+                                    <div class="text-sm font-semibold text-slate-800">{{ getCourseName(q.course) }}</div>
+                                </td>
+                                <td>
+                                    <div class="font-bold text-sm text-slate-900">{{ q.name }}</div>
+                                    <div class="text-xs text-gray-500 mt-0.5" v-if="q.timeclose">Closes: {{ formatDate(q.timeclose) }}</div>
+                                    <div class="text-[11px] text-gray-400 font-mono">Quiz ID: {{ q.id }}</div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border border-red-200">
+                                        NO QUESTIONS
+                                    </span>
+                                </td>
+                                <td class="text-center text-xs text-gray-600 font-mono">
+                                    <div v-if="q.sumgrades !== undefined">Grades: {{ q.sumgrades || 0 }}</div>
+                                    <div v-if="q.hasquestions !== undefined">has_q: {{ q.hasquestions == 1 ? 'Yes' : 'No' }}</div>
+                                </td>
+                                <td class="text-right whitespace-nowrap">
+                                    <a :href="`${moodleUrl}/mod/quiz/view.php?id=${q.coursemodule}`" target="_blank" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs font-bold underline bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded transition-colors">
+                                        Open in Moodle
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody v-else-if="!isLoading">
+                            <tr>
+                                <td colspan="5" class="text-center py-14 text-gray-400 font-medium">
+                                    <div v-if="filteredAllQuizzes.length === 0" class="text-sm">No quizzes match your filter criteria.</div>
+                                    <div v-else class="text-emerald-600 text-base font-bold flex flex-col items-center justify-center gap-2">
+                                        <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>All quizzes in this selection have question papers uploaded!</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -246,57 +359,91 @@ createApp({
             courses: [],
             quizzes: [],
             
+            // Filters
+            searchQuery: '',
+            selectedShift: 'all',
+            courseShortnameInput: '',
             selectedCategory: '',
             selectedCourse: '',
-            selectedQuiz: '',
-            searchQuery: ''
+            selectedQuiz: ''
         }
     },
     computed: {
         apiUrl() {
             return `${this.moodleUrl.replace(/\/$/, "")}/webservice/rest/server.php`;
         },
+        uniqueCourseShortnames() {
+            const sns = this.courses.map(c => c.shortname).filter(Boolean);
+            return [...new Set(sns)].sort();
+        },
         filteredCourses() {
             let baseCourses = this.courses.length > 0 ? this.courses : [...new Set(this.quizzes.map(q => q.course))].map(id => ({
-                id: id, fullname: `Course ID: ${id}`, categoryid: -1
+                id: id, fullname: `Course ID: ${id}`, shortname: `CRS_${id}`, categoryid: -1
             }));
             
-            if (!this.selectedCategory) return baseCourses;
+            if (this.selectedCategory) {
+                baseCourses = baseCourses.filter(c => c.categoryid == this.selectedCategory);
+            }
             
-            let matching = baseCourses.filter(c => c.categoryid == this.selectedCategory);
-            return matching.length > 0 ? matching : baseCourses;
+            if (this.selectedShift === 'shift1') {
+                baseCourses = baseCourses.filter(c => {
+                    const text = `${c.fullname} ${c.shortname || ''}`.toLowerCase();
+                    return text.includes('shift 1') || text.includes('shift-1') || text.includes('shift1') || text.includes('s1') || text.includes('shift-i') || text.includes('shift i');
+                });
+            } else if (this.selectedShift === 'shift2') {
+                baseCourses = baseCourses.filter(c => {
+                    const text = `${c.fullname} ${c.shortname || ''}`.toLowerCase();
+                    return text.includes('shift 2') || text.includes('shift-2') || text.includes('shift2') || text.includes('s2') || text.includes('shift-ii') || text.includes('shift ii');
+                });
+            }
+            
+            if (this.courseShortnameInput) {
+                const term = this.courseShortnameInput.trim().toLowerCase();
+                baseCourses = baseCourses.filter(c => c.shortname && c.shortname.toLowerCase().includes(term));
+            }
+            
+            if (this.searchQuery) {
+                const term = this.searchQuery.trim().toLowerCase();
+                baseCourses = baseCourses.filter(c => 
+                    (c.fullname && c.fullname.toLowerCase().includes(term)) ||
+                    (c.shortname && c.shortname.toLowerCase().includes(term)) ||
+                    String(c.id).includes(term)
+                );
+            }
+            
+            return baseCourses;
         },
         filteredQuizzes() {
             let qs = this.quizzes;
             
             if (this.selectedCourse) {
                 qs = qs.filter(q => q.course == this.selectedCourse);
-            } else if (this.selectedCategory) {
-                const catCourseIds = this.filteredCourses.map(c => c.id);
-                if (catCourseIds.length > 0 && this.courses.length > 0) { 
-                    qs = qs.filter(q => catCourseIds.includes(q.course));
+            } else {
+                const catCourseIds = new Set(this.filteredCourses.map(c => c.id));
+                if (catCourseIds.size > 0 && this.courses.length > 0) { 
+                    qs = qs.filter(q => catCourseIds.has(q.course));
                 }
             }
             
             return qs;
         },
         filteredAllQuizzes() {
-            // Further filter by Quiz ID or Search Query
             let target = this.filteredQuizzes;
             if (this.selectedQuiz) {
                 target = target.filter(q => q.id == this.selectedQuiz);
             }
             if (this.searchQuery) {
-                const term = this.searchQuery.toLowerCase();
+                const term = this.searchQuery.trim().toLowerCase();
                 target = target.filter(q => {
                     const cname = this.getCourseName(q.course).toLowerCase();
-                    return q.name.toLowerCase().includes(term) || cname.includes(term);
+                    const cshort = this.getCourseShortname(q.course).toLowerCase();
+                    const qname = (q.name || '').toLowerCase();
+                    return qname.includes(term) || cname.includes(term) || cshort.includes(term) || String(q.id).includes(term);
                 });
             }
             return target;
         },
         filteredEmptyQuizzes() {
-            // Apply Empty condition to the fully filtered array
             return this.filteredAllQuizzes.filter(q => {
                 if (q.hasquestions !== undefined) {
                     return q.hasquestions == 0;
@@ -309,14 +456,17 @@ createApp({
         }
     },
     watch: {
-        selectedCategory(newVal) {
+        selectedCategory() {
             this.selectedCourse = '';
             this.selectedQuiz = '';
         },
         async selectedCourse(newVal) {
             this.selectedQuiz = '';
-            // Just like grade fetcher, we attempt to pull more specific quizzes if they select a course
             if (newVal) {
+                const c = this.courses.find(item => item.id == newVal);
+                if (c && c.shortname) {
+                    this.courseShortnameInput = c.shortname;
+                }
                 try {
                     const qzs = await this.request('mod_quiz_get_quizzes_by_courses', `&courseids[0]=${newVal}`);
                     if (qzs && qzs.quizzes) {
@@ -340,7 +490,7 @@ createApp({
         },
         async connect() {
             if (!this.apiToken || !this.moodleUrl) {
-                this.status = 'Fields required'; return;
+                this.status = 'API Token and URL are required.'; return;
             }
             this.isConnected = true;
             await this.rescan();
@@ -376,9 +526,36 @@ createApp({
                 this.isLoading = false;
             }
         },
+        getCourseShortname(courseId) {
+            const c = this.courses.find(c => c.id == courseId);
+            return c ? (c.shortname || '') : '';
+        },
         getCourseName(courseId) {
             const c = this.courses.find(c => c.id == courseId);
             return c ? c.fullname : `Course ID: ${courseId}`;
+        },
+        onCourseShortnameInput() {
+            const term = this.courseShortnameInput.trim().toLowerCase();
+            if (!term) {
+                this.selectedCourse = '';
+                return;
+            }
+            const exact = this.courses.find(c => c.shortname && c.shortname.toLowerCase() === term);
+            if (exact) {
+                this.selectedCourse = exact.id;
+            }
+        },
+        clearCourseShortname() {
+            this.courseShortnameInput = '';
+            this.selectedCourse = '';
+        },
+        onCourseSelectChange() {
+            if (this.selectedCourse) {
+                const c = this.courses.find(item => item.id == this.selectedCourse);
+                if (c && c.shortname) {
+                    this.courseShortnameInput = c.shortname;
+                }
+            }
         },
         formatDate(timestamp) {
             if (!timestamp) return 'No close date';
@@ -386,25 +563,28 @@ createApp({
             return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         },
         resetFilters() {
+            this.searchQuery = '';
+            this.selectedShift = 'all';
+            this.courseShortnameInput = '';
             this.selectedCategory = '';
             this.selectedCourse = '';
             this.selectedQuiz = '';
-            this.searchQuery = '';
         },
         exportCSV() {
-            let csv = "Course Name,Course ID,Quiz Name,Quiz ID,Total Grades,Has Questions,Close Date\n";
+            let csv = "Course Short Name,Course Name,Course ID,Quiz Name,Quiz ID,Total Grades,Has Questions,Close Date\n";
             this.filteredEmptyQuizzes.forEach(q => {
+                const cshort = (this.getCourseShortname(q.course) || '').replace(/"/g, '""');
                 const cname = this.getCourseName(q.course).replace(/"/g, '""');
                 const qname = q.name.replace(/"/g, '""');
                 const closedate = q.timeclose ? this.formatDate(q.timeclose) : 'None';
-                csv += `"${cname}",${q.course},"${qname}",${q.id},${q.sumgrades || 0},${q.hasquestions !== undefined ? q.hasquestions : 'Unknown'},"${closedate}"\n`;
+                csv += `"${cshort}","${cname}",${q.course},"${qname}",${q.id},${q.sumgrades || 0},${q.hasquestions !== undefined ? q.hasquestions : 'Unknown'},"${closedate}"\n`;
             });
-            const blob = new Blob([csv], { type: 'text/csv' });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
             a.setAttribute('href', url);
-            a.setAttribute('download', 'JosTEL_Empty_Quizzes.csv');
+            a.setAttribute('download', `JosTEL_Empty_Quizzes_${this.courseShortnameInput || 'All'}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

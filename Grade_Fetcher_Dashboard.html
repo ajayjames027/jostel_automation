@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jostel Marks Dashboard</title>
+    <title>JosTEL Marks & Quiz Intelligence Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
@@ -17,208 +17,381 @@
                     fontFamily: { sans: ['Outfit', 'sans-serif'] },
                     colors: {
                         primary: '#1e3a8a',
-                        secondary: '#3b82f6',
-                        bglight: '#f1f5f9'
+                        primaryHover: '#172554',
+                        secondary: '#2563eb',
+                        bglight: '#f8fafc',
+                        accent: '#0284c7'
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #f1f5f9; color: #1e293b; }
+        body { background-color: #f1f5f9; color: #1e293b; font-family: 'Outfit', sans-serif; }
         .glass-panel {
             background: #ffffff;
-            border: 1px solid #cbd5e1;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
             border-radius: 12px;
         }
         select, input[type="text"], input[type="date"], input[type="password"] {
             border: 1px solid #cbd5e1;
             border-radius: 6px;
-            padding: 8px 12px;
+            padding: 7px 10px;
             outline: none;
             width: 100%;
+            background-color: #ffffff;
+            font-size: 0.875rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
-        select:focus, input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+        select:focus, input:focus { 
+            border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); 
+        }
         
-        table { border-collapse: collapse; width: 100%; border-radius: 8px; overflow: hidden; }
-        th { background-color: #1e3a8a; color: white; font-weight: 600; text-align: left; padding: 12px; }
-        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        table { border-collapse: collapse; width: 100%; border-radius: 8px; }
+        th { background-color: #1e3a8a; color: white; font-weight: 600; text-align: left; padding: 10px 14px; font-size: 0.825rem; text-transform: uppercase; letter-spacing: 0.025em; }
+        td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; font-size: 0.875rem; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f8fafc; }
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        [v-cloak] { display: none !important; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-3 md:p-6">
 
-<div id="app" class="max-w-6xl mx-auto space-y-6">
+<div id="app" v-cloak class="max-w-7xl mx-auto space-y-6">
 
     <!-- Header -->
-    <div class="text-center mb-8">
-        <img src="./jostel_logo.png" alt="Logo" class="h-16 mx-auto mb-3" onerror="this.style.display='none'">
-        <h1 class="text-3xl font-bold text-primary tracking-tight">JOSTEL MARKS DASHBOARD</h1>
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm">
+        <div class="flex items-center gap-3">
+            <img src="./jostel_logo.png" alt="JosTEL Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
+            <div>
+                <h1 class="text-2xl font-bold text-primary tracking-tight">JosTEL Marks & Quiz Finder</h1>
+                <p class="text-xs text-gray-500 font-medium">Moodle Live Exam Analytics & Multi-Attribute Search</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="./Component_1_Master_Hub.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-primary rounded-lg text-xs font-bold transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Master Hub
+            </a>
+            <a href="./Empty_Quiz_Finder.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg text-xs font-bold transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Empty Quiz Finder
+            </a>
+            <span v-if="isConnected" class="badge-pill bg-emerald-100 text-emerald-800">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                Connected
+            </span>
+        </div>
     </div>
 
     <!-- Connection Setup (Hidden when connected) -->
     <div v-if="!isConnected" class="glass-panel p-6 max-w-xl mx-auto">
-        <h2 class="text-xl font-semibold mb-4">Connect to Moodle</h2>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Connect to Moodle Web Service</h2>
+        <p class="text-xs text-gray-500 mb-4">Enter your Moodle REST API endpoint and Token to query courses, quizzes, and grade attempts.</p>
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-semibold mb-1">Moodle Base URL</label>
-                <input v-model="moodleUrl" type="text" placeholder="https://...">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Moodle Base URL</label>
+                <input v-model="moodleUrl" type="text" placeholder="https://service.sjctni.edu/jostel/moodle">
             </div>
             <div>
-                <label class="block text-sm font-semibold mb-1">API Token</label>
-                <input v-model="apiToken" type="password" placeholder="Moodle Token">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">API Token</label>
+                <input v-model="apiToken" type="password" placeholder="Moodle Web Service Token">
             </div>
-            <button @click="connect" :disabled="isLoading" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50">
-                {{ isLoading ? 'Connecting...' : 'Connect' }}
+            <button @click="connect" :disabled="isLoading" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3 rounded-lg shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                <svg v-if="isLoading" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                {{ isLoading ? 'Authenticating...' : 'Connect to Moodle' }}
             </button>
-            <p v-if="status" class="text-sm text-center text-red-500 mt-2">{{ status }}</p>
+            <p v-if="status" class="text-xs text-center font-semibold mt-2" :class="statusType === 'error' ? 'text-red-500' : 'text-blue-600'">{{ status }}</p>
         </div>
     </div>
 
-    <!-- Main Dashboard -->
-    <div v-if="isConnected" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <!-- Main Dashboard Grid -->
+    <div v-if="isConnected" class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        <!-- Sidebar Filters  -->
-        <div class="glass-panel p-5 md:col-span-1 space-y-4 self-start">
-            <h3 class="font-bold text-lg border-b pb-2 mb-2">Filters</h3>
-            
-            <div class="grid grid-cols-4 gap-2">
-                <div class="col-span-3">
-                    <label class="block text-xs font-semibold mb-1">Category</label>
-                    <select v-model="selectedCategory" class="text-sm">
-                        <option value="">All Categories</option>
-                        <option v-for="cat in categories" :value="cat.id">{{ cat.name }}</option>
-                    </select>
+        <!-- Sidebar Filters -->
+        <div class="glass-panel p-5 lg:col-span-1 space-y-4 self-start">
+            <div class="flex items-center justify-between border-b pb-2">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                    <h3 class="font-bold text-base text-gray-800">Search & Filters</h3>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-500">Cat ID</label>
-                    <input v-model="selectedCategory" type="text" placeholder="ID" class="text-sm text-center font-mono">
-                </div>
+                <span class="badge-pill bg-blue-100 text-primary font-mono text-[11px]">
+                    {{ filteredQuizzes.length }} / {{ quizzes.length }} Qz
+                </span>
             </div>
-            
-            <div class="grid grid-cols-4 gap-2">
-                <div class="col-span-3">
-                    <label class="block text-xs font-semibold mb-1">Course</label>
-                    <select v-model="selectedCourse" class="text-sm">
-                        <option value="">All Courses</option>
-                        <option v-for="c in filteredCourses" :value="c.id">{{ c.fullname }}</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-500">Crs ID</label>
-                    <input v-model="selectedCourse" type="text" placeholder="ID" class="text-sm text-center font-mono">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-4 gap-2">
-                <div class="col-span-3">
-                    <label class="block text-xs font-semibold mb-1">Quiz</label>
-                    <select v-model="selectedQuiz" class="text-sm">
-                        <option value="">All Quizzes</option>
-                        <option v-for="q in filteredQuizzes" :value="q.id">{{ q.name }}</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1 text-gray-500">Qz ID</label>
-                    <input v-model="selectedQuiz" type="text" placeholder="ID" class="text-sm text-center font-mono">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-2 mt-2">
-                <div>
-                    <label class="block text-xs font-semibold mb-1">From Date</label>
-                    <input v-model="fromDate" type="date">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">To Date</label>
-                    <input v-model="toDate" type="date">
+
+            <!-- Quick Keyword Live Search -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                    <span>Quick Live Search</span>
+                    <span v-if="quickKeyword" @click="quickKeyword=''" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear</span>
+                </label>
+                <div class="relative">
+                    <input v-model="quickKeyword" type="text" placeholder="Search Quiz, Course code, Name..." class="pr-7 text-xs">
+                    <svg class="w-4 h-4 text-gray-400 absolute right-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
             </div>
 
-            <div class="mt-2">
-                <label class="block text-sm font-semibold mb-1">Student Username/RegNo</label>
-                <input v-model="studentSearch" type="text" placeholder="e.g. 231001">
+            <!-- Shift / Stream Fast Filter -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Shift / Stream</label>
+                <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg">
+                    <button @click="selectedShift = 'all'" :class="selectedShift === 'all' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                        All
+                    </button>
+                    <button @click="selectedShift = 'shift1'" :class="selectedShift === 'shift1' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                        Shift 1
+                    </button>
+                    <button @click="selectedShift = 'shift2'" :class="selectedShift === 'shift2' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                        Shift 2
+                    </button>
+                </div>
             </div>
 
-            <div class="flex gap-2 pt-4">
-                <button @click="searchRecords" :disabled="isLoading" class="flex-1 bg-primary hover:bg-blue-800 text-white font-semibold py-2 rounded transition-colors disabled:opacity-50">
-                    SEARCH
+            <!-- Course Short Name Filter (Datalist Autocomplete) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                        Course Short Name
+                    </span>
+                    <span v-if="courseShortnameInput" @click="clearCourseShortname" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear</span>
+                </label>
+                <input 
+                    v-model="courseShortnameInput" 
+                    @input="onCourseShortnameInput"
+                    list="courseShortnamesList" 
+                    type="text" 
+                    placeholder="e.g. 22UCO101, 23UPH204" 
+                    class="font-mono text-xs uppercase"
+                >
+                <datalist id="courseShortnamesList">
+                    <option v-for="sn in uniqueCourseShortnames" :key="sn" :value="sn">{{ sn }}</option>
+                </datalist>
+                <p v-if="courseShortnameInput && !selectedCourse" class="text-[11px] text-gray-500 mt-1">
+                    Matching {{ filteredCourses.length }} courses
+                </p>
+            </div>
+            
+            <!-- Category Filter -->
+            <div class="grid grid-cols-4 gap-2">
+                <div class="col-span-3">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Category</label>
+                    <select v-model="selectedCategory" class="text-xs">
+                        <option value="">All Categories ({{ categories.length }})</option>
+                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Cat ID</label>
+                    <input v-model="selectedCategory" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                </div>
+            </div>
+            
+            <!-- Course Selector -->
+            <div class="grid grid-cols-4 gap-2">
+                <div class="col-span-3">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Course</label>
+                    <select v-model="selectedCourse" @change="onCourseSelectChange" class="text-xs">
+                        <option value="">All Courses ({{ filteredCourses.length }})</option>
+                        <option v-for="c in filteredCourses" :key="c.id" :value="c.id">
+                            {{ c.shortname ? '[' + c.shortname + '] ' : '' }}{{ c.fullname }}
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Crs ID</label>
+                    <input v-model="selectedCourse" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                </div>
+            </div>
+            
+            <!-- Quiz Selector -->
+            <div class="grid grid-cols-4 gap-2">
+                <div class="col-span-3">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Quiz ({{ filteredQuizzes.length }})
+                    </label>
+                    <select v-model="selectedQuiz" class="text-xs">
+                        <option value="">All Quizzes ({{ filteredQuizzes.length }})</option>
+                        <option v-for="q in filteredQuizzes" :key="q.id" :value="q.id">
+                            {{ getCourseShortname(q.course) ? '[' + getCourseShortname(q.course) + '] ' : '' }}{{ q.name }}
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Qz ID</label>
+                    <input v-model="selectedQuiz" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                </div>
+            </div>
+            
+            <!-- Date Filter & Quick Presets -->
+            <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Date Filter</label>
+                    <span v-if="fromDate || toDate" @click="setDatePreset('clear')" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear Dates</span>
+                </div>
+                <!-- Quick Date Presets -->
+                <div class="flex flex-wrap gap-1">
+                    <button type="button" @click="setDatePreset('today')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Today</button>
+                    <button type="button" @click="setDatePreset('yesterday')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Yesterday</button>
+                    <button type="button" @click="setDatePreset('7days')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Last 7D</button>
+                    <button type="button" @click="setDatePreset('month')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">This Month</button>
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                        <label class="block text-[11px] text-gray-500 font-semibold mb-0.5">From</label>
+                        <input v-model="fromDate" type="date" class="text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-500 font-semibold mb-0.5">To</label>
+                        <input v-model="toDate" type="date" class="text-xs">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Search -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Student Username / RegNo</label>
+                <div class="relative">
+                    <input v-model="studentSearch" type="text" placeholder="e.g. 231001, 22uco101..." class="text-xs pr-7">
+                    <span v-if="studentSearch" @click="studentSearch=''" class="text-gray-400 hover:text-gray-600 absolute right-2 top-2 cursor-pointer text-xs">✕</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2 pt-2">
+                <button @click="searchRecords" :disabled="isLoading" class="flex-1 bg-primary hover:bg-primaryHover text-white font-bold py-2.5 rounded-lg transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs">
+                    <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <span>{{ isLoading ? 'SCANNING...' : 'SEARCH ATTEMPTS' }}</span>
                 </button>
-                <button @click="resetFilters" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 rounded transition-colors">
+                <button @click="resetFilters" class="px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-lg transition-colors text-xs">
                     RESET
                 </button>
             </div>
-            <p v-if="status" class="text-xs text-center mt-2 font-medium" :class="statusType === 'error' ? 'text-red-500' : 'text-blue-600'">{{ status }}</p>
+            
+            <p v-if="status" class="text-xs text-center mt-2 font-medium p-2 rounded-lg" :class="statusType === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-blue-50 text-blue-800 border border-blue-200'">
+                {{ status }}
+            </p>
         </div>
 
         <!-- Data Area -->
-        <div class="md:col-span-3 space-y-6">
+        <div class="lg:col-span-3 space-y-5">
             
             <!-- Aggregates / Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="glass-panel p-4 text-center">
-                    <p class="text-xs text-gray-500 font-bold uppercase">Students</p>
-                    <p class="text-2xl font-bold text-primary">{{ uniqueStudents }}</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                <div class="glass-panel p-4 text-center border-l-4 border-l-blue-600">
+                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Unique Students</p>
+                    <p class="text-2xl font-extrabold text-primary mt-1">{{ uniqueStudents }}</p>
                 </div>
-                <div class="glass-panel p-4 text-center">
-                    <p class="text-xs text-gray-500 font-bold uppercase">Attempts</p>
-                    <p class="text-2xl font-bold text-primary">{{ displayData.length }}</p>
+                <div class="glass-panel p-4 text-center border-l-4 border-l-indigo-600">
+                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Total Attempts</p>
+                    <p class="text-2xl font-extrabold text-primary mt-1">{{ displayData.length }}</p>
                 </div>
-                <div class="glass-panel p-4 text-center">
-                    <p class="text-xs text-gray-500 font-bold uppercase">Average</p>
-                    <p class="text-2xl font-bold text-primary">{{ avgGrade }}</p>
+                <div class="glass-panel p-4 text-center border-l-4 border-l-emerald-600">
+                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Average Score</p>
+                    <p class="text-2xl font-extrabold text-emerald-700 mt-1">{{ avgGrade }}</p>
                 </div>
-                <div class="glass-panel p-4 text-center">
-                    <p class="text-xs text-gray-500 font-bold uppercase">Highest</p>
-                    <p class="text-2xl font-bold text-primary">{{ highestGrade }}</p>
+                <div class="glass-panel p-4 text-center border-l-4 border-l-amber-600">
+                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Highest Score</p>
+                    <p class="text-2xl font-extrabold text-amber-700 mt-1">{{ highestGrade }}</p>
+                </div>
+            </div>
+
+            <!-- Main Table Header Controls -->
+            <div class="glass-panel p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h2 class="text-lg font-bold text-gray-800">Student Attempts</h2>
+                    <span v-if="displayData.length > 0" class="badge-pill bg-slate-100 text-slate-700 font-mono">
+                        {{ displayData.length }} Records
+                    </span>
+                    <span v-if="courseShortnameInput" class="badge-pill bg-blue-100 text-blue-800 font-mono">
+                        Course: {{ courseShortnameInput }}
+                    </span>
+                </div>
+                <div class="flex items-center gap-2" v-if="displayData.length > 0">
+                    <button @click="exportCSV" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold text-xs transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Export CSV
+                    </button>
                 </div>
             </div>
 
             <!-- Main Table -->
-            <div class="glass-panel overflow-x-auto shadow-sm">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Quiz</th>
-                            <th>Date</th>
-                            <th class="text-center">1M</th>
-                            <th class="text-center">2M</th>
-                            <th class="text-center">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody v-if="displayData.length > 0">
-                        <tr v-for="row in displayData" :key="row.id">
-                            <td class="font-medium text-gray-800">
-                                <div>{{ row.username }}</div>
-                                <div class="text-xs text-gray-400">{{ row.fullname }}</div>
-                            </td>
-                            <td>{{ row.quizName }}</td>
-                            <td class="text-sm text-gray-600">{{ row.dateStr }}</td>
-                            <td class="text-center font-semibold text-blue-600">{{ row.m1 }}</td>
-                            <td class="text-center font-semibold text-purple-600">{{ row.m2 }}</td>
-                            <td class="text-center font-bold text-primary">{{ row.total }}</td>
-                        </tr>
-                    </tbody>
-                    <tbody v-else>
-                        <tr>
-                            <td colspan="6" class="text-center py-12 text-gray-400 font-medium">
-                                No records found. Adjust your filters and click Search.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="glass-panel overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student (Username / RegNo)</th>
+                                <th>Course Short Name</th>
+                                <th>Quiz Name</th>
+                                <th>Submission Date</th>
+                                <th class="text-center">1M Score</th>
+                                <th class="text-center">2M Score</th>
+                                <th class="text-center">Total Score</th>
+                            </tr>
+                        </thead>
+                        <tbody v-if="displayData.length > 0">
+                            <tr v-for="row in displayData" :key="row.id">
+                                <td class="font-medium text-gray-900">
+                                    <div class="font-bold text-slate-800">{{ row.username }}</div>
+                                    <div class="text-xs text-gray-500 font-normal">{{ row.fullname }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge-pill bg-blue-50 text-blue-800 border border-blue-200 font-mono text-[11px]">
+                                        {{ row.courseShortname || 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="text-gray-800 font-medium">
+                                    {{ row.quizName }}
+                                </td>
+                                <td class="text-xs text-gray-600 font-mono whitespace-nowrap">
+                                    {{ row.dateStr }}
+                                </td>
+                                <td class="text-center font-bold text-blue-600">{{ row.m1 }}</td>
+                                <td class="text-center font-bold text-purple-600">{{ row.m2 }}</td>
+                                <td class="text-center font-extrabold text-primary bg-slate-50">{{ row.total }}</td>
+                            </tr>
+                        </tbody>
+                        <tbody v-else>
+                            <tr>
+                                <td colspan="7" class="text-center py-16 text-gray-400">
+                                    <div class="flex flex-col items-center justify-center gap-2">
+                                        <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <p class="font-semibold text-gray-600 text-sm">No attempts loaded yet</p>
+                                        <p class="text-xs text-gray-400 max-w-sm">Use the filters on the left (e.g. Course Short Name, Quiz, or Date Range) and click "SEARCH ATTEMPTS".</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- Export -->
-            <div class="flex justify-end pt-2" v-if="displayData.length > 0">
-                <button @click="exportCSV" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow-sm font-semibold text-sm transition-colors">
-                    Export to CSV
-                </button>
+            <!-- Filter Advice Callout -->
+            <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-4 flex items-start gap-3 text-xs text-blue-900">
+                <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div>
+                    <span class="font-bold">Tips for Faster Quiz Lookups:</span>
+                    <ul class="list-disc pl-4 mt-1 space-y-0.5 text-blue-800">
+                        <li>Type course code prefix (e.g., <code class="font-mono bg-white px-1 py-0.5 rounded text-blue-900">22UCO</code> or <code class="font-mono bg-white px-1 py-0.5 rounded text-blue-900">23UCH</code>) in <strong>Course Short Name</strong> to filter all corresponding sections immediately.</li>
+                        <li>Use <strong>Shift 1 / Shift 2</strong> toggles to isolate day and evening section exams.</li>
+                        <li>Use <strong>Date Presets</strong> (Today, Yesterday, Last 7D) to instantly focus on current exam cycle data.</li>
+                    </ul>
+                </div>
             </div>
-            
+
         </div>
     </div>
 </div>
@@ -240,6 +413,10 @@ createApp({
             courses: [],
             quizzes: [],
             
+            // Filters
+            quickKeyword: '',
+            selectedShift: 'all', // 'all', 'shift1', 'shift2'
+            courseShortnameInput: '',
             selectedCategory: '',
             selectedCourse: '',
             selectedQuiz: '',
@@ -247,39 +424,81 @@ createApp({
             toDate: '',
             studentSearch: '',
             
-            scannedAttempts: [], // All attempts fetched from network
+            scannedAttempts: [] // Fetched attempt rows
         }
     },
     computed: {
         apiUrl() {
             return `${this.moodleUrl.replace(/\/$/, "")}/webservice/rest/server.php`;
         },
+        uniqueCourseShortnames() {
+            const sns = this.courses.map(c => c.shortname).filter(Boolean);
+            return [...new Set(sns)].sort();
+        },
         filteredCourses() {
-            // First determine what base courses we have. If API failed, derive from quizzes.
-            let baseCourses = this.courses.length > 0 ? this.courses : [...new Set(this.quizzes.map(q => q.course))].map(id => ({
-                id: id, fullname: `Course ID: ${id}`, categoryid: -1
+            let list = this.courses.length > 0 ? this.courses : [...new Set(this.quizzes.map(q => q.course))].map(id => ({
+                id: id, fullname: `Course ID: ${id}`, shortname: `CRS_${id}`, categoryid: -1
             }));
             
-            if (!this.selectedCategory) return baseCourses;
+            // Filter by Category
+            if (this.selectedCategory) {
+                list = list.filter(c => c.categoryid == this.selectedCategory);
+            }
             
-            // Filter by category
-            let matching = baseCourses.filter(c => c.categoryid == this.selectedCategory);
-            // If category matches return empty (because derived courses lack categoryid), just return base to prevent locking UI
-            return matching.length > 0 ? matching : baseCourses;
+            // Filter by Shift
+            if (this.selectedShift === 'shift1') {
+                list = list.filter(c => {
+                    const text = `${c.fullname} ${c.shortname || ''}`.toLowerCase();
+                    return text.includes('shift 1') || text.includes('shift-1') || text.includes('shift1') || text.includes('s1') || text.includes('shift-i') || text.includes('shift i');
+                });
+            } else if (this.selectedShift === 'shift2') {
+                list = list.filter(c => {
+                    const text = `${c.fullname} ${c.shortname || ''}`.toLowerCase();
+                    return text.includes('shift 2') || text.includes('shift-2') || text.includes('shift2') || text.includes('s2') || text.includes('shift-ii') || text.includes('shift ii');
+                });
+            }
+            
+            // Filter by Course Short Name
+            if (this.courseShortnameInput) {
+                const term = this.courseShortnameInput.trim().toLowerCase();
+                list = list.filter(c => c.shortname && c.shortname.toLowerCase().includes(term));
+            }
+            
+            // Filter by Quick Keyword
+            if (this.quickKeyword) {
+                const term = this.quickKeyword.trim().toLowerCase();
+                list = list.filter(c => 
+                    (c.fullname && c.fullname.toLowerCase().includes(term)) ||
+                    (c.shortname && c.shortname.toLowerCase().includes(term)) ||
+                    String(c.id).includes(term)
+                );
+            }
+            
+            return list;
         },
         filteredQuizzes() {
             let qs = this.quizzes;
             
+            // If a specific course is selected
             if (this.selectedCourse) {
-                // If a specific course is selected, strict filter.
                 qs = qs.filter(q => q.course == this.selectedCourse);
-            } else if (this.selectedCategory) {
-                // If category is selected, get valid courses for this category
-                const catCourseIds = this.filteredCourses.map(c => c.id);
-                if (catCourseIds.length > 0 && this.courses.length > 0) { 
-                    // Only restrict if we actually have linked course data
-                    qs = qs.filter(q => catCourseIds.includes(q.course));
+            } else {
+                // Constrain to courses matching active course filters (category, shift, course shortname)
+                const validCourseIds = new Set(this.filteredCourses.map(c => c.id));
+                if (validCourseIds.size > 0 && this.courses.length > 0) {
+                    qs = qs.filter(q => validCourseIds.has(q.course));
                 }
+            }
+            
+            // Filter by Quick Keyword if present
+            if (this.quickKeyword) {
+                const term = this.quickKeyword.trim().toLowerCase();
+                qs = qs.filter(q => {
+                    const cShort = this.getCourseShortname(q.course).toLowerCase();
+                    const cFull = this.getCourseFullname(q.course).toLowerCase();
+                    const qName = (q.name || '').toLowerCase();
+                    return qName.includes(term) || cShort.includes(term) || cFull.includes(term) || String(q.id).includes(term);
+                });
             }
             
             return qs;
@@ -287,11 +506,15 @@ createApp({
         displayData() {
             return this.scannedAttempts.filter(att => {
                 if (this.studentSearch) {
-                    const term = this.studentSearch.toLowerCase();
-                    const match = att.username.toLowerCase().includes(term) || 
-                                  att.fullname.toLowerCase().includes(term) || 
-                                  att.quizName.toLowerCase().includes(term);
+                    const term = this.studentSearch.trim().toLowerCase();
+                    const match = (att.username && att.username.toLowerCase().includes(term)) || 
+                                  (att.fullname && att.fullname.toLowerCase().includes(term));
                     if (!match) return false;
+                }
+                
+                if (this.courseShortnameInput) {
+                    const term = this.courseShortnameInput.trim().toLowerCase();
+                    if (!att.courseShortname || !att.courseShortname.toLowerCase().includes(term)) return false;
                 }
                 
                 if (this.fromDate || this.toDate) {
@@ -315,23 +538,30 @@ createApp({
             return users.size;
         },
         avgGrade() {
-            if (this.displayData.length === 0) return 0;
+            if (this.displayData.length === 0) return '0.0';
             const sum = this.displayData.reduce((acc, row) => acc + row.total, 0);
             return (sum / this.displayData.length).toFixed(1);
         },
         highestGrade() {
-            if (this.displayData.length === 0) return 0;
+            if (this.displayData.length === 0) return '0.0';
             return Math.max(...this.displayData.map(d => d.total)).toFixed(1);
         }
     },
     watch: {
-        selectedCategory(newVal) {
+        selectedCategory() {
             this.selectedCourse = '';
             this.selectedQuiz = '';
         },
         async selectedCourse(newVal) {
             this.selectedQuiz = '';
             if (newVal) {
+                // Auto sync courseShortnameInput if exact course selected
+                const c = this.courses.find(item => item.id == newVal);
+                if (c && c.shortname) {
+                    this.courseShortnameInput = c.shortname;
+                }
+                
+                // Pull quizzes for this course if not already loaded
                 try {
                     const qzs = await this.request('mod_quiz_get_quizzes_by_courses', `&courseids[0]=${newVal}`);
                     if (qzs && qzs.quizzes) {
@@ -341,7 +571,7 @@ createApp({
                             }
                         });
                     }
-                } catch(e) { } 
+                } catch(e) { }
             }
         }
     },
@@ -364,17 +594,18 @@ createApp({
         },
         async connect() {
             if (!this.apiToken || !this.moodleUrl) {
-                this.setStatus('Fields required', 'error'); return;
+                this.setStatus('API Token and Moodle URL are required.', 'error'); 
+                return;
             }
             this.isLoading = true;
-            this.setStatus('Authenticating & loading hierarchy...');
+            this.setStatus('Authenticating & loading course hierarchy...');
             
             try {
                 // Fetch Categories
                 try {
                     const cats = await this.request('core_course_get_categories');
                     this.categories = Array.isArray(cats) ? cats : [];
-                } catch(e) { this.categories = []; /* fallback */ }
+                } catch(e) { this.categories = []; }
                 
                 // Fetch Courses
                 try {
@@ -394,7 +625,75 @@ createApp({
                 this.isLoading = false;
             }
         },
+        getCourseShortname(courseId) {
+            const c = this.courses.find(c => c.id == courseId);
+            return c ? (c.shortname || '') : '';
+        },
+        getCourseFullname(courseId) {
+            const c = this.courses.find(c => c.id == courseId);
+            return c ? (c.fullname || `Course ID: ${courseId}`) : `Course ID: ${courseId}`;
+        },
+        onCourseShortnameInput() {
+            const term = this.courseShortnameInput.trim().toLowerCase();
+            if (!term) {
+                this.selectedCourse = '';
+                return;
+            }
+            // If exact match found with course shortname, auto select it
+            const exact = this.courses.find(c => c.shortname && c.shortname.toLowerCase() === term);
+            if (exact) {
+                this.selectedCourse = exact.id;
+            }
+        },
+        clearCourseShortname() {
+            this.courseShortnameInput = '';
+            this.selectedCourse = '';
+        },
+        onCourseSelectChange() {
+            if (this.selectedCourse) {
+                const c = this.courses.find(item => item.id == this.selectedCourse);
+                if (c && c.shortname) {
+                    this.courseShortnameInput = c.shortname;
+                }
+            }
+        },
+        setDatePreset(preset) {
+            const today = new Date();
+            const formatDate = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            if (preset === 'today') {
+                const dStr = formatDate(today);
+                this.fromDate = dStr;
+                this.toDate = dStr;
+            } else if (preset === 'yesterday') {
+                const y = new Date();
+                y.setDate(y.getDate() - 1);
+                const dStr = formatDate(y);
+                this.fromDate = dStr;
+                this.toDate = dStr;
+            } else if (preset === '7days') {
+                const past = new Date();
+                past.setDate(past.getDate() - 7);
+                this.fromDate = formatDate(past);
+                this.toDate = formatDate(today);
+            } else if (preset === 'month') {
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                this.fromDate = formatDate(firstDay);
+                this.toDate = formatDate(today);
+            } else if (preset === 'clear') {
+                this.fromDate = '';
+                this.toDate = '';
+            }
+        },
         resetFilters() {
+            this.quickKeyword = '';
+            this.selectedShift = 'all';
+            this.courseShortnameInput = '';
             this.selectedCategory = '';
             this.selectedCourse = '';
             this.selectedQuiz = '';
@@ -408,7 +707,7 @@ createApp({
             this.isLoading = true;
             this.scannedAttempts = [];
             
-            // Determine active quizzes to scan
+            // Determine active target quizzes
             let targetQuizzes = [];
             if (this.selectedQuiz) {
                 targetQuizzes = this.quizzes.filter(q => q.id == this.selectedQuiz);
@@ -417,33 +716,35 @@ createApp({
             }
             
             if (targetQuizzes.length === 0) {
-                this.setStatus('No quizzes available for this selection.', 'error');
+                this.setStatus('No quizzes match the active filters (Course Short Name / Category / Keyword).', 'error');
                 this.isLoading = false;
                 return;
             }
 
-            if (targetQuizzes.length > 5 && !this.selectedQuiz && !this.studentSearch && !this.selectedCourse) {
-                 this.setStatus('Searching across too many quizzes. Please filter by Course or Quiz to avoid timeouts.', 'error');
-                 this.isLoading = false;
-                 return;
+            if (targetQuizzes.length > 10 && !this.selectedQuiz && !this.studentSearch && !this.selectedCourse && !this.courseShortnameInput) {
+                this.setStatus(`Filtering across ${targetQuizzes.length} quizzes. To avoid timeouts, please specify a Course Short Name or Course ID.`, 'error');
+                this.isLoading = false;
+                return;
             }
 
-            this.setStatus(`Scanning ${targetQuizzes.length} quizzes...`);
+            this.setStatus(`Scanning ${targetQuizzes.length} quizzes for student attempts...`);
 
             try {
-                // Collect target quizzes
                 let totalAttemptsFound = 0;
 
                 for (let quiz of targetQuizzes) {
-                    // Get all students enrolled in this quiz's course
+                    const cShortname = this.getCourseShortname(quiz.course);
+                    const cFullname = this.getCourseFullname(quiz.course);
+
+                    // Get students enrolled in quiz's course
                     let users = [];
                     try {
                         users = await this.request('core_enrol_get_enrolled_users', `&courseid=${quiz.course}`);
-                    } catch(e) { continue; } // skip if can't read users
+                    } catch(e) { continue; }
                     
-                    // Filter users locally if studentSearch is globally active
+                    // Filter users locally if studentSearch is set
                     if (this.studentSearch) {
-                        const term = this.studentSearch.toLowerCase();
+                        const term = this.studentSearch.trim().toLowerCase();
                         users = users.filter(u => 
                             (u.idnumber && u.idnumber.toLowerCase().includes(term)) || 
                             (u.username && u.username.toLowerCase().includes(term)) ||
@@ -459,9 +760,9 @@ createApp({
                             const attData = await this.request('mod_quiz_get_user_attempts', `&quizid=${quiz.id}&status=all&userid=${user.id}`);
                             if (attData.attempts && attData.attempts.length > 0) {
                                 for (let att of attData.attempts) {
-                                    if (att.state !== 'finished') continue; // Only graded
+                                    if (att.state !== 'finished') continue; // Graded attempts only
                                     
-                                    // Parse Quiz marks
+                                    // Parse Quiz marks breakdown
                                     let sum1M = 0; let sum2M = 0;
                                     try {
                                         const revData = await this.request('mod_quiz_get_attempt_review', `&attemptid=${att.id}`);
@@ -471,10 +772,10 @@ createApp({
                                                 let max = q.maxmark ? parseFloat(q.maxmark) : 1;
                                                 if (max === 1) sum1M += mark;
                                                 else if (max === 2) sum2M += mark;
-                                                else sum1M += mark; // Default fallback to 1M
+                                                else sum1M += mark;
                                             });
                                         }
-                                    } catch(e) { /* ignore deep breakdown fails */ }
+                                    } catch(e) { }
                                     
                                     const d = new Date(att.timefinish * 1000);
                                     
@@ -482,6 +783,10 @@ createApp({
                                         id: att.id,
                                         username: user.idnumber || user.username || 'Unknown',
                                         fullname: user.fullname,
+                                        courseId: quiz.course,
+                                        courseShortname: cShortname,
+                                        courseFullname: cFullname,
+                                        quizId: quiz.id,
                                         quizName: quiz.name,
                                         timestamp: att.timefinish * 1000,
                                         dateStr: `${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`,
@@ -492,11 +797,11 @@ createApp({
                                     totalAttemptsFound++;
                                 }
                             }
-                        } catch(e) { /* skip */ }
+                        } catch(e) { }
                     }
                 }
 
-                this.setStatus(totalAttemptsFound > 0 ? `Successfully retrieved ${totalAttemptsFound} attempts.` : 'No attempts found matching criteria.', totalAttemptsFound > 0 ? 'info' : 'error');
+                this.setStatus(totalAttemptsFound > 0 ? `Retrieved ${totalAttemptsFound} student attempts successfully.` : 'No finished attempts found for selected criteria.', totalAttemptsFound > 0 ? 'info' : 'error');
 
             } catch(e) {
                 this.setStatus(`Search Error: ${e.message}`, 'error');
@@ -505,16 +810,21 @@ createApp({
             }
         },
         exportCSV() {
-            let csv = "Username,Fullname,Quiz,Date,1M Score,2M Score,Total Score\n";
+            let csv = "Username/RegNo,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submitted Date,1M Score,2M Score,Total Score\n";
             this.displayData.forEach(r => {
-                csv += `"${r.username}","${r.fullname}","${r.quizName}","${r.dateStr}",${r.m1},${r.m2},${r.total}\n`;
+                const uname = (r.username || '').replace(/"/g, '""');
+                const fname = (r.fullname || '').replace(/"/g, '""');
+                const cshort = (r.courseShortname || '').replace(/"/g, '""');
+                const cname = (r.courseFullname || '').replace(/"/g, '""');
+                const qname = (r.quizName || '').replace(/"/g, '""');
+                csv += `"${uname}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${r.m1},${r.m2},${r.total}\n`;
             });
-            const blob = new Blob([csv], { type: 'text/csv' });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
             a.setAttribute('href', url);
-            a.setAttribute('download', 'JosTEL_Marks_Export.csv');
+            a.setAttribute('download', `JosTEL_Marks_${this.courseShortnameInput || 'Export'}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
