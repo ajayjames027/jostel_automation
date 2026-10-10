@@ -439,6 +439,7 @@
                                 <th class="text-center bg-blue-900/30">K2 (2M)</th>
                                 <th class="text-center">Score / Max</th>
                                 <th class="text-center">Percentage</th>
+                                <th class="text-center">Submission IP / Lab</th>
                             </tr>
                         </thead>
                         <tbody v-if="displayData.length > 0">
@@ -471,11 +472,23 @@
                                 <td class="text-center font-extrabold text-primary bg-slate-50">
                                     <span class="badge-pill bg-blue-100 text-blue-900 font-mono text-xs">{{ row.percentage || ((row.total / row.max) * 100).toFixed(0) + '%' }}</span>
                                 </td>
+                                <td class="text-center whitespace-nowrap">
+                                    <div v-if="row.ip" class="flex flex-col items-center">
+                                        <span class="font-mono text-xs font-semibold text-slate-700">{{ row.ip }}</span>
+                                        <span v-if="isCollegeIp(row.ip)" class="badge-pill bg-emerald-100 text-emerald-800 text-[10px] font-bold mt-0.5 border border-emerald-200">
+                                            🏛️ {{ getLabLabel(row.ip) }}
+                                        </span>
+                                        <span v-else class="badge-pill bg-amber-100 text-amber-800 text-[10px] font-bold mt-0.5 border border-amber-200">
+                                            📱 External / Mobile
+                                        </span>
+                                    </div>
+                                    <span v-else class="text-gray-400 font-mono text-xs">-</span>
+                                </td>
                             </tr>
                         </tbody>
                         <tbody v-else>
                             <tr>
-                                <td colspan="8" class="text-center py-16 text-gray-400">
+                                <td colspan="9" class="text-center py-16 text-gray-400">
                                     <div class="flex flex-col items-center justify-center gap-2">
                                         <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         <p class="font-semibold text-gray-600 text-sm">No attempts loaded yet</p>
@@ -1202,6 +1215,10 @@ createApp({
                                     const finished = attData.attempts.filter(a => a.state === 'finished');
                                     const targetAtt = finished.length > 0 ? finished[finished.length - 1] : attData.attempts[attData.attempts.length - 1];
                                     if (targetAtt) {
+                                        // Capture submission IP address if returned by attempt
+                                        if (targetAtt.ipaddress || targetAtt.ip) {
+                                            row.ip = targetAtt.ipaddress || targetAtt.ip;
+                                        }
                                         const revData = await this.request('mod_quiz_get_attempt_review', `&attemptid=${targetAtt.id}`);
                                         if (revData && revData.questions) {
                                             let sumK1 = 0;
@@ -1245,8 +1262,24 @@ createApp({
                 this.scanPercent = 100;
             }
         },
+        isCollegeIp(ip) {
+            if (!ip) return false;
+            return ip.startsWith('172.16.123.') || 
+                   ip.startsWith('172.16.139.') || 
+                   ip.startsWith('172.16.109.') || 
+                   ip.startsWith('172.16.140.') ||
+                   ip.startsWith('172.16.');
+        },
+        getLabLabel(ip) {
+            if (!ip) return 'Campus LAN';
+            if (ip.startsWith('172.16.123.')) return 'College Lab (123.x)';
+            if (ip.startsWith('172.16.139.')) return 'College Lab (139.x)';
+            if (ip.startsWith('172.16.109.')) return 'College Lab (109.x)';
+            if (ip.startsWith('172.16.140.')) return 'College Lab (140.x)';
+            return 'Campus LAN';
+        },
         exportCSV() {
-            let csv = "Register No / Username,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submission Date,K1 (1M),K2 (2M),Score,Max Marks,Percentage\n";
+            let csv = "Register No / Username,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submission Date,K1 (1M),K2 (2M),Score,Max Marks,Percentage,Submission IP,Network Location\n";
             this.displayData.forEach(r => {
                 const reg = (r.regNo || r.username || '').replace(/"/g, '""');
                 const fname = (r.fullname || '').replace(/"/g, '""');
@@ -1256,7 +1289,9 @@ createApp({
                 const k1 = (r.k1 !== undefined && r.k1 !== null ? r.k1 : (r.m1 || '-'));
                 const k2 = (r.k2 !== undefined && r.k2 !== null ? r.k2 : (r.m2 || '-'));
                 const pct = (r.percentage || '').replace(/"/g, '""');
-                csv += `"${reg}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${k1},${k2},${r.total},${r.max},"${pct}"\n`;
+                const ipStr = r.ip || '-';
+                const locStr = r.ip ? (this.isCollegeIp(r.ip) ? this.getLabLabel(r.ip) : 'External / Mobile') : '-';
+                csv += `"${reg}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${k1},${k2},${r.total},${r.max},"${pct}","${ipStr}","${locStr}"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
