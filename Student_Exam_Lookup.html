@@ -376,7 +376,11 @@ createApp({
                     let decompMeta = LZString.decompressFromBase64(snap.data().data);
                     if (decompMeta) {
                         let m = JSON.parse(decompMeta);
-                        if (m.settings && m.settings.examType) this.examTitle = m.settings.examType;
+                        if (m.websiteTimetable && m.websiteTimetable.examType) {
+                            this.examTitle = m.websiteTimetable.examType;
+                        } else if (m.settings && m.settings.examType) {
+                            this.examTitle = m.settings.examType;
+                        }
                         let allocChunkCount = m.allocChunkCount || 0;
                         
                         if (allocChunkCount > 0) {
