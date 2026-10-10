@@ -748,7 +748,7 @@
                 <!-- NEW PUBLIC TIMETABLE ROW -->
                 <div v-if="allocatedStudents.length > 0" class="grid md:grid-cols-2 gap-6 mt-6">
                     <!-- Website Timetable -->
-                    <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-indigo-500">
+                    <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-indigo-500 flex flex-col">
                         <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
@@ -756,6 +756,18 @@
                         <p class="text-sm text-gray-500 mb-6">Instantly generate the formalized Class-by-Class public schedule designed strictly for website publication and department notice boards.</p>
                         <button @click="exportPublicTimetablePDF" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow transition mt-auto">
                             Generate Website Timetable (.pdf)
+                        </button>
+                    </div>
+                    
+                    <!-- Unified Full Timetable -->
+                    <div class="glass-panel p-6 bg-white shadow-sm border-t-4 border-teal-500 flex flex-col">
+                        <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-2">Unified Timetable (Public + Class-Wise)</h3>
+                        <p class="text-sm text-gray-500 mb-6">Download a single merged PDF containing both the broad public schedule and the detailed Class-Wise seating breakdowns. Perfect for student circulation.</p>
+                        <button @click="exportUnifiedTimetablePDF" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg shadow transition mt-auto">
+                            Download Unified Timetable (.pdf)
                         </button>
                     </div>
                 </div>
@@ -2718,14 +2730,43 @@ createApp({
             let keys = Object.keys(structDataset);
             if(keys.length === 0) return;
             
+            this.injectJosTelBranding(doc);
+            let finalY = 35;
+            
             keys.forEach((key, index) => {
-                if(index > 0) doc.addPage();
-                
-                this.injectJosTelBranding(doc);
-                doc.setFontSize(14);
-                doc.setFont("helvetica", "bold");
                 let docLabel = mode === 'class' ? 'Class Theme: ' : 'Venue: ';
-                doc.text(`${docLabel}${key}`, 105, 33, { align: "center" });
+                
+                if (mode === 'lab') {
+                    if (index > 0) {
+                        doc.addPage();
+                        this.injectJosTelBranding(doc);
+                        finalY = 35;
+                    }
+                    doc.setFontSize(14);
+                    doc.setFont("helvetica", "bold");
+                    doc.text(`${docLabel}${key}`, 105, 33, { align: "center" });
+                    finalY = 38;
+                } else {
+                    if (index > 0) {
+                        if (finalY > 250) {
+                            doc.addPage();
+                            this.injectJosTelBranding(doc);
+                            finalY = 35;
+                        } else {
+                            finalY += 10;
+                        }
+                    } else {
+                        doc.setFontSize(14);
+                        doc.setFont("helvetica", "bold");
+                        doc.text("Class-Wise Exam Seating Breakdown", 105, 33, { align: "center" });
+                        finalY = 40;
+                    }
+                    doc.setFontSize(11);
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(20, 20, 20);
+                    doc.text(`${docLabel}${key}`, 14, finalY);
+                    finalY += 4;
+                }
                 
                 let students = structDataset[key];
                 let tableData = students.map((s, i) => [
@@ -2739,7 +2780,7 @@ createApp({
                 ]);
                 
                 doc.autoTable({
-                    startY: 38,
+                    startY: finalY,
                     head: [['S.No', 'Schedule Block', 'Lab Room', 'Register Number', 'Student Name', 'Class / Course', 'Seat ID']],
                     body: tableData,
                     theme: 'grid',
@@ -2747,6 +2788,8 @@ createApp({
                     styles: { fontSize: 8, cellPadding: 2, valign: 'middle' },
                     columnStyles: { 0: {cellWidth:10}, 1:{cellWidth:25}, 2:{cellWidth:20}, 3:{cellWidth:25}, 6:{cellWidth:15, halign:'center'} }
                 });
+                
+                finalY = doc.lastAutoTable.finalY;
             });
             const dd = new Date();
             doc.save(`Exam_${mode.toUpperCase()}_Export_${dd.getTime()}.pdf`);
@@ -3933,6 +3976,128 @@ createApp({
             });
             
             doc.save("College_Notice_Timetable.pdf");
+        },
+        
+        exportUnifiedTimetablePDF() {
+            if(!this.allocatedStudents.length) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            this.injectJosTelBranding(doc);
+            
+            let tableData = [];
+            
+            let groupedSlices = {};
+            this.allocatedStudents.forEach(s => {
+                let key = `${s['Class']}_::_${s.Date}`;
+                if(!groupedSlices[key]) groupedSlices[key] = [];
+                groupedSlices[key].push(s);
+            });
+            
+            Object.keys(groupedSlices).forEach(sliceKey => {
+                let slice = groupedSlices[sliceKey];
+                let firstRecord = slice[0];
+                let cName = firstRecord['Class'];
+                let level = 'Unknown';
+                let rawMatch = this.rawExtractedClasses.find(rc => rc.name === cName);
+                if(rawMatch) level = rawMatch.computedLevel;
+                
+                let startTimes = [];
+                let endTimes = [];
+                slice.forEach(s => {
+                    let parts = s.Timing.split(' to ');
+                    if(parts.length === 2) {
+                        startTimes.push(parts[0]);
+                        endTimes.push(parts[1]);
+                    }
+                });
+                
+                startTimes.sort((a,b) => new Date("1970/01/01 " + a).getTime() - new Date("1970/01/01 " + b).getTime());
+                endTimes.sort((a,b) => new Date("1970/01/01 " + a).getTime() - new Date("1970/01/01 " + b).getTime());
+                
+                let combinedTiming = startTimes.length > 0 ? `${startTimes[0]} to ${endTimes[endTimes.length-1]}` : firstRecord.Timing;
+                let assignedLabs = [...new Set(slice.map(s => s['Lab Room']))].join(', ');
+                
+                tableData.push([
+                    level,
+                    cName,
+                    firstRecord.Date,
+                    combinedTiming,
+                    assignedLabs,
+                    slice.length + " Students"
+                ]);
+            });
+            
+            tableData.sort((a,b) => {
+                if (a[2] !== b[2]) return a[2].localeCompare(b[2]);
+                let timeA = new Date("1970/01/01 " + a[3].split(' to ')[0]).getTime();
+                let timeB = new Date("1970/01/01 " + b[3].split(' to ')[0]).getTime();
+                return timeA - timeB;
+            });
+            
+            doc.autoTable({
+                startY: 35,
+                head: [['Academic Level', 'Department / Class Name', 'Exam Date', 'Scheduled Timing', 'Assigned Lab(s)', 'Strength']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [44, 62, 80] },
+                styles: { fontSize: 10, cellPadding: 3 }
+            });
+            
+            let structDataset = this.groupedByClass;
+            let keys = Object.keys(structDataset);
+            if(keys.length > 0) {
+                doc.addPage();
+                this.injectJosTelBranding(doc);
+                doc.setFontSize(14);
+                doc.setFont("helvetica", "bold");
+                doc.text("Class-Wise Exam Seating Breakdown", 105, 33, { align: "center" });
+                
+                let finalY = 40;
+                
+                keys.forEach((key, index) => {
+                    if (index > 0) {
+                        if (finalY > 250) {
+                            doc.addPage();
+                            this.injectJosTelBranding(doc);
+                            finalY = 35;
+                        } else {
+                            finalY += 10;
+                        }
+                    }
+                    
+                    doc.setFontSize(11);
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(20, 20, 20);
+                    doc.text(`Class Theme: ${key}`, 14, finalY);
+                    finalY += 4;
+                    
+                    let students = structDataset[key];
+                    let sTable = students.map((s, i) => [
+                        i + 1,
+                        s['Date'] + '\n' + s['Timing'],
+                        s['Lab Room'],
+                        s['Reg No'],
+                        s['Name'],
+                        s['Class'],
+                        s['Seat Number']
+                    ]);
+                    
+                    doc.autoTable({
+                        startY: finalY,
+                        head: [['S.No', 'Schedule Block', 'Lab Room', 'Register Number', 'Student Name', 'Class / Course', 'Seat ID']],
+                        body: sTable,
+                        theme: 'grid',
+                        headStyles: { fillColor: [40, 40, 40] },
+                        styles: { fontSize: 8, cellPadding: 2, valign: 'middle' },
+                        columnStyles: { 0: {cellWidth:10}, 1:{cellWidth:25}, 2:{cellWidth:20}, 3:{cellWidth:25}, 6:{cellWidth:15, halign:'center'} }
+                    });
+                    
+                    finalY = doc.lastAutoTable.finalY;
+                });
+            }
+            
+            doc.save("Unified_College_Timetable.pdf");
         },
         
         exportHallTicketsPDF() {
