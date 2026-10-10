@@ -276,6 +276,17 @@
                 </div>
             </div>
 
+            <!-- K1 & K2 Breakdown Toggle Option -->
+            <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                <label class="flex items-start gap-2 cursor-pointer select-none">
+                    <input type="checkbox" v-model="fetchK1K2Breakdown" class="mt-0.5 rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer">
+                    <div class="text-xs">
+                        <span class="font-bold text-amber-900 block">Fetch K1 & K2 Breakdown</span>
+                        <span class="text-amber-700 text-[11px] leading-tight block mt-0.5">Calculates individual 1-Mark (K1) and 2-Mark (K2) question scores for each student attempt.</span>
+                    </div>
+                </label>
+            </div>
+
             <!-- Live Progress Bar (During Scanning) -->
             <div v-if="isLoading" class="p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-2">
                 <div class="flex justify-between text-xs font-bold text-blue-900">
@@ -364,6 +375,8 @@
                                 <th>Course Short Name</th>
                                 <th>Quiz Name</th>
                                 <th>Submission Date</th>
+                                <th class="text-center bg-blue-900/30">K1 (1M)</th>
+                                <th class="text-center bg-blue-900/30">K2 (2M)</th>
                                 <th class="text-center">Score / Max</th>
                                 <th class="text-center">Percentage</th>
                             </tr>
@@ -386,6 +399,12 @@
                                 <td class="text-xs text-gray-600 font-mono whitespace-nowrap">
                                     {{ row.dateStr }}
                                 </td>
+                                <td class="text-center font-bold text-amber-700 bg-amber-50/40">
+                                    <span class="badge-pill bg-amber-100 text-amber-900 font-mono text-xs">{{ row.k1 !== undefined && row.k1 !== null ? row.k1 : (row.m1 || '-') }}</span>
+                                </td>
+                                <td class="text-center font-bold text-indigo-700 bg-indigo-50/40">
+                                    <span class="badge-pill bg-indigo-100 text-indigo-900 font-mono text-xs">{{ row.k2 !== undefined && row.k2 !== null ? row.k2 : (row.m2 || '-') }}</span>
+                                </td>
                                 <td class="text-center font-bold text-blue-700">
                                     {{ row.total }} <span class="text-xs text-gray-400 font-normal">/ {{ row.max }}</span>
                                 </td>
@@ -396,7 +415,7 @@
                         </tbody>
                         <tbody v-else>
                             <tr>
-                                <td colspan="6" class="text-center py-16 text-gray-400">
+                                <td colspan="8" class="text-center py-16 text-gray-400">
                                     <div class="flex flex-col items-center justify-center gap-2">
                                         <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         <p class="font-semibold text-gray-600 text-sm">No attempts loaded yet</p>
@@ -449,6 +468,7 @@ createApp({
             scanProgressText: '',
             scanPercent: 0,
             abortScan: false,
+            fetchK1K2Breakdown: true,
             
             scannedAttempts: [] // Fetched attempt rows
         }
@@ -886,6 +906,7 @@ createApp({
 
                                         this.scannedAttempts.push({
                                             id: `${ug.userid}_${gi.iteminstance}_${subTs}`,
+                                            userId: ug.userid,
                                             username: ug.useridnumber || ug.userfullname || 'Student',
                                             fullname: ug.userfullname,
                                             courseId: course.id,
@@ -895,8 +916,8 @@ createApp({
                                             quizName: gi.itemname,
                                             timestamp: subTs * 1000,
                                             dateStr: dateStr,
-                                            m1: '-',
-                                            m2: '-',
+                                            k1: '-',
+                                            k2: '-',
                                             total: parseFloat(gi.graderaw || 0).toFixed(1),
                                             max: parseFloat(gi.grademax || 25).toFixed(0),
                                             percentage: gi.percentageformatted || ''
@@ -912,6 +933,51 @@ createApp({
                     processedCount += batch.length;
                     this.scanPercent = Math.min(100, Math.round((processedCount / coursesToScan.length) * 100));
                     this.scanProgressText = `Scanning course ${processedCount}/${coursesToScan.length}... (${this.scannedAttempts.length} attempts found)`;
+                }
+
+                // If K1 & K2 breakdown is enabled and we found attempts, fetch K1/K2 in fast parallel batches
+                if (this.fetchK1K2Breakdown && this.scannedAttempts.length > 0 && !this.abortScan) {
+                    const attemptsToFetch = this.scannedAttempts;
+                    const totalToFetch = attemptsToFetch.length;
+                    this.scanProgressText = `Calculating K1 & K2 breakdown for ${totalToFetch} attempts...`;
+                    
+                    const kBatchSize = 6;
+                    for (let j = 0; j < totalToFetch; j += kBatchSize) {
+                        if (this.abortScan) break;
+                        const kBatch = attemptsToFetch.slice(j, j + kBatchSize);
+                        await Promise.all(kBatch.map(async (row) => {
+                            try {
+                                const attData = await this.request('mod_quiz_get_user_attempts', `&quizid=${row.quizId}&status=all&userid=${row.userId}`);
+                                if (attData && attData.attempts && attData.attempts.length > 0) {
+                                    // Pick finished attempt closest to submission or last finished
+                                    const finished = attData.attempts.filter(a => a.state === 'finished');
+                                    const targetAtt = finished.length > 0 ? finished[finished.length - 1] : attData.attempts[attData.attempts.length - 1];
+                                    if (targetAtt) {
+                                        const revData = await this.request('mod_quiz_get_attempt_review', `&attemptid=${targetAtt.id}`);
+                                        if (revData && revData.questions) {
+                                            let sumK1 = 0;
+                                            let sumK2 = 0;
+                                            revData.questions.forEach(q => {
+                                                const m = q.mark !== null && q.mark !== undefined ? parseFloat(q.mark) : 0;
+                                                const max = q.maxmark ? parseFloat(q.maxmark) : 1;
+                                                if (Math.round(max) === 2) {
+                                                    sumK2 += m;
+                                                } else {
+                                                    sumK1 += m;
+                                                }
+                                            });
+                                            row.k1 = sumK1.toFixed(1);
+                                            row.k2 = sumK2.toFixed(1);
+                                        }
+                                    }
+                                }
+                            } catch(err) {
+                                // Keep fallback
+                            }
+                        }));
+                        const doneCount = Math.min(totalToFetch, j + kBatchSize);
+                        this.scanProgressText = `Calculating K1 & K2 breakdown: ${doneCount}/${totalToFetch} completed...`;
+                    }
                 }
 
                 if (!this.abortScan) {
@@ -931,15 +997,17 @@ createApp({
             }
         },
         exportCSV() {
-            let csv = "Username/RegNo,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submitted Date,Score,Max Marks,Percentage\n";
+            let csv = "Username/RegNo,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submission Date,K1 (1M),K2 (2M),Score,Max Marks,Percentage\n";
             this.displayData.forEach(r => {
                 const uname = (r.username || '').replace(/"/g, '""');
                 const fname = (r.fullname || '').replace(/"/g, '""');
                 const cshort = (r.courseShortname || '').replace(/"/g, '""');
                 const cname = (r.courseFullname || '').replace(/"/g, '""');
                 const qname = (r.quizName || '').replace(/"/g, '""');
+                const k1 = (r.k1 !== undefined && r.k1 !== null ? r.k1 : (r.m1 || '-'));
+                const k2 = (r.k2 !== undefined && r.k2 !== null ? r.k2 : (r.m2 || '-'));
                 const pct = (r.percentage || '').replace(/"/g, '""');
-                csv += `"${uname}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${r.total},${r.max},"${pct}"\n`;
+                csv += `"${uname}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${k1},${k2},${r.total},${r.max},"${pct}"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
