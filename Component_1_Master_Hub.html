@@ -2486,29 +2486,115 @@ createApp({
 
             let finalY = doc.lastAutoTable.finalY + 10;
 
-            let auditTableData = [];
             auditStats.forEach(sess => {
-                auditTableData.push([{ content: sess.session, colSpan: 3, styles: { halign: 'center', fillColor: [240, 240, 240], fontStyle: 'bold', textColor: [0, 0, 0] } }]);
+                if (finalY > 260) {
+                    doc.addPage();
+                    finalY = 20;
+                }
+                
+                doc.setFontSize(11);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(30, 58, 138);
+                doc.text(sess.session, 14, finalY);
+                
+                doc.setFontSize(9);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Total Scheduled: ${sess.totalStudents}`, 196, finalY, { align: 'right' });
+                
+                doc.setDrawColor(220, 220, 220);
+                doc.line(14, finalY + 2, 196, finalY + 2);
+                
+                finalY += 8;
+                
+                let startX = 14;
+                let currentX = startX;
+                let cardW = 42.5;
+                let cardH = 22;
+                let gapX = 4;
+                let gapY = 5;
+                
+                let col = 0;
                 
                 sess.labStats.forEach(lab => {
-                    let st = lab.free === 0 ? 'Full' : (lab.free === lab.cap ? 'Empty' : 'Partially Used');
-                    let statusColor = lab.free === 0 ? [22, 163, 74] : (lab.free === lab.cap ? [220, 38, 38] : [217, 119, 6]);
-                    auditTableData.push([
-                        `Venue: ${lab.name}`,
-                        `${lab.used} / ${lab.cap} Seats Used`,
-                        { content: `Free: ${lab.free} Seats (${st})`, styles: { textColor: statusColor, fontStyle: 'bold' } }
-                    ]);
+                    if (col >= 4) {
+                        col = 0;
+                        currentX = startX;
+                        finalY += cardH + gapY;
+                        if (finalY + cardH > 280) {
+                            doc.addPage();
+                            finalY = 20;
+                        }
+                    }
+                    
+                    let isFull = lab.free === 0;
+                    let isEmpty = lab.free === lab.cap;
+                    
+                    let borderColor = isFull ? [134, 239, 172] : (isEmpty ? [252, 165, 165] : [253, 230, 138]);
+                    
+                    doc.setDrawColor(...borderColor);
+                    doc.setFillColor(255, 255, 255);
+                    doc.roundedRect(currentX, finalY, cardW, cardH, 2, 2, 'FD');
+                    
+                    doc.setFontSize(9);
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(51, 65, 85);
+                    let truncatedName = doc.splitTextToSize(lab.name, cardW - 4)[0];
+                    doc.text(truncatedName, currentX + 3, finalY + 5);
+                    
+                    doc.setFillColor(243, 244, 246);
+                    doc.roundedRect(currentX + 3, finalY + 8, cardW - 6, 2, 1, 1, 'F');
+                    
+                    let fillW = (lab.used / lab.cap) * (cardW - 6);
+                    if (fillW > 0) {
+                        let fillColor = isFull ? [34, 197, 94] : (isEmpty ? [248, 113, 113] : [251, 191, 36]);
+                        doc.setFillColor(...fillColor);
+                        doc.roundedRect(currentX + 3, finalY + 8, fillW, 2, 1, 1, 'F');
+                    }
+                    
+                    doc.setFontSize(7);
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(107, 114, 128);
+                    doc.text("OCCUPIED", currentX + 3, finalY + 14);
+                    
+                    doc.setFontSize(7);
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(156, 163, 175);
+                    let capStr = `/ ${lab.cap}`;
+                    let capW = doc.getTextWidth(capStr);
+                    doc.text(capStr, currentX + cardW - 3, finalY + 14, { align: 'right' });
+                    
+                    doc.setFontSize(9);
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(lab.used > 0 ? 30 : 156, lab.used > 0 ? 58 : 163, lab.used > 0 ? 138 : 175);
+                    doc.text(`${lab.used}`, currentX + cardW - 3 - capW - 1, finalY + 14, { align: 'right' });
+                    
+                    doc.setFontSize(6.5);
+                    doc.setFont("helvetica", "bold");
+                    if (isEmpty) {
+                        doc.setTextColor(220, 38, 38);
+                        doc.setFillColor(254, 242, 242);
+                        doc.setDrawColor(254, 226, 226);
+                        doc.roundedRect(currentX + 3, finalY + 16.5, cardW - 6, 4, 1, 1, 'FD');
+                        doc.text("100% EMPTY", currentX + cardW / 2, finalY + 19.2, { align: 'center' });
+                    } else if (isFull) {
+                        doc.setTextColor(22, 163, 74);
+                        doc.setFillColor(240, 253, 244);
+                        doc.setDrawColor(220, 252, 231);
+                        doc.roundedRect(currentX + 3, finalY + 16.5, cardW - 6, 4, 1, 1, 'FD');
+                        doc.text("MAX CAPACITY", currentX + cardW / 2, finalY + 19.2, { align: 'center' });
+                    } else {
+                        doc.setTextColor(180, 83, 9);
+                        doc.setFillColor(255, 251, 235);
+                        doc.setDrawColor(254, 243, 199);
+                        doc.roundedRect(currentX + 3, finalY + 16.5, cardW - 6, 4, 1, 1, 'FD');
+                        doc.text(`${lab.free} Free Seats`, currentX + cardW / 2, finalY + 19.2, { align: 'center' });
+                    }
+                    
+                    currentX += cardW + gapX;
+                    col++;
                 });
-                auditTableData.push([{ content: `Total Scheduled: ${sess.totalStudents} | Total Vacant Seats: ${sess.totalFree}`, colSpan: 3, styles: { halign: 'right', fontStyle: 'italic', fillColor: [250, 250, 250] } }]);
-            });
-
-            doc.autoTable({
-                startY: finalY,
-                head: [['Target Lab / Venue', 'Allocation Usage', 'Vacancy Status']],
-                body: auditTableData,
-                theme: 'grid',
-                headStyles: { fillColor: [217, 119, 6] },
-                styles: { fontSize: 9, cellPadding: 3 }
+                
+                finalY += cardH + 10;
             });
 
             const dd = new Date();
