@@ -963,14 +963,28 @@ createApp({
                     const batch = coursesToScan.slice(i, i + batchSize);
                     await Promise.all(batch.map(async (course) => {
                         try {
+                            // Fetch enrolled users to get authentic username / register number mapping
+                            let userMap = new Map();
+                            try {
+                                const enrUsers = await this.request('core_enrol_get_enrolled_users', `&courseid=${course.id}`);
+                                if (Array.isArray(enrUsers)) {
+                                    enrUsers.forEach(u => {
+                                        userMap.set(u.id, u.username || u.idnumber || '');
+                                    });
+                                }
+                            } catch(e) {
+                                // proceed with fallback if enrolled users call fails
+                            }
+
                             const res = await this.request('gradereport_user_get_grade_items', `&courseid=${course.id}`);
                             if (res && res.usergrades) {
                                 for (let ug of res.usergrades) {
+                                    const regNoCandidate = ug.useridnumber || userMap.get(ug.userid) || '';
                                     const uName = (ug.userfullname || '').toLowerCase();
-                                    const regNo = (ug.useridnumber || '').toLowerCase();
+                                    const regNoLower = (regNoCandidate || '').toLowerCase();
 
                                     // Student filter check
-                                    if (studentTerm && !uName.includes(studentTerm) && !regNo.includes(studentTerm)) {
+                                    if (studentTerm && !uName.includes(studentTerm) && !regNoLower.includes(studentTerm)) {
                                         continue;
                                     }
 
@@ -992,7 +1006,7 @@ createApp({
                                             const qName = (gi.itemname || '').toLowerCase();
                                             const cShort = (course.shortname || '').toLowerCase();
                                             const cFull = (course.fullname || '').toLowerCase();
-                                            if (!qName.includes(keywordTerm) && !cShort.includes(keywordTerm) && !cFull.includes(keywordTerm) && !uName.includes(keywordTerm) && !regNo.includes(keywordTerm)) {
+                                            if (!qName.includes(keywordTerm) && !cShort.includes(keywordTerm) && !cFull.includes(keywordTerm) && !uName.includes(keywordTerm) && !regNoLower.includes(keywordTerm)) {
                                                 continue;
                                             }
                                         }
@@ -1017,7 +1031,8 @@ createApp({
                                         this.scannedAttempts.push({
                                             id: `${ug.userid}_${gi.iteminstance}_${subTs}`,
                                             userId: ug.userid,
-                                            username: ug.useridnumber || ug.userfullname || 'Student',
+                                            regNo: regNoCandidate,
+                                            username: regNoCandidate || ug.userfullname || 'Student',
                                             fullname: ug.userfullname,
                                             courseId: course.id,
                                             courseShortname: course.shortname || `CRS_${course.id}`,
@@ -1043,7 +1058,8 @@ createApp({
                                         this.absentStudentsList.push({
                                             id: `${ug.userid}_${course.id}`,
                                             userId: ug.userid,
-                                            username: ug.useridnumber || ug.userfullname || 'Student',
+                                            regNo: regNoCandidate,
+                                            username: regNoCandidate || ug.userfullname || 'Student',
                                             fullname: ug.userfullname,
                                             courseId: course.id,
                                             courseShortname: course.shortname || `CRS_${course.id}`,
@@ -1125,9 +1141,9 @@ createApp({
             }
         },
         exportCSV() {
-            let csv = "Username/RegNo,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submission Date,K1 (1M),K2 (2M),Score,Max Marks,Percentage\n";
+            let csv = "Register No / Username,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submission Date,K1 (1M),K2 (2M),Score,Max Marks,Percentage\n";
             this.displayData.forEach(r => {
-                const uname = (r.username || '').replace(/"/g, '""');
+                const reg = (r.regNo || r.username || '').replace(/"/g, '""');
                 const fname = (r.fullname || '').replace(/"/g, '""');
                 const cshort = (r.courseShortname || '').replace(/"/g, '""');
                 const cname = (r.courseFullname || '').replace(/"/g, '""');
@@ -1135,7 +1151,7 @@ createApp({
                 const k1 = (r.k1 !== undefined && r.k1 !== null ? r.k1 : (r.m1 || '-'));
                 const k2 = (r.k2 !== undefined && r.k2 !== null ? r.k2 : (r.m2 || '-'));
                 const pct = (r.percentage || '').replace(/"/g, '""');
-                csv += `"${uname}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${k1},${k2},${r.total},${r.max},"${pct}"\n`;
+                csv += `"${reg}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${k1},${k2},${r.total},${r.max},"${pct}"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
@@ -1148,13 +1164,13 @@ createApp({
             document.body.removeChild(a);
         },
         exportAbsenteesCSV() {
-            let csv = "Username/RegNo,Full Name,Course Short Name,Course Name,Status\n";
+            let csv = "Register No / Username,Full Name,Course Short Name,Course Name,Status\n";
             this.displayAbsentees.forEach(st => {
-                const uname = (st.username || '').replace(/"/g, '""');
+                const reg = (st.regNo || st.username || '').replace(/"/g, '""');
                 const fname = (st.fullname || '').replace(/"/g, '""');
                 const cshort = (st.courseShortname || '').replace(/"/g, '""');
                 const cname = (st.courseFullname || '').replace(/"/g, '""');
-                csv += `"${uname}","${fname}","${cshort}","${cname}","Absent / Not Attended"\n`;
+                csv += `"${reg}","${fname}","${cshort}","${cname}","Absent / Not Attended"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
