@@ -1,0 +1,28 @@
+name: Automated Moodle Cron Job
+
+on:
+  schedule:
+    # Runs every 15 minutes automatically without human intervention
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  run-moodle-cron:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Trigger Moodle Cron Job
+        run: |
+          echo "Starting automated Moodle cron trigger..."
+          CRON_URL="https://service.sjctni.edu/jostel/moodle/admin/cron.php?password=Lms@2024"
+          HTTP_STATUS=$(curl -s -k -o cron_output.txt -w "%{http_code}" --max-time 180 "$CRON_URL")
+          echo "HTTP Status Code: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "Moodle Cron Job executed successfully!"
+            head -n 25 cron_output.txt
+          else
+            echo "Moodle Cron Job returned status: $HTTP_STATUS"
+            cat cron_output.txt
+            exit 1
+          fi
