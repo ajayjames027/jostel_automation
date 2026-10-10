@@ -574,7 +574,13 @@
                                                     </div>
                                                 </div>
                                                 
-                                                <h2 class="text-lg font-bold text-slate-800 mb-3 ml-1 border-b pb-2">Session-by-Session Lab Vacancies</h2>
+                                                <div class="flex justify-between items-center mb-3 ml-1 border-b pb-2">
+                                                    <h2 class="text-lg font-bold text-slate-800">Session-by-Session Lab Vacancies</h2>
+                                                    <button @click="exportAuditData" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1.5 rounded text-xs flex items-center gap-1.5 transition shadow-sm" title="Download Audit Report PDF">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                        Export PDF
+                                                    </button>
+                                                </div>
                                                 <div v-for="aud in utilizationAudit" :key="aud.session" class="mb-6 p-4 border rounded-lg bg-slate-50 shadow-sm border-slate-200">
                                                     <div class="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
                                                         <div class="font-black tracking-widest uppercase text-sm text-primary">{{ aud.session }}</div>
