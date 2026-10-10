@@ -323,50 +323,70 @@
         <div class="lg:col-span-3 space-y-5">
             
             <!-- Aggregates / Stats -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-                <div class="glass-panel p-4 text-center border-l-4 border-l-blue-600">
-                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Unique Students</p>
-                    <p class="text-2xl font-extrabold text-primary mt-1">{{ uniqueStudents }}</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div class="glass-panel p-3 text-center border-l-4 border-l-sky-500">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Supposed to Attend</p>
+                    <p class="text-xl font-extrabold text-sky-900 mt-1">{{ totalSupposedToAttend }}</p>
                 </div>
-                <div class="glass-panel p-4 text-center border-l-4 border-l-indigo-600">
-                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Total Attempts</p>
-                    <p class="text-2xl font-extrabold text-primary mt-1">{{ displayData.length }}</p>
+                <div class="glass-panel p-3 text-center border-l-4 border-l-emerald-600">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Attended (Done)</p>
+                    <p class="text-xl font-extrabold text-emerald-700 mt-1">{{ totalAttended }}</p>
                 </div>
-                <div class="glass-panel p-4 text-center border-l-4 border-l-emerald-600">
-                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Average Score</p>
-                    <p class="text-2xl font-extrabold text-emerald-700 mt-1">{{ avgGrade }}</p>
+                <div class="glass-panel p-3 text-center border-l-4 border-l-rose-500">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Absent / Pending</p>
+                    <p class="text-xl font-extrabold text-rose-700 mt-1">{{ totalAbsent }}</p>
                 </div>
-                <div class="glass-panel p-4 text-center border-l-4 border-l-amber-600">
-                    <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Highest Score</p>
-                    <p class="text-2xl font-extrabold text-amber-700 mt-1">{{ highestGrade }}</p>
+                <div class="glass-panel p-3 text-center border-l-4 border-l-blue-600">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total Attempts</p>
+                    <p class="text-xl font-extrabold text-primary mt-1">{{ displayData.length }}</p>
+                </div>
+                <div class="glass-panel p-3 text-center border-l-4 border-l-indigo-600">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Avg Score</p>
+                    <p class="text-xl font-extrabold text-indigo-700 mt-1">{{ avgGrade }}</p>
+                </div>
+                <div class="glass-panel p-3 text-center border-l-4 border-l-amber-600">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Highest Score</p>
+                    <p class="text-xl font-extrabold text-amber-700 mt-1">{{ highestGrade }}</p>
                 </div>
             </div>
 
-            <!-- Main Table Header Controls -->
+            <!-- Main Table Header Controls & Tab Switcher -->
             <div class="glass-panel p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-2 flex-wrap">
-                    <h2 class="text-lg font-bold text-gray-800">Student Attempts</h2>
-                    <span v-if="displayData.length > 0" class="badge-pill bg-slate-100 text-slate-700 font-mono">
-                        {{ displayData.length }} Records
-                    </span>
-                    <span v-if="courseShortnameInput" class="badge-pill bg-blue-100 text-blue-800 font-mono">
+                    <!-- Tab Switcher -->
+                    <div class="inline-flex p-1 bg-slate-100 rounded-lg text-xs font-bold mr-2">
+                        <button @click="activeTab = 'attempts'" :class="activeTab === 'attempts' ? 'bg-primary text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'" class="px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
+                            <span>Attended / Attempts</span>
+                            <span class="px-1.5 py-0.2 bg-white/20 text-white rounded text-[10px] font-mono">{{ displayData.length }}</span>
+                        </button>
+                        <button @click="activeTab = 'absentees'" :class="activeTab === 'absentees' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:text-rose-700'" class="px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
+                            <span>Absent Students</span>
+                            <span class="px-1.5 py-0.2 bg-rose-700/40 text-white rounded text-[10px] font-mono">{{ displayAbsentees.length }}</span>
+                        </button>
+                    </div>
+
+                    <span v-if="courseShortnameInput" class="badge-pill bg-blue-100 text-blue-800 font-mono text-[11px]">
                         Course: {{ courseShortnameInput }}
                     </span>
-                    <span v-if="selectedCategory" class="badge-pill bg-indigo-100 text-indigo-800 font-mono">
+                    <span v-if="selectedCategory" class="badge-pill bg-indigo-100 text-indigo-800 font-mono text-[11px]">
                         Cat ID: {{ selectedCategory }}
                     </span>
                 </div>
-                <div class="flex items-center gap-2" v-if="displayData.length > 0">
-                    <input v-model="tableFilterQuery" type="text" placeholder="Filter loaded results..." class="text-xs py-1.5 px-3 w-48 rounded-lg border border-slate-300">
-                    <button @click="exportCSV" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold text-xs transition-colors shrink-0">
+                <div class="flex items-center gap-2" v-if="displayData.length > 0 || displayAbsentees.length > 0">
+                    <input v-model="tableFilterQuery" type="text" placeholder="Filter current list..." class="text-xs py-1.5 px-3 w-48 rounded-lg border border-slate-300">
+                    <button v-if="activeTab === 'attempts'" @click="exportCSV" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold text-xs transition-colors shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        Export CSV
+                        Export Attempts CSV
+                    </button>
+                    <button v-else @click="exportAbsenteesCSV" class="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold text-xs transition-colors shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Export Absentees CSV
                     </button>
                 </div>
             </div>
 
-            <!-- Main Table -->
-            <div class="glass-panel overflow-hidden shadow-sm">
+            <!-- Attempts Table View -->
+            <div v-if="activeTab === 'attempts'" class="glass-panel overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table>
                         <thead>
@@ -428,6 +448,54 @@
                 </div>
             </div>
 
+            <!-- Absent Students Table View -->
+            <div v-else class="glass-panel overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student (RegNo & Name)</th>
+                                <th>Course Short Name</th>
+                                <th>Course Full Name</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody v-if="displayAbsentees.length > 0">
+                            <tr v-for="st in displayAbsentees" :key="st.id">
+                                <td class="font-medium text-gray-900">
+                                    <div class="font-bold text-slate-800">{{ st.username }}</div>
+                                    <div class="text-xs text-gray-500 font-normal">{{ st.fullname }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge-pill bg-blue-50 text-blue-800 border border-blue-200 font-mono text-[11px]">
+                                        {{ st.courseShortname || 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="text-xs text-gray-700">
+                                    {{ st.courseFullname }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge-pill bg-rose-100 text-rose-800 font-semibold text-xs border border-rose-200">
+                                        Absent / Not Attended
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody v-else>
+                            <tr>
+                                <td colspan="4" class="text-center py-16 text-gray-400">
+                                    <div class="flex flex-col items-center justify-center gap-2">
+                                        <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <p class="font-semibold text-gray-600 text-sm">No absentees found</p>
+                                        <p class="text-xs text-gray-400 max-w-sm">All scanned students have attended their quiz, or no scan has been performed yet.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -469,6 +537,13 @@ createApp({
             scanPercent: 0,
             abortScan: false,
             fetchK1K2Breakdown: true,
+            
+            // Attendance Tracking
+            totalSupposedToAttend: 0,
+            totalAttended: 0,
+            totalAbsent: 0,
+            activeTab: 'attempts', // 'attempts' or 'absentees'
+            absentStudentsList: [], // List of absent students
             
             scannedAttempts: [] // Fetched attempt rows
         }
@@ -602,6 +677,28 @@ createApp({
         highestGrade() {
             if (this.displayData.length === 0) return '0.0';
             return Math.max(...this.displayData.map(d => parseFloat(d.total) || 0)).toFixed(1);
+        },
+        displayAbsentees() {
+            return this.absentStudentsList.filter(st => {
+                if (this.tableFilterQuery) {
+                    const q = this.tableFilterQuery.toLowerCase().trim();
+                    const match = (st.username && st.username.toLowerCase().includes(q)) ||
+                                  (st.fullname && st.fullname.toLowerCase().includes(q)) ||
+                                  (st.courseShortname && st.courseShortname.toLowerCase().includes(q));
+                    if (!match) return false;
+                }
+                if (this.studentSearch) {
+                    const term = this.studentSearch.trim().toLowerCase();
+                    const match = (st.username && st.username.toLowerCase().includes(term)) || 
+                                  (st.fullname && st.fullname.toLowerCase().includes(term));
+                    if (!match) return false;
+                }
+                if (this.courseShortnameInput) {
+                    const term = this.courseShortnameInput.trim().toLowerCase();
+                    if (!st.courseShortname || !st.courseShortname.toLowerCase().includes(term)) return false;
+                }
+                return true;
+            });
         }
     },
     watch: {
@@ -808,6 +905,11 @@ createApp({
             this.toDate = '';
             this.studentSearch = '';
             this.scannedAttempts = [];
+            this.absentStudentsList = [];
+            this.totalSupposedToAttend = 0;
+            this.totalAttended = 0;
+            this.totalAbsent = 0;
+            this.activeTab = 'attempts';
             this.tableFilterQuery = '';
             this.setStatus('');
         },
@@ -815,6 +917,10 @@ createApp({
             this.isLoading = true;
             this.abortScan = false;
             this.scannedAttempts = [];
+            this.absentStudentsList = [];
+            this.totalSupposedToAttend = 0;
+            this.totalAttended = 0;
+            this.totalAbsent = 0;
             this.scanPercent = 0;
             this.setStatus('');
 
@@ -868,6 +974,8 @@ createApp({
                                         continue;
                                     }
 
+                                    let userAttemptsFound = 0;
+
                                     for (let gi of (ug.gradeitems || [])) {
                                         // Quiz items only with valid grades
                                         if (gi.itemmodule !== 'quiz' || gi.graderaw === null || gi.graderaw === undefined) {
@@ -904,6 +1012,8 @@ createApp({
                                             ? `${new Date(subTs * 1000).toLocaleDateString()} ${new Date(subTs * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}` 
                                             : 'Completed';
 
+                                        userAttemptsFound++;
+
                                         this.scannedAttempts.push({
                                             id: `${ug.userid}_${gi.iteminstance}_${subTs}`,
                                             userId: ug.userid,
@@ -923,6 +1033,24 @@ createApp({
                                             percentage: gi.percentageformatted || ''
                                         });
                                     }
+
+                                    // Attendance Accounting
+                                    this.totalSupposedToAttend++;
+                                    if (userAttemptsFound > 0) {
+                                        this.totalAttended++;
+                                    } else {
+                                        this.totalAbsent++;
+                                        this.absentStudentsList.push({
+                                            id: `${ug.userid}_${course.id}`,
+                                            userId: ug.userid,
+                                            username: ug.useridnumber || ug.userfullname || 'Student',
+                                            fullname: ug.userfullname,
+                                            courseId: course.id,
+                                            courseShortname: course.shortname || `CRS_${course.id}`,
+                                            courseFullname: course.fullname,
+                                            status: 'Absent / Not Attended'
+                                        });
+                                    }
                                 }
                             }
                         } catch(e) {
@@ -932,7 +1060,7 @@ createApp({
 
                     processedCount += batch.length;
                     this.scanPercent = Math.min(100, Math.round((processedCount / coursesToScan.length) * 100));
-                    this.scanProgressText = `Scanning course ${processedCount}/${coursesToScan.length}... (${this.scannedAttempts.length} attempts found)`;
+                    this.scanProgressText = `Scanning course ${processedCount}/${coursesToScan.length}... (${this.scannedAttempts.length} attempts, ${this.totalAttended} attended, ${this.totalAbsent} absent)`;
                 }
 
                 // If K1 & K2 breakdown is enabled and we found attempts, fetch K1/K2 in fast parallel batches
@@ -1015,6 +1143,25 @@ createApp({
             a.setAttribute('hidden', '');
             a.setAttribute('href', url);
             a.setAttribute('download', `JosTEL_Marks_Category_${this.selectedCategory || 'All'}_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        },
+        exportAbsenteesCSV() {
+            let csv = "Username/RegNo,Full Name,Course Short Name,Course Name,Status\n";
+            this.displayAbsentees.forEach(st => {
+                const uname = (st.username || '').replace(/"/g, '""');
+                const fname = (st.fullname || '').replace(/"/g, '""');
+                const cshort = (st.courseShortname || '').replace(/"/g, '""');
+                const cname = (st.courseFullname || '').replace(/"/g, '""');
+                csv += `"${uname}","${fname}","${cshort}","${cname}","Absent / Not Attended"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `JosTEL_Absentees_Category_${this.selectedCategory || 'All'}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
