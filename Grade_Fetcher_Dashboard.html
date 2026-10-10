@@ -176,7 +176,7 @@
                 </label>
                 <input 
                     v-model="courseShortnameInput" 
-                    @input="onCourseShortnameInput"
+                    @input="onCourseShortnameInput" 
                     list="courseShortnamesList" 
                     type="text" 
                     placeholder="e.g. 22UCO101, 23UPH204" 
@@ -276,6 +276,21 @@
                 </div>
             </div>
 
+            <!-- Live Progress Bar (During Scanning) -->
+            <div v-if="isLoading" class="p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-2">
+                <div class="flex justify-between text-xs font-bold text-blue-900">
+                    <span class="truncate mr-2">{{ scanProgressText || 'Scanning...' }}</span>
+                    <span>{{ scanPercent }}%</span>
+                </div>
+                <div class="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
+                    <div class="bg-primary h-2 rounded-full transition-all duration-300" :style="{ width: scanPercent + '%' }"></div>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-blue-700">
+                    <span>Found {{ scannedAttempts.length }} attempts</span>
+                    <button @click="cancelScan" class="text-red-600 hover:underline font-bold">Stop Scan</button>
+                </div>
+            </div>
+
             <!-- Action Buttons -->
             <div class="flex gap-2 pt-2">
                 <button @click="searchRecords" :disabled="isLoading || isFetchingQuizzes" class="flex-1 bg-primary hover:bg-primaryHover text-white font-bold py-2.5 rounded-lg transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 text-xs">
@@ -326,9 +341,13 @@
                     <span v-if="courseShortnameInput" class="badge-pill bg-blue-100 text-blue-800 font-mono">
                         Course: {{ courseShortnameInput }}
                     </span>
+                    <span v-if="selectedCategory" class="badge-pill bg-indigo-100 text-indigo-800 font-mono">
+                        Cat ID: {{ selectedCategory }}
+                    </span>
                 </div>
                 <div class="flex items-center gap-2" v-if="displayData.length > 0">
-                    <button @click="exportCSV" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold text-xs transition-colors">
+                    <input v-model="tableFilterQuery" type="text" placeholder="Filter loaded results..." class="text-xs py-1.5 px-3 w-48 rounded-lg border border-slate-300">
+                    <button @click="exportCSV" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold text-xs transition-colors shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Export CSV
                     </button>
@@ -341,13 +360,12 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Student (Username / RegNo)</th>
+                                <th>Student (RegNo & Name)</th>
                                 <th>Course Short Name</th>
                                 <th>Quiz Name</th>
                                 <th>Submission Date</th>
-                                <th class="text-center">1M Score</th>
-                                <th class="text-center">2M Score</th>
-                                <th class="text-center">Total Score</th>
+                                <th class="text-center">Score / Max</th>
+                                <th class="text-center">Percentage</th>
                             </tr>
                         </thead>
                         <tbody v-if="displayData.length > 0">
@@ -362,41 +380,32 @@
                                     </span>
                                 </td>
                                 <td class="text-gray-800 font-medium">
-                                    {{ row.quizName }}
+                                    <div>{{ row.quizName }}</div>
+                                    <span class="text-[10px] text-gray-400 font-mono">Quiz ID: {{ row.quizId }}</span>
                                 </td>
                                 <td class="text-xs text-gray-600 font-mono whitespace-nowrap">
                                     {{ row.dateStr }}
                                 </td>
-                                <td class="text-center font-bold text-blue-600">{{ row.m1 }}</td>
-                                <td class="text-center font-bold text-purple-600">{{ row.m2 }}</td>
-                                <td class="text-center font-extrabold text-primary bg-slate-50">{{ row.total }}</td>
+                                <td class="text-center font-bold text-blue-700">
+                                    {{ row.total }} <span class="text-xs text-gray-400 font-normal">/ {{ row.max }}</span>
+                                </td>
+                                <td class="text-center font-extrabold text-primary bg-slate-50">
+                                    <span class="badge-pill bg-blue-100 text-blue-900 font-mono text-xs">{{ row.percentage || ((row.total / row.max) * 100).toFixed(0) + '%' }}</span>
+                                </td>
                             </tr>
                         </tbody>
                         <tbody v-else>
                             <tr>
-                                <td colspan="7" class="text-center py-16 text-gray-400">
+                                <td colspan="6" class="text-center py-16 text-gray-400">
                                     <div class="flex flex-col items-center justify-center gap-2">
                                         <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         <p class="font-semibold text-gray-600 text-sm">No attempts loaded yet</p>
-                                        <p class="text-xs text-gray-400 max-w-sm">Use the filters on the left (e.g. Course Short Name, Quiz, or Date Range) and click "SEARCH ATTEMPTS".</p>
+                                        <p class="text-xs text-gray-400 max-w-sm">Click "SEARCH ATTEMPTS" on the left to scan all courses in this category without limits.</p>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <!-- Filter Advice Callout -->
-            <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-4 flex items-start gap-3 text-xs text-blue-900">
-                <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <div>
-                    <span class="font-bold">Tips for Faster Quiz Lookups:</span>
-                    <ul class="list-disc pl-4 mt-1 space-y-0.5 text-blue-800">
-                        <li>Type course code prefix (e.g., <code class="font-mono bg-white px-1 py-0.5 rounded text-blue-900">22UCO</code> or <code class="font-mono bg-white px-1 py-0.5 rounded text-blue-900">23UCH</code>) in <strong>Course Short Name</strong> to filter all corresponding sections immediately.</li>
-                        <li>Use <strong>Shift 1 / Shift 2</strong> toggles to isolate day and evening section exams.</li>
-                        <li>Use <strong>Date Presets</strong> (Today, Yesterday, Last 7D) to instantly focus on current exam cycle data.</li>
-                    </ul>
                 </div>
             </div>
 
@@ -434,6 +443,12 @@ createApp({
             toDate: '',
             studentSearch: '',
             searchDebounceTimer: null,
+            tableFilterQuery: '',
+            
+            // Progress & Cancellation
+            scanProgressText: '',
+            scanPercent: 0,
+            abortScan: false,
             
             scannedAttempts: [] // Fetched attempt rows
         }
@@ -516,6 +531,15 @@ createApp({
         },
         displayData() {
             return this.scannedAttempts.filter(att => {
+                if (this.tableFilterQuery) {
+                    const q = this.tableFilterQuery.toLowerCase().trim();
+                    const match = (att.username && att.username.toLowerCase().includes(q)) ||
+                                  (att.fullname && att.fullname.toLowerCase().includes(q)) ||
+                                  (att.courseShortname && att.courseShortname.toLowerCase().includes(q)) ||
+                                  (att.quizName && att.quizName.toLowerCase().includes(q));
+                    if (!match) return false;
+                }
+
                 if (this.studentSearch) {
                     const term = this.studentSearch.trim().toLowerCase();
                     const match = (att.username && att.username.toLowerCase().includes(term)) || 
@@ -529,15 +553,17 @@ createApp({
                 }
                 
                 if (this.fromDate || this.toDate) {
-                    const rowDate = new Date(att.timestamp);
-                    rowDate.setHours(0,0,0,0);
-                    if (this.fromDate) {
-                        const fd = new Date(this.fromDate); fd.setHours(0,0,0,0);
-                        if (rowDate < fd) return false;
-                    }
-                    if (this.toDate) {
-                        const td = new Date(this.toDate); td.setHours(0,0,0,0);
-                        if (rowDate > td) return false;
+                    if (att.timestamp && att.timestamp > 0) {
+                        const rowDate = new Date(att.timestamp);
+                        rowDate.setHours(0,0,0,0);
+                        if (this.fromDate) {
+                            const fd = new Date(this.fromDate); fd.setHours(0,0,0,0);
+                            if (rowDate < fd) return false;
+                        }
+                        if (this.toDate) {
+                            const td = new Date(this.toDate); td.setHours(0,0,0,0);
+                            if (rowDate > td) return false;
+                        }
                     }
                 }
                 
@@ -550,12 +576,12 @@ createApp({
         },
         avgGrade() {
             if (this.displayData.length === 0) return '0.0';
-            const sum = this.displayData.reduce((acc, row) => acc + row.total, 0);
+            const sum = this.displayData.reduce((acc, row) => acc + (parseFloat(row.total) || 0), 0);
             return (sum / this.displayData.length).toFixed(1);
         },
         highestGrade() {
             if (this.displayData.length === 0) return '0.0';
-            return Math.max(...this.displayData.map(d => d.total)).toFixed(1);
+            return Math.max(...this.displayData.map(d => parseFloat(d.total) || 0)).toFixed(1);
         }
     },
     watch: {
@@ -615,7 +641,7 @@ createApp({
                 // Fetch Courses
                 try {
                     const crs = await this.request('core_course_get_courses');
-                    this.courses = Array.isArray(crs) ? crs.filter(c => c.id !== 1) : []; // skip site course
+                    this.courses = Array.isArray(crs) ? crs.filter(c => c.id !== 1) : [];
                 } catch(e) { this.courses = []; }
 
                 this.isConnected = true;
@@ -747,6 +773,10 @@ createApp({
                 this.toDate = '';
             }
         },
+        cancelScan() {
+            this.abortScan = true;
+            this.setStatus('Scanning halted by user.', 'info');
+        },
         resetFilters() {
             this.quickKeyword = '';
             this.selectedShift = 'all';
@@ -758,130 +788,165 @@ createApp({
             this.toDate = '';
             this.studentSearch = '';
             this.scannedAttempts = [];
+            this.tableFilterQuery = '';
             this.setStatus('');
         },
         async searchRecords() {
             this.isLoading = true;
+            this.abortScan = false;
             this.scannedAttempts = [];
-            
-            // Determine active target quizzes
-            let targetQuizzes = [];
-            if (this.selectedQuiz) {
-                targetQuizzes = this.quizzes.filter(q => q.id == this.selectedQuiz);
+            this.scanPercent = 0;
+            this.setStatus('');
+
+            // 1. Identify courses to scan based on active filters
+            let coursesToScan = [];
+            if (this.selectedCourse) {
+                const c = this.courses.find(item => item.id == this.selectedCourse);
+                if (c) coursesToScan = [c];
+            } else if (this.courseShortnameInput) {
+                const term = this.courseShortnameInput.trim().toLowerCase();
+                coursesToScan = this.courses.filter(c => c.shortname && c.shortname.toLowerCase().includes(term));
+            } else if (this.selectedCategory) {
+                coursesToScan = this.courses.filter(c => c.categoryid == this.selectedCategory);
             } else {
-                targetQuizzes = this.filteredQuizzes; 
+                // All filtered courses
+                coursesToScan = this.filteredCourses;
             }
-            
-            if (targetQuizzes.length === 0) {
-                this.setStatus('No quizzes match the active filters (Course Short Name / Category / Keyword).', 'error');
+
+            if (coursesToScan.length === 0) {
+                this.setStatus('No matching courses found for active filters.', 'error');
                 this.isLoading = false;
                 return;
             }
 
-            if (targetQuizzes.length > 10 && !this.selectedQuiz && !this.studentSearch && !this.selectedCourse && !this.courseShortnameInput) {
-                this.setStatus(`Filtering across ${targetQuizzes.length} quizzes. To avoid timeouts, please specify a Course Short Name or Course ID.`, 'error');
-                this.isLoading = false;
-                return;
-            }
-
-            this.setStatus(`Scanning ${targetQuizzes.length} quizzes for student attempts...`);
+            this.scanProgressText = `Preparing to scan ${coursesToScan.length} courses...`;
+            const fromDateObj = this.fromDate ? new Date(this.fromDate + 'T00:00:00') : null;
+            const toDateObj = this.toDate ? new Date(this.toDate + 'T23:59:59') : null;
+            const studentTerm = this.studentSearch.trim().toLowerCase();
+            const keywordTerm = this.quickKeyword.trim().toLowerCase();
+            const quizFilter = this.selectedQuiz ? String(this.selectedQuiz) : '';
 
             try {
-                let totalAttemptsFound = 0;
+                // Scan courses sequentially or in small parallel batches of 3
+                const batchSize = 3;
+                let processedCount = 0;
 
-                for (let quiz of targetQuizzes) {
-                    const cShortname = this.getCourseShortname(quiz.course);
-                    const cFullname = this.getCourseFullname(quiz.course);
+                for (let i = 0; i < coursesToScan.length; i += batchSize) {
+                    if (this.abortScan) break;
 
-                    // Get students enrolled in quiz's course
-                    let users = [];
-                    try {
-                        users = await this.request('core_enrol_get_enrolled_users', `&courseid=${quiz.course}`);
-                    } catch(e) { continue; }
-                    
-                    // Filter users locally if studentSearch is set
-                    if (this.studentSearch) {
-                        const term = this.studentSearch.trim().toLowerCase();
-                        users = users.filter(u => 
-                            (u.idnumber && u.idnumber.toLowerCase().includes(term)) || 
-                            (u.username && u.username.toLowerCase().includes(term)) ||
-                            (u.fullname && u.fullname.toLowerCase().includes(term))
-                        );
-                    }
-
-                    if (users.length === 0) continue;
-
-                    // Pull attempts per user
-                    for (let user of users) {
+                    const batch = coursesToScan.slice(i, i + batchSize);
+                    await Promise.all(batch.map(async (course) => {
                         try {
-                            const attData = await this.request('mod_quiz_get_user_attempts', `&quizid=${quiz.id}&status=all&userid=${user.id}`);
-                            if (attData.attempts && attData.attempts.length > 0) {
-                                for (let att of attData.attempts) {
-                                    if (att.state !== 'finished') continue; // Graded attempts only
-                                    
-                                    // Parse Quiz marks breakdown
-                                    let sum1M = 0; let sum2M = 0;
-                                    try {
-                                        const revData = await this.request('mod_quiz_get_attempt_review', `&attemptid=${att.id}`);
-                                        if (revData.questions) {
-                                            revData.questions.forEach(q => {
-                                                let mark = q.mark !== null ? parseFloat(q.mark) : 0;
-                                                let max = q.maxmark ? parseFloat(q.maxmark) : 1;
-                                                if (max === 1) sum1M += mark;
-                                                else if (max === 2) sum2M += mark;
-                                                else sum1M += mark;
-                                            });
+                            const res = await this.request('gradereport_user_get_grade_items', `&courseid=${course.id}`);
+                            if (res && res.usergrades) {
+                                for (let ug of res.usergrades) {
+                                    const uName = (ug.userfullname || '').toLowerCase();
+                                    const regNo = (ug.useridnumber || '').toLowerCase();
+
+                                    // Student filter check
+                                    if (studentTerm && !uName.includes(studentTerm) && !regNo.includes(studentTerm)) {
+                                        continue;
+                                    }
+
+                                    for (let gi of (ug.gradeitems || [])) {
+                                        // Quiz items only with valid grades
+                                        if (gi.itemmodule !== 'quiz' || gi.graderaw === null || gi.graderaw === undefined) {
+                                            continue;
                                         }
-                                    } catch(e) { }
-                                    
-                                    const d = new Date(att.timefinish * 1000);
-                                    
-                                    this.scannedAttempts.push({
-                                        id: att.id,
-                                        username: user.idnumber || user.username || 'Unknown',
-                                        fullname: user.fullname,
-                                        courseId: quiz.course,
-                                        courseShortname: cShortname,
-                                        courseFullname: cFullname,
-                                        quizId: quiz.id,
-                                        quizName: quiz.name,
-                                        timestamp: att.timefinish * 1000,
-                                        dateStr: `${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`,
-                                        m1: sum1M.toFixed(1),
-                                        m2: sum2M.toFixed(1),
-                                        total: att.sumgrades !== null ? parseFloat(att.sumgrades) : 0
-                                    });
-                                    totalAttemptsFound++;
+
+                                        // Quiz filter check
+                                        if (quizFilter && String(gi.iteminstance) !== quizFilter) {
+                                            continue;
+                                        }
+
+                                        // Quick keyword check
+                                        if (keywordTerm) {
+                                            const qName = (gi.itemname || '').toLowerCase();
+                                            const cShort = (course.shortname || '').toLowerCase();
+                                            const cFull = (course.fullname || '').toLowerCase();
+                                            if (!qName.includes(keywordTerm) && !cShort.includes(keywordTerm) && !cFull.includes(keywordTerm) && !uName.includes(keywordTerm) && !regNo.includes(keywordTerm)) {
+                                                continue;
+                                            }
+                                        }
+
+                                        // Date window check
+                                        const subTs = gi.gradedatesubmitted || gi.gradedategraded || 0;
+                                        if (subTs > 0) {
+                                            const dObj = new Date(subTs * 1000);
+                                            if (fromDateObj && dObj < fromDateObj) continue;
+                                            if (toDateObj && dObj > toDateObj) continue;
+                                        } else if (fromDateObj || toDateObj) {
+                                            // Skip if date filter active but no date recorded
+                                            continue;
+                                        }
+
+                                        const dateStr = subTs > 0 
+                                            ? `${new Date(subTs * 1000).toLocaleDateString()} ${new Date(subTs * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}` 
+                                            : 'Completed';
+
+                                        this.scannedAttempts.push({
+                                            id: `${ug.userid}_${gi.iteminstance}_${subTs}`,
+                                            username: ug.useridnumber || ug.userfullname || 'Student',
+                                            fullname: ug.userfullname,
+                                            courseId: course.id,
+                                            courseShortname: course.shortname || `CRS_${course.id}`,
+                                            courseFullname: course.fullname,
+                                            quizId: gi.iteminstance,
+                                            quizName: gi.itemname,
+                                            timestamp: subTs * 1000,
+                                            dateStr: dateStr,
+                                            m1: '-',
+                                            m2: '-',
+                                            total: parseFloat(gi.graderaw || 0).toFixed(1),
+                                            max: parseFloat(gi.grademax || 25).toFixed(0),
+                                            percentage: gi.percentageformatted || ''
+                                        });
+                                    }
                                 }
                             }
-                        } catch(e) { }
-                    }
+                        } catch(e) {
+                            // Proceed on error
+                        }
+                    }));
+
+                    processedCount += batch.length;
+                    this.scanPercent = Math.min(100, Math.round((processedCount / coursesToScan.length) * 100));
+                    this.scanProgressText = `Scanning course ${processedCount}/${coursesToScan.length}... (${this.scannedAttempts.length} attempts found)`;
                 }
 
-                this.setStatus(totalAttemptsFound > 0 ? `Retrieved ${totalAttemptsFound} student attempts successfully.` : 'No finished attempts found for selected criteria.', totalAttemptsFound > 0 ? 'info' : 'error');
+                if (!this.abortScan) {
+                    this.setStatus(
+                        this.scannedAttempts.length > 0 
+                            ? `Successfully retrieved all ${this.scannedAttempts.length} attempts across ${coursesToScan.length} courses!` 
+                            : `Scan completed across ${coursesToScan.length} courses: No submitted attempts matched date/criteria.`,
+                        this.scannedAttempts.length > 0 ? 'info' : 'error'
+                    );
+                }
 
             } catch(e) {
-                this.setStatus(`Search Error: ${e.message}`, 'error');
+                this.setStatus(`Scan Error: ${e.message}`, 'error');
             } finally {
                 this.isLoading = false;
+                this.scanPercent = 100;
             }
         },
         exportCSV() {
-            let csv = "Username/RegNo,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submitted Date,1M Score,2M Score,Total Score\n";
+            let csv = "Username/RegNo,Full Name,Course Short Name,Course Name,Quiz Name,Quiz ID,Submitted Date,Score,Max Marks,Percentage\n";
             this.displayData.forEach(r => {
                 const uname = (r.username || '').replace(/"/g, '""');
                 const fname = (r.fullname || '').replace(/"/g, '""');
                 const cshort = (r.courseShortname || '').replace(/"/g, '""');
                 const cname = (r.courseFullname || '').replace(/"/g, '""');
                 const qname = (r.quizName || '').replace(/"/g, '""');
-                csv += `"${uname}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${r.m1},${r.m2},${r.total}\n`;
+                const pct = (r.percentage || '').replace(/"/g, '""');
+                csv += `"${uname}","${fname}","${cshort}","${cname}","${qname}",${r.quizId},"${r.dateStr}",${r.total},${r.max},"${pct}"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
             a.setAttribute('href', url);
-            a.setAttribute('download', `JosTEL_Marks_${this.courseShortnameInput || 'Export'}_${new Date().toISOString().slice(0,10)}.csv`);
+            a.setAttribute('download', `JosTEL_Marks_Category_${this.selectedCategory || 'All'}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
