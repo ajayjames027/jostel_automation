@@ -246,24 +246,58 @@
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Date Filter</label>
-                    <span v-if="fromDate || toDate" @click="setDatePreset('clear')" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear Dates</span>
+                    <span v-if="fromDate || toDate || selectedSpecificDates.length > 0" @click="clearAllDates" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear Dates</span>
                 </div>
-                <!-- Quick Date Presets -->
-                <div class="flex flex-wrap gap-1">
-                    <button type="button" @click="setDatePreset('today')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Today</button>
-                    <button type="button" @click="setDatePreset('yesterday')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Yesterday</button>
-                    <button type="button" @click="setDatePreset('7days')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Last 7D</button>
-                    <button type="button" @click="setDatePreset('month')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">This Month</button>
+                <!-- Date Mode Toggle: Range vs Specific Dates -->
+                <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-lg">
+                    <button type="button" @click="dateMode = 'range'" :class="dateMode === 'range' ? 'bg-primary text-white font-bold shadow-xs' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                        Date Range
+                    </button>
+                    <button type="button" @click="dateMode = 'specific'" :class="dateMode === 'specific' ? 'bg-primary text-white font-bold shadow-xs' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                        Selected Dates ({{ selectedSpecificDates.length }})
+                    </button>
                 </div>
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <div>
-                        <label class="block text-[11px] text-gray-500 font-semibold mb-0.5">From</label>
-                        <input v-model="fromDate" type="date" class="text-xs">
+
+                <!-- Range Mode View -->
+                <div v-if="dateMode === 'range'" class="space-y-1.5 pt-1">
+                    <!-- Quick Date Presets -->
+                    <div class="flex flex-wrap gap-1">
+                        <button type="button" @click="setDatePreset('today')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Today</button>
+                        <button type="button" @click="setDatePreset('yesterday')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Yesterday</button>
+                        <button type="button" @click="setDatePreset('7days')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">Last 7D</button>
+                        <button type="button" @click="setDatePreset('month')" class="px-2 py-0.5 text-[11px] bg-slate-100 hover:bg-blue-100 hover:text-blue-800 text-slate-700 rounded font-medium transition-colors">This Month</button>
                     </div>
-                    <div>
-                        <label class="block text-[11px] text-gray-500 font-semibold mb-0.5">To</label>
-                        <input v-model="toDate" type="date" class="text-xs">
+                    <div class="grid grid-cols-2 gap-2 pt-0.5">
+                        <div>
+                            <label class="block text-[11px] text-gray-500 font-semibold mb-0.5">From</label>
+                            <input v-model="fromDate" type="date" class="text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-gray-500 font-semibold mb-0.5">To</label>
+                            <input v-model="toDate" type="date" class="text-xs">
+                        </div>
                     </div>
+                </div>
+
+                <!-- Specific Multi-Dates Mode View -->
+                <div v-else class="space-y-2 pt-1">
+                    <div class="flex gap-1.5">
+                        <input v-model="datePickerInput" type="date" class="text-xs flex-1">
+                        <button type="button" @click="addSpecificDate" :disabled="!datePickerInput" class="px-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold rounded-lg text-xs transition-colors">
+                            + Add
+                        </button>
+                    </div>
+
+                    <!-- Selected Date Chips -->
+                    <div v-if="selectedSpecificDates.length > 0" class="flex flex-wrap gap-1 max-h-24 overflow-y-auto p-1.5 bg-slate-50 border border-slate-200 rounded-lg">
+                        <span v-for="d in selectedSpecificDates" :key="d" class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-900 border border-blue-200 rounded-md text-[11px] font-mono">
+                            {{ formatChipDate(d) }}
+                            <button type="button" @click="removeSpecificDate(d)" class="text-blue-600 hover:text-red-600 font-bold ml-0.5">×</button>
+                        </span>
+                    </div>
+                    <p v-else class="text-[11px] text-gray-400 italic">
+                        Pick dates above and click "+ Add" (e.g. 30 Sep, 1 Oct, 5 Oct).
+                    </p>
                 </div>
             </div>
 
@@ -370,6 +404,12 @@
                     </span>
                     <span v-if="selectedCategory" class="badge-pill bg-indigo-100 text-indigo-800 font-mono text-[11px]">
                         Cat ID: {{ selectedCategory }}
+                    </span>
+                    <span v-if="dateMode === 'specific' && selectedSpecificDates.length > 0" class="badge-pill bg-amber-100 text-amber-900 font-mono text-[11px]">
+                        Dates: {{ selectedSpecificDates.map(d => formatChipDate(d)).join(', ') }}
+                    </span>
+                    <span v-else-if="dateMode === 'range' && (fromDate || toDate)" class="badge-pill bg-blue-100 text-blue-800 font-mono text-[11px]">
+                        Range: {{ fromDate || 'Start' }} to {{ toDate || 'End' }}
                     </span>
                 </div>
                 <div class="flex items-center gap-2" v-if="displayData.length > 0 || displayAbsentees.length > 0">
@@ -528,6 +568,9 @@ createApp({
             selectedQuiz: '',
             fromDate: '',
             toDate: '',
+            dateMode: 'range', // 'range' or 'specific'
+            selectedSpecificDates: [], // e.g. ['2026-09-30', '2026-10-01', '2026-10-05']
+            datePickerInput: '',
             studentSearch: '',
             searchDebounceTimer: null,
             tableFilterQuery: '',
@@ -647,17 +690,34 @@ createApp({
                     if (!att.courseShortname || !att.courseShortname.toLowerCase().includes(term)) return false;
                 }
                 
-                if (this.fromDate || this.toDate) {
-                    if (att.timestamp && att.timestamp > 0) {
-                        const rowDate = new Date(att.timestamp);
-                        rowDate.setHours(0,0,0,0);
-                        if (this.fromDate) {
-                            const fd = new Date(this.fromDate); fd.setHours(0,0,0,0);
-                            if (rowDate < fd) return false;
+                if (this.dateMode === 'specific') {
+                    if (this.selectedSpecificDates.length > 0) {
+                        if (att.timestamp && att.timestamp > 0) {
+                            const d = new Date(att.timestamp);
+                            const y = d.getFullYear();
+                            const m = String(d.getMonth() + 1).padStart(2, '0');
+                            const day = String(d.getDate()).padStart(2, '0');
+                            const rowDateStr = `${y}-${m}-${day}`;
+                            if (!this.selectedSpecificDates.includes(rowDateStr)) return false;
+                        } else {
+                            return false;
                         }
-                        if (this.toDate) {
-                            const td = new Date(this.toDate); td.setHours(0,0,0,0);
-                            if (rowDate > td) return false;
+                    }
+                } else {
+                    if (this.fromDate || this.toDate) {
+                        if (att.timestamp && att.timestamp > 0) {
+                            const rowDate = new Date(att.timestamp);
+                            rowDate.setHours(0,0,0,0);
+                            if (this.fromDate) {
+                                const fd = new Date(this.fromDate); fd.setHours(0,0,0,0);
+                                if (rowDate < fd) return false;
+                            }
+                            if (this.toDate) {
+                                const td = new Date(this.toDate); td.setHours(0,0,0,0);
+                                if (rowDate > td) return false;
+                            }
+                        } else {
+                            return false;
                         }
                     }
                 }
@@ -890,6 +950,33 @@ createApp({
                 this.toDate = '';
             }
         },
+        clearAllDates() {
+            this.fromDate = '';
+            this.toDate = '';
+            this.selectedSpecificDates = [];
+            this.datePickerInput = '';
+        },
+        addSpecificDate() {
+            if (!this.datePickerInput) return;
+            if (!this.selectedSpecificDates.includes(this.datePickerInput)) {
+                this.selectedSpecificDates.push(this.datePickerInput);
+                this.selectedSpecificDates.sort();
+            }
+            this.datePickerInput = '';
+        },
+        removeSpecificDate(dateStr) {
+            this.selectedSpecificDates = this.selectedSpecificDates.filter(d => d !== dateStr);
+        },
+        formatChipDate(isoDateStr) {
+            if (!isoDateStr) return '';
+            const parts = isoDateStr.split('-');
+            if (parts.length === 3) {
+                const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                const mIdx = parseInt(parts[1], 10) - 1;
+                return `${parseInt(parts[2], 10)} ${months[mIdx] || parts[1]}`;
+            }
+            return isoDateStr;
+        },
         cancelScan() {
             this.abortScan = true;
             this.setStatus('Scanning halted by user.', 'info');
@@ -903,6 +990,9 @@ createApp({
             this.selectedQuiz = '';
             this.fromDate = '';
             this.toDate = '';
+            this.dateMode = 'range';
+            this.selectedSpecificDates = [];
+            this.datePickerInput = '';
             this.studentSearch = '';
             this.scannedAttempts = [];
             this.absentStudentsList = [];
@@ -1013,13 +1103,28 @@ createApp({
 
                                         // Date window check
                                         const subTs = gi.gradedatesubmitted || gi.gradedategraded || 0;
-                                        if (subTs > 0) {
-                                            const dObj = new Date(subTs * 1000);
-                                            if (fromDateObj && dObj < fromDateObj) continue;
-                                            if (toDateObj && dObj > toDateObj) continue;
-                                        } else if (fromDateObj || toDateObj) {
-                                            // Skip if date filter active but no date recorded
-                                            continue;
+                                        if (this.dateMode === 'specific') {
+                                            if (this.selectedSpecificDates.length > 0) {
+                                                if (subTs > 0) {
+                                                    const d = new Date(subTs * 1000);
+                                                    const y = d.getFullYear();
+                                                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                                                    const day = String(d.getDate()).padStart(2, '0');
+                                                    const rowDateStr = `${y}-${m}-${day}`;
+                                                    if (!this.selectedSpecificDates.includes(rowDateStr)) continue;
+                                                } else {
+                                                    continue;
+                                                }
+                                            }
+                                        } else {
+                                            if (subTs > 0) {
+                                                const dObj = new Date(subTs * 1000);
+                                                if (fromDateObj && dObj < fromDateObj) continue;
+                                                if (toDateObj && dObj > toDateObj) continue;
+                                            } else if (fromDateObj || toDateObj) {
+                                                // Skip if date filter active but no date recorded
+                                                continue;
+                                            }
                                         }
 
                                         const dateStr = subTs > 0 
