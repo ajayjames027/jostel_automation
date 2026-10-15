@@ -108,6 +108,38 @@
         </div>
     </header>
 
+    <!-- Master Mode Tabs -->
+    <div class="glass-panel p-2 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button 
+                @click="engineMode = 'courses'" 
+                :class="engineMode === 'courses' ? 'bg-primary text-white shadow-md font-bold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'" 
+                class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+                <span>📦 Course Content & QP Archival</span>
+            </button>
+            <button 
+                @click="engineMode = 'server'; if (!serverStatus && !serverLoading) testServerConnection();" 
+                :class="engineMode === 'server' ? 'bg-primary text-white shadow-md font-bold' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'" 
+                class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                <span>🖥️ Server Bare-Metal Machine Backup</span>
+                <span class="badge-pill bg-amber-400 text-amber-950 text-[10px]">admin_backup_api.php</span>
+            </button>
+        </div>
+        <div class="text-xs text-slate-500 font-medium px-2">
+            <span v-if="engineMode === 'courses'">Extracts quizzes, Aiken/XML QPs, grades & rosters via Moodle API</span>
+            <span v-else>Dumps complete database & files for bare-metal restore on another machine</span>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 1: COURSE CONTENT & QUESTION BANK ARCHIVAL (CLIENT WEBSERVICE)-->
+    <!-- ================================================================= -->
+    <div v-if="engineMode === 'courses'" class="space-y-6">
+
     <!-- System Stats & Connection Status Banner -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div class="glass-panel p-4 flex items-center gap-3">
@@ -374,6 +406,382 @@
         </div>
 
     </div>
+    <!-- END VIEW 1 -->
+
+    <!-- ================================================================= -->
+    <!-- VIEW 2: SERVER BARE-METAL MACHINE BACKUP (admin_backup_api.php)   -->
+    <!-- ================================================================= -->
+    <div v-if="engineMode === 'server'" class="space-y-6">
+
+        <!-- Server API Connection Bar -->
+        <div class="glass-panel p-5 space-y-4 border-l-4 border-l-amber-500">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-base text-gray-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        Moodle Server Backup Engine Connection & Security Gate
+                    </h3>
+                    <p class="text-xs text-gray-500 font-medium mt-0.5">
+                        Communicates with <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-800 font-mono">admin_backup_api.php</code> on your live Moodle server for bare-metal exports
+                    </p>
+                </div>
+
+                <button 
+                    @click="testServerConnection" 
+                    :disabled="serverLoading" 
+                    class="px-4 py-2.5 bg-primary hover:bg-primaryHover text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 shrink-0"
+                >
+                    <svg v-if="serverLoading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span>{{ serverLoading ? 'Connecting to Server...' : 'Test Connection & Check Diagnostics' }}</span>
+                </button>
+            </div>
+
+            <!-- Endpoint and Secret Inputs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Backup API Endpoint URL</label>
+                    <input 
+                        v-model="serverApiUrl" 
+                        type="url" 
+                        placeholder="https://service.sjctni.edu/jostel/moodle/admin_backup_api.php" 
+                        class="text-xs font-mono"
+                    >
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1 flex items-center justify-between">
+                        <span>Vault Security Secret Key</span>
+                        <button type="button" @click="showServerSecret = !showServerSecret" class="text-[10px] text-blue-600 font-semibold hover:underline">
+                            {{ showServerSecret ? 'Hide Key' : 'Show Key' }}
+                        </button>
+                    </label>
+                    <input 
+                        v-model="serverSecret" 
+                        :type="showServerSecret ? 'text' : 'password'" 
+                        placeholder="Enter Vault Secret..." 
+                        class="text-xs font-mono"
+                    >
+                </div>
+            </div>
+
+            <!-- Server Connection Error Alert -->
+            <div v-if="serverError" class="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="font-medium"><strong>Connection Notice:</strong> {{ serverError }}</span>
+                </div>
+                <button @click="serverError=''" class="text-red-500 hover:text-red-700 text-xs font-bold">Dismiss</button>
+            </div>
+        </div>
+
+        <!-- Live Server System Diagnostics (Visible when connected) -->
+        <div v-if="serverStatus" class="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-fade-in">
+            <!-- Moodle Release -->
+            <div class="glass-panel p-4 space-y-1">
+                <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-bold text-gray-500 uppercase">Moodle System</p>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                </div>
+                <p class="text-lg font-black text-gray-900 truncate" :title="serverStatus.moodle_release">{{ serverStatus.moodle_release || 'Moodle 4.x' }}</p>
+                <p class="text-[10px] text-gray-400 font-mono">Build v{{ serverStatus.moodle_version }}</p>
+            </div>
+
+            <!-- Database Info -->
+            <div class="glass-panel p-4 space-y-1">
+                <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-bold text-gray-500 uppercase">MariaDB / MySQL</p>
+                    <span class="badge-pill bg-blue-100 text-blue-800 text-[10px]">{{ serverStatus.database?.status }}</span>
+                </div>
+                <p class="text-lg font-black text-blue-800">{{ serverStatus.database?.estimated_size }}</p>
+                <p class="text-[10px] text-gray-500 font-mono">{{ serverStatus.database?.tables_count }} Tables | DB: {{ serverStatus.database?.name }}</p>
+            </div>
+
+            <!-- Storage Info -->
+            <div class="glass-panel p-4 space-y-1">
+                <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-bold text-gray-500 uppercase">Server Disk Free</p>
+                    <span class="badge-pill bg-emerald-100 text-emerald-800 text-[10px]">{{ serverStatus.storage?.free_percent }}</span>
+                </div>
+                <p class="text-lg font-black text-emerald-700">{{ serverStatus.storage?.free_disk }}</p>
+                <p class="text-[10px] text-gray-500 font-mono">Total Disk: {{ serverStatus.storage?.total_disk }}</p>
+            </div>
+
+            <!-- Existing Vault Backups -->
+            <div class="glass-panel p-4 space-y-1">
+                <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-bold text-gray-500 uppercase">Server Vault Files</p>
+                    <span class="p-1 bg-amber-100 text-amber-800 rounded text-[10px] font-bold">Secure</span>
+                </div>
+                <p class="text-lg font-black text-amber-700">{{ serverBackupsList.length }} Archives</p>
+                <p class="text-[10px] text-gray-500 font-mono">moodledata/backup_vault</p>
+            </div>
+        </div>
+
+        <!-- TWO MAIN DISASTER RECOVERY ACTION CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Card 1: Complete Database Dump (.sql.gz) -->
+            <div class="glass-panel p-6 space-y-4 border-t-4 border-t-blue-600 flex flex-col justify-between">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                        </div>
+                        <span class="badge-pill bg-blue-50 text-blue-700 text-xs font-mono font-bold">.SQL.GZ</span>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-black text-gray-900">1. Full Database Dump</h4>
+                        <p class="text-xs text-gray-500 font-medium mt-1 leading-relaxed">
+                            Extracts every Moodle table, question paper, quiz attempt, user account, and system log into a single compressed MariaDB/MySQL SQL dump.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5 text-slate-700">
+                        <div class="flex items-center gap-1.5 font-semibold text-slate-900">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <span>Dual Engine: Native mysqldump + Pure PDO Fallback</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <span>Preserves UTF-8 4-byte character sets (utf8mb4)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <span>Ready for 1-click restore via <code class="font-mono text-blue-700">restore_moodle_machine.bat</code></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-3 border-t border-slate-100">
+                    <button 
+                        @click="triggerServerDbBackup" 
+                        :disabled="isGeneratingDbBackup" 
+                        class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                        <svg v-if="isGeneratingDbBackup" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        <span>{{ isGeneratingDbBackup ? 'Generating Database Dump on Server...' : 'Trigger Database Dump (.sql.gz)' }}</span>
+                    </button>
+
+                    <!-- Result Banner -->
+                    <div v-if="dbBackupResult" class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-2 animate-fade-in">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-emerald-800">✅ DB Backup Generated!</span>
+                            <span class="badge-pill bg-emerald-200 text-emerald-900 font-mono text-[10px]">{{ dbBackupResult.size_formatted }}</span>
+                        </div>
+                        <p class="font-mono text-[11px] text-gray-700 truncate" :title="dbBackupResult.filename">{{ dbBackupResult.filename }}</p>
+                        <button 
+                            @click="downloadServerBackup(dbBackupResult.filename)" 
+                            class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <span>Download Database Archive ({{ dbBackupResult.size_formatted }})</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Complete Bare-Metal Machine Archive (.zip) -->
+            <div class="glass-panel p-6 space-y-4 border-t-4 border-t-indigo-600 flex flex-col justify-between">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                        </div>
+                        <span class="badge-pill bg-indigo-50 text-indigo-700 text-xs font-mono font-bold">.ZIP ARCHIVE</span>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-black text-gray-900">2. Complete Machine Migration Archive</h4>
+                        <p class="text-xs text-gray-500 font-medium mt-1 leading-relaxed">
+                            Packages the full SQL database dump, <code class="font-mono text-indigo-700">config.php</code>, essential <code class="font-mono text-indigo-700">moodledata</code> files, and automated restore batch scripts.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5 text-slate-700">
+                        <div class="flex items-center gap-1.5 font-semibold text-slate-900">
+                            <svg class="w-3.5 h-3.5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <span>Includes complete Moodle Database SQL file</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <span>Includes config.php and moodledata file repository</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <span>Excludes bulky caches (cache, sessions, temp) for fast transfer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-3 border-t border-slate-100">
+                    <button 
+                        @click="triggerServerFullBackup" 
+                        :disabled="isGeneratingFullBackup" 
+                        class="w-full py-3 bg-gradient-to-r from-indigo-700 to-purple-800 hover:from-indigo-800 hover:to-purple-900 text-white font-bold rounded-xl text-xs transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                        <svg v-if="isGeneratingFullBackup" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                        <span>{{ isGeneratingFullBackup ? 'Packaging Complete Machine Archive (1-3 min)...' : 'Generate Full Machine Archive (.zip)' }}</span>
+                    </button>
+
+                    <!-- Result Banner -->
+                    <div v-if="fullBackupResult" class="p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs space-y-2 animate-fade-in">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-indigo-900">✅ Machine Archive Created!</span>
+                            <span class="badge-pill bg-indigo-200 text-indigo-900 font-mono text-[10px]">{{ fullBackupResult.size_formatted }}</span>
+                        </div>
+                        <p class="font-mono text-[11px] text-gray-700 truncate" :title="fullBackupResult.filename">{{ fullBackupResult.filename }}</p>
+                        <button 
+                            @click="downloadServerBackup(fullBackupResult.filename)" 
+                            class="w-full py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                        >
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <span>Download Full Machine Zip ({{ fullBackupResult.size_formatted }})</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SERVER VAULT FILE MANAGER (TABLE OF EXISTING BACKUPS) -->
+        <div class="glass-panel p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-3">
+                <div>
+                    <h4 class="font-bold text-base text-gray-900 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                        Server Vault File Explorer (<code class="text-xs text-blue-700 font-mono">moodledata/backup_vault</code>)
+                    </h4>
+                    <p class="text-xs text-gray-500">All backup archives securely stored on the server filesystem</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button 
+                        @click="fetchServerBackups" 
+                        class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors flex items-center gap-1"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        Refresh List
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto text-xs">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b text-[11px] text-gray-500 uppercase">
+                            <th class="p-3">File Name</th>
+                            <th class="p-3">Backup Type</th>
+                            <th class="p-3">Archive Size</th>
+                            <th class="p-3">Created Timestamp</th>
+                            <th class="p-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="b in serverBackupsList" :key="b.filename" class="border-b hover:bg-slate-50 transition-colors">
+                            <td class="p-3 font-mono font-bold text-gray-900 flex items-center gap-2">
+                                <svg v-if="b.filename.endsWith('.zip')" class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                                <svg v-else class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                                <span>{{ b.filename }}</span>
+                            </td>
+                            <td class="p-3">
+                                <span class="badge-pill" :class="b.filename.includes('full') ? 'bg-indigo-100 text-indigo-800' : 'bg-blue-100 text-blue-800'">
+                                    {{ b.filename.includes('full') ? 'Full Machine Archive' : 'Database Dump' }}
+                                </span>
+                            </td>
+                            <td class="p-3 font-mono font-bold text-slate-700">{{ b.size_formatted }}</td>
+                            <td class="p-3 font-mono text-gray-500">{{ b.created_at }}</td>
+                            <td class="p-3 text-right space-x-2">
+                                <button 
+                                    @click="downloadServerBackup(b.filename)" 
+                                    class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-bold text-[11px] transition-colors inline-flex items-center gap-1"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    Download
+                                </button>
+                                <button 
+                                    @click="deleteServerBackup(b.filename)" 
+                                    class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-700 rounded-md font-bold text-[11px] transition-colors border border-red-200"
+                                    title="Delete from server"
+                                >
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="serverBackupsList.length === 0">
+                            <td colspan="5" class="p-8 text-center text-gray-400 italic">
+                                No backups currently found in the server vault. Click "Trigger Database Dump" or "Generate Full Machine Archive" above to create one.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DISASTER RECOVERY & MACHINE RESTORATION GUIDE -->
+        <div class="glass-panel p-5 space-y-4">
+            <h4 class="font-bold text-base text-gray-900 flex items-center gap-2 border-b pb-2">
+                <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Disaster Recovery & Target Machine Migration Guide
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <!-- Windows XAMPP Guide -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                    <p class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        Method A: Restore on Windows (XAMPP / WAMP)
+                    </p>
+                    <ol class="list-decimal pl-4 space-y-1 text-slate-600 leading-relaxed">
+                        <li>Download the backup <code class="font-mono text-blue-700">.sql.gz</code> or <code class="font-mono text-indigo-700">.zip</code>.</li>
+                        <li>Run the included <code class="font-mono font-bold text-slate-800">restore_moodle_machine.bat</code> script.</li>
+                        <li>Or import manually in CMD:
+                            <pre class="bg-slate-900 text-sky-300 p-2 rounded mt-1 font-mono text-[11px] overflow-x-auto">mysql -u root -p -e "CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4;"
+mysql -u root -p moodle &lt; moodle_database.sql</pre>
+                        </li>
+                        <li>Place <code class="font-mono">moodledata</code> at <code class="font-mono">C:\xampp\moodledata</code> and update <code class="font-mono">config.php</code>.</li>
+                        <li>Run URL replacement CLI to update the host domain:
+                            <pre class="bg-slate-900 text-sky-300 p-2 rounded mt-1 font-mono text-[11px] overflow-x-auto">php C:\xampp\htdocs\moodle\admin\cli\replace.php --search=https://service.sjctni.edu/jostel/moodle --replace=http://localhost/moodle</pre>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Linux / Ubuntu Guide -->
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                    <p class="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                        Method B: Restore on Linux (Ubuntu / Debian / Docker)
+                    </p>
+                    <ol class="list-decimal pl-4 space-y-1 text-slate-600 leading-relaxed">
+                        <li>Transfer the backup archive to your Linux server.</li>
+                        <li>Run the included <code class="font-mono font-bold text-slate-800">restore_moodle_machine.sh</code> script.</li>
+                        <li>Or import directly from gzip:
+                            <pre class="bg-slate-900 text-sky-300 p-2 rounded mt-1 font-mono text-[11px] overflow-x-auto">zcat moodle_db_dump.sql.gz | mysql -u root -p moodle</pre>
+                        </li>
+                        <li>Set file ownership:
+                            <pre class="bg-slate-900 text-sky-300 p-2 rounded mt-1 font-mono text-[11px] overflow-x-auto">sudo chown -R www-data:www-data /var/moodledata
+sudo chmod -R 777 /var/moodledata</pre>
+                        </li>
+                        <li>Run URL replacement CLI:
+                            <pre class="bg-slate-900 text-sky-300 p-2 rounded mt-1 font-mono text-[11px] overflow-x-auto">sudo -u www-data php /var/www/html/moodle/admin/cli/replace.php --search=https://service.sjctni.edu/jostel/moodle --replace=http://your-server-ip/moodle</pre>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Terminal CLI Tool Companion Callout -->
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span><strong>Command-Line Alternative:</strong> You can also run the automated Python backup downloader directly from any terminal:</span>
+                </div>
+                <code class="bg-white px-2.5 py-1 rounded border border-blue-200 font-mono text-blue-800 font-bold shrink-0">python trigger_server_backup.py --db</code>
+            </div>
+        </div>
+
+    </div>
+    <!-- END VIEW 2 -->
 
 </div>
 
@@ -421,7 +829,21 @@ createApp({
             archiveZipSize: 0,
             downloadBlobUrl: null,
             downloadFilename: '',
-            manifestData: []
+            manifestData: [],
+
+            // Server Bare-Metal Backup Engine State (admin_backup_api.php)
+            engineMode: 'courses', // 'courses' or 'server'
+            serverApiUrl: 'https://service.sjctni.edu/jostel/moodle/admin_backup_api.php',
+            serverSecret: 'JosTEL_Moodle_Secure_Vault_2026_Key',
+            showServerSecret: false,
+            serverLoading: false,
+            serverStatus: null,
+            serverError: '',
+            isGeneratingDbBackup: false,
+            dbBackupResult: null,
+            isGeneratingFullBackup: false,
+            fullBackupResult: null,
+            serverBackupsList: []
         };
     },
     computed: {
@@ -856,6 +1278,132 @@ createApp({
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Master_Backup_Index');
             XLSX.writeFile(wb, `JosTEL_Backup_Manifest_Index_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        },
+
+        // =================================================================
+        // SERVER BARE-METAL BACKUP ENGINE METHODS (admin_backup_api.php)
+        // =================================================================
+        async testServerConnection() {
+            this.serverLoading = true;
+            this.serverError = '';
+            try {
+                const url = `${this.serverApiUrl}?action=status&secret=${encodeURIComponent(this.serverSecret)}`;
+                const res = await fetch(url, {
+                    headers: { 'X-JosTEL-Secret': this.serverSecret }
+                });
+                if (res.status === 401) {
+                    throw new Error('401 Unauthorized: Invalid Vault Secret Key.');
+                }
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                const data = await res.json();
+                if (data.status !== 'success') {
+                    throw new Error(data.message || 'Unknown server response');
+                }
+                this.serverStatus = data;
+                this.serverBackupsList = data.existing_backups || [];
+            } catch(e) {
+                this.serverError = e.message;
+            } finally {
+                this.serverLoading = false;
+            }
+        },
+        async triggerServerDbBackup() {
+            this.isGeneratingDbBackup = true;
+            this.dbBackupResult = null;
+            this.serverError = '';
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'create_db_backup');
+                formData.append('secret', this.serverSecret);
+
+                const res = await fetch(this.serverApiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-JosTEL-Secret': this.serverSecret
+                    },
+                    body: formData.toString()
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error(data.message || 'Database dump failed');
+                this.dbBackupResult = data;
+                await this.fetchServerBackups();
+            } catch(e) {
+                this.serverError = 'DB Backup failed: ' + e.message;
+                alert(this.serverError);
+            } finally {
+                this.isGeneratingDbBackup = false;
+            }
+        },
+        async triggerServerFullBackup() {
+            this.isGeneratingFullBackup = true;
+            this.fullBackupResult = null;
+            this.serverError = '';
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'create_full_backup');
+                formData.append('secret', this.serverSecret);
+
+                const res = await fetch(this.serverApiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-JosTEL-Secret': this.serverSecret
+                    },
+                    body: formData.toString()
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error(data.message || 'Full backup failed');
+                this.fullBackupResult = data;
+                await this.fetchServerBackups();
+            } catch(e) {
+                this.serverError = 'Full Backup failed: ' + e.message;
+                alert(this.serverError);
+            } finally {
+                this.isGeneratingFullBackup = false;
+            }
+        },
+        async fetchServerBackups() {
+            try {
+                const url = `${this.serverApiUrl}?action=list_backups&secret=${encodeURIComponent(this.serverSecret)}`;
+                const res = await fetch(url, {
+                    headers: { 'X-JosTEL-Secret': this.serverSecret }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'success' && data.backups) {
+                        this.serverBackupsList = data.backups;
+                    }
+                }
+            } catch(e) {}
+        },
+        downloadServerBackup(filename) {
+            const url = `${this.serverApiUrl}?action=download&file=${encodeURIComponent(filename)}&secret=${encodeURIComponent(this.serverSecret)}`;
+            window.open(url, '_blank');
+        },
+        async deleteServerBackup(filename) {
+            if (!confirm(`Are you sure you want to permanently delete '${filename}' from the server vault?`)) return;
+            try {
+                const url = `${this.serverApiUrl}?action=delete&file=${encodeURIComponent(filename)}&secret=${encodeURIComponent(this.serverSecret)}`;
+                const res = await fetch(url, {
+                    headers: { 'X-JosTEL-Secret': this.serverSecret }
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    await this.fetchServerBackups();
+                    if (this.serverStatus) {
+                        await this.testServerConnection();
+                    }
+                } else {
+                    alert('Delete failed: ' + data.message);
+                }
+            } catch(e) {
+                alert('Delete failed: ' + e.message);
+            }
         }
     }
 }).mount('#app');

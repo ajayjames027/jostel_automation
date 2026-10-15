@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+scratch/
+temp_booktool/
+temp_wordtable/
+server_backups/
+*.tmp
