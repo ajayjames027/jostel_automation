@@ -279,6 +279,24 @@
                         RESET
                     </button>
                 </div>
+
+                <!-- Direct Question Bank Exporter Link -->
+                <div class="pt-3 border-t border-dashed border-gray-200 space-y-1.5">
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">Moodle Question Bank</label>
+                    <a :href="fetchCourse ? `${moodleUrl}/question/export.php?courseid=${fetchCourse}` : 'javascript:void(0)'" 
+                       :target="fetchCourse ? '_blank' : '_self'"
+                       @click="!fetchCourse && showCourseAlert()"
+                       :class="fetchCourse ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-sm cursor-pointer' : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'"
+                       class="w-full inline-flex items-center justify-center gap-2 font-bold py-2.5 px-3 rounded-lg text-xs transition-all"
+                       title="Open Moodle Question Bank Exporter">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        <span>OPEN COURSE QUESTION BANK</span>
+                        <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                    <p class="text-[10px] text-gray-400 leading-tight">
+                        {{ fetchCourse ? 'Opens Moodle Question Bank (Aiken / Moodle XML export) for selected course in a new tab.' : 'Select a course above to open its Question Bank in Moodle.' }}
+                    </p>
+                </div>
             </div>
 
             <!-- Preview & Export Area -->
@@ -295,15 +313,20 @@
                         <p class="text-xs text-gray-400" v-else>Select a quiz on the left and click "Fetch Question Paper".</p>
                     </div>
 
-                    <!-- Export Buttons -->
-                    <div class="flex items-center gap-2 flex-wrap" v-if="fetchedQuestions.length > 0">
-                        <button @click="exportAiken" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                    <!-- Export & Bank Buttons -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <a v-if="fetchCourse" :href="`${moodleUrl}/question/export.php?courseid=${fetchCourse}`" target="_blank" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-xs">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            <span>Open Question Bank</span>
+                            <svg class="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                        <button v-if="fetchedQuestions.length > 0" @click="exportAiken" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
                             📥 Aiken (.txt)
                         </button>
-                        <button @click="exportXML" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                        <button v-if="fetchedQuestions.length > 0" @click="exportXML" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
                             📥 Moodle XML
                         </button>
-                        <button @click="exportJSON" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                        <button v-if="fetchedQuestions.length > 0" @click="exportJSON" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
                             📥 JSON
                         </button>
                     </div>
@@ -316,9 +339,13 @@
                         <span>{{ fetchNotice.title }}</span>
                     </div>
                     <p class="leading-relaxed">{{ fetchNotice.message }}</p>
-                    <div v-if="fetchNotice.quizUrl" class="pt-1">
-                        <a :href="fetchNotice.quizUrl" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold transition-colors shadow-xs">
+                    <div class="pt-1 flex items-center gap-2 flex-wrap">
+                        <a v-if="fetchNotice.quizUrl" :href="fetchNotice.quizUrl" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold transition-colors shadow-xs">
                             <span>Open Quiz in Moodle</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                        <a v-if="fetchCourse" :href="`${moodleUrl}/question/export.php?courseid=${fetchCourse}`" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-colors shadow-xs">
+                            <span>Open Course Question Bank</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         </a>
                     </div>
@@ -417,9 +444,13 @@
                     <input type="file" @change="handleFileUpload" accept=".txt,.docx,.xlsx" class="text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
 
-                <div class="pt-2">
-                    <a v-if="uploadCourse" :href="`${moodleUrl}/question/import.php?courseid=${uploadCourse}`" target="_blank" class="w-full inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition-colors">
+                <div class="pt-2 space-y-2">
+                    <a v-if="uploadCourse" :href="`${moodleUrl}/question/import.php?courseid=${uploadCourse}`" target="_blank" class="w-full inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition-colors shadow-xs">
                         Direct Import into Moodle Question Bank
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                    <a v-if="uploadCourse" :href="`${moodleUrl}/question/export.php?courseid=${uploadCourse}`" target="_blank" class="w-full inline-flex items-center justify-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold py-2 rounded-lg text-xs transition-colors">
+                        Open Question Bank (Export / Aiken / XML)
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                     </a>
                 </div>
@@ -990,6 +1021,9 @@ createApp({
                     this.fetchShortname = c.shortname;
                 }
             }
+        },
+        showCourseAlert() {
+            alert('Please select a Course first to open its Moodle Question Bank.');
         },
         resetFetchFilters() {
             this.quickKeyword = '';
