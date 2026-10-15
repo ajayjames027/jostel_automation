@@ -149,60 +149,136 @@
         <!-- TAB 1: FETCH QUESTION PAPER -->
         <!-- ============================================================= -->
         <div v-if="activeTab === 'fetch'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Source Selector -->
+            <!-- Source Selector / Sidebar Filters -->
             <div class="glass-panel p-5 space-y-4 self-start">
-                <h3 class="font-bold text-base text-gray-800 border-b pb-2 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    Select Quiz to Fetch QP
-                </h3>
-
-                <!-- Category -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Category</label>
-                    <select v-model="fetchCategory" @change="onFetchCategoryChange" class="text-xs">
-                        <option value="">All Categories ({{ categories.length }})</option>
-                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                    </select>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                        <h3 class="font-bold text-base text-gray-800">Search & Filters</h3>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <svg v-if="isFetchingQuizzes" class="animate-spin h-3.5 w-3.5 text-blue-600 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                        <span class="badge-pill bg-blue-100 text-primary font-mono text-[11px]">
+                            {{ filteredFetchQuizzes.length }} Qz
+                        </span>
+                    </div>
                 </div>
 
-                <!-- Course Short Name Filter -->
+                <!-- Quick Keyword Live Search -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Course Short Name</label>
-                    <input v-model="fetchShortname" @input="onFetchShortnameInput" list="fetchShortnamesList" type="text" placeholder="e.g. 22UCO101" class="text-xs font-mono uppercase">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>Quick Live Search</span>
+                        <span v-if="quickKeyword" @click="quickKeyword=''" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear</span>
+                    </label>
+                    <div class="relative">
+                        <input v-model="quickKeyword" @input="onQuickKeywordChange" type="text" placeholder="Search Quiz, Course code, Name..." class="pr-7 text-xs">
+                        <svg class="w-4 h-4 text-gray-400 absolute right-2 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                </div>
+
+                <!-- Shift / Stream Fast Filter -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Shift / Stream</label>
+                    <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg">
+                        <button type="button" @click="setShift('all')" :class="selectedShift === 'all' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                            All
+                        </button>
+                        <button type="button" @click="setShift('shift1')" :class="selectedShift === 'shift1' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                            Shift 1
+                        </button>
+                        <button type="button" @click="setShift('shift2')" :class="selectedShift === 'shift2' ? 'bg-primary text-white shadow-xs font-bold' : 'text-gray-600 hover:bg-slate-200 font-medium'" class="py-1 text-xs rounded transition-colors">
+                            Shift 2
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Course Short Name Filter (Datalist Autocomplete) -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                            Course Short Name
+                        </span>
+                        <span v-if="fetchShortname" @click="clearCourseShortname" class="text-[10px] text-blue-600 cursor-pointer font-normal hover:underline">Clear</span>
+                    </label>
+                    <input 
+                        v-model="fetchShortname" 
+                        @input="onCourseShortnameInput" 
+                        list="fetchShortnamesList" 
+                        type="text" 
+                        placeholder="e.g. 22UCO101, 23UPH204" 
+                        class="font-mono text-xs uppercase"
+                    >
                     <datalist id="fetchShortnamesList">
                         <option v-for="sn in uniqueCourseShortnames" :key="sn" :value="sn">{{ sn }}</option>
                     </datalist>
+                    <p v-if="fetchShortname && !fetchCourse" class="text-[11px] text-gray-500 mt-1">
+                        Matching {{ filteredFetchCourses.length }} courses
+                    </p>
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Category</label>
+                        <select v-model="fetchCategory" class="text-xs">
+                            <option value="">All Categories ({{ categories.length }})</option>
+                            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Cat ID</label>
+                        <input v-model="fetchCategory" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
+                </div>
+                
+                <!-- Course Selector -->
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Course</label>
+                        <select v-model="fetchCourse" @change="onCourseSelectChange" class="text-xs">
+                            <option value="">All Courses ({{ filteredFetchCourses.length }})</option>
+                            <option v-for="c in filteredFetchCourses" :key="c.id" :value="c.id">
+                                {{ c.shortname ? '[' + c.shortname + '] ' : '' }}{{ c.fullname }}
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Crs ID</label>
+                        <input v-model="fetchCourse" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
+                </div>
+                
+                <!-- Quiz Selector -->
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <span>Quiz ({{ filteredFetchQuizzes.length }})</span>
+                            <span v-if="isFetchingQuizzes" class="text-[10px] text-blue-600 font-normal animate-pulse">Fetching...</span>
+                        </label>
+                        <select v-model="fetchQuiz" class="text-xs">
+                            <option value="">Select Quiz ({{ filteredFetchQuizzes.length }})</option>
+                            <option v-for="q in filteredFetchQuizzes" :key="q.id" :value="q.id">
+                                {{ getCourseShortname(q.course) ? '[' + getCourseShortname(q.course) + '] ' : '' }}{{ q.name }} ({{ q.sumgrades || 0 }} Marks)
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Qz ID</label>
+                        <input v-model="fetchQuiz" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
                 </div>
 
-                <!-- Course -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Course</label>
-                    <select v-model="fetchCourse" @change="onFetchCourseChange" class="text-xs">
-                        <option value="">Select Course ({{ filteredFetchCourses.length }})</option>
-                        <option v-for="c in filteredFetchCourses" :key="c.id" :value="c.id">
-                            {{ c.shortname ? '[' + c.shortname + '] ' : '' }}{{ c.fullname }}
-                        </option>
-                    </select>
+                <!-- Action Buttons -->
+                <div class="flex gap-2 pt-2">
+                    <button @click="fetchQuestionPaper" :disabled="!fetchQuiz || isFetchingQP" class="flex-1 bg-primary hover:bg-primaryHover text-white font-bold py-2.5 rounded-lg text-xs transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                        <svg v-if="isFetchingQP" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                        <span>{{ isFetchingQP ? 'FETCHING QUESTIONS...' : 'FETCH QUESTION PAPER' }}</span>
+                    </button>
+                    <button type="button" @click="resetFetchFilters" class="px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-lg transition-colors text-xs">
+                        RESET
+                    </button>
                 </div>
-
-                <!-- Quiz -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1 flex items-center justify-between">
-                        <span>Target Quiz</span>
-                        <span v-if="isFetchingQuizzes" class="text-[10px] text-blue-600 animate-pulse">Loading...</span>
-                    </label>
-                    <select v-model="fetchQuiz" class="text-xs">
-                        <option value="">Select Quiz ({{ filteredFetchQuizzes.length }})</option>
-                        <option v-for="q in filteredFetchQuizzes" :key="q.id" :value="q.id">
-                            {{ q.name }} (Grades: {{ q.sumgrades || 0 }})
-                        </option>
-                    </select>
-                </div>
-
-                <button @click="fetchQuestionPaper" :disabled="!fetchQuiz || isFetchingQP" class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-2.5 rounded-lg text-xs transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2">
-                    <svg v-if="isFetchingQP" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                    <span>{{ isFetchingQP ? 'FETCHING QUESTIONS...' : 'FETCH QUESTION PAPER' }}</span>
-                </button>
             </div>
 
             <!-- Preview & Export Area -->
@@ -212,6 +288,9 @@
                         <h3 class="font-bold text-lg text-gray-800">Question Paper View</h3>
                         <p class="text-xs text-gray-500" v-if="fetchedQuestions.length > 0">
                             Loaded <strong>{{ fetchedQuestions.length }}</strong> questions from selected quiz.
+                        </p>
+                        <p class="text-xs text-blue-600 font-medium animate-pulse" v-else-if="fetchProgressText">
+                            {{ fetchProgressText }}
                         </p>
                         <p class="text-xs text-gray-400" v-else>Select a quiz on the left and click "Fetch Question Paper".</p>
                     </div>
@@ -227,6 +306,21 @@
                         <button @click="exportJSON" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
                             📥 JSON
                         </button>
+                    </div>
+                </div>
+
+                <!-- Notice if Fetch Found No Attempts / Alert -->
+                <div v-if="fetchNotice" class="p-4 bg-amber-50 border border-amber-300 rounded-xl text-xs space-y-2 text-amber-900">
+                    <div class="flex items-center gap-2 font-bold text-amber-800">
+                        <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>{{ fetchNotice.title }}</span>
+                    </div>
+                    <p class="leading-relaxed">{{ fetchNotice.message }}</p>
+                    <div v-if="fetchNotice.quizUrl" class="pt-1">
+                        <a :href="fetchNotice.quizUrl" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold transition-colors shadow-xs">
+                            <span>Open Quiz in Moodle</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
                     </div>
                 </div>
 
@@ -250,13 +344,14 @@
                         </div>
 
                         <div class="text-[11px] text-emerald-800 font-bold pt-1" v-if="q.answer">
-                            Correct Answer: <span class="bg-emerald-200 px-1.5 py-0.5 rounded">{{ q.answer }}</span>
+                            Correct Answer: <span class="bg-emerald-200 px-1.5 py-0.5 rounded font-mono">{{ q.answer }}</span>
+                            <span v-if="q.options[q.answer]" class="ml-1 text-gray-600 font-normal">({{ q.options[q.answer] }})</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Empty State -->
-                <div v-else class="py-16 text-center text-gray-400">
+                <div v-else-if="!fetchNotice" class="py-16 text-center text-gray-400">
                     <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     <p class="font-medium text-sm text-gray-600">No Question Paper Loaded</p>
                     <p class="text-xs text-gray-400">Select a course and quiz from the left panel to fetch and preview its questions.</p>
@@ -276,12 +371,18 @@
                 </h3>
 
                 <!-- Category -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Target Category</label>
-                    <select v-model="uploadCategory" @change="onUploadCategoryChange" class="text-xs">
-                        <option value="">All Categories ({{ categories.length }})</option>
-                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                    </select>
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Target Category</label>
+                        <select v-model="uploadCategory" @change="onUploadCategoryChange" class="text-xs">
+                            <option value="">All Categories ({{ categories.length }})</option>
+                            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cat ID</label>
+                        <input v-model="uploadCategory" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
                 </div>
 
                 <!-- Course Short Name -->
@@ -294,14 +395,20 @@
                 </div>
 
                 <!-- Course -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Target Course</label>
-                    <select v-model="uploadCourse" class="text-xs">
-                        <option value="">Select Course ({{ filteredUploadCourses.length }})</option>
-                        <option v-for="c in filteredUploadCourses" :key="c.id" :value="c.id">
-                            {{ c.shortname ? '[' + c.shortname + '] ' : '' }}{{ c.fullname }}
-                        </option>
-                    </select>
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Target Course</label>
+                        <select v-model="uploadCourse" class="text-xs">
+                            <option value="">Select Course ({{ filteredUploadCourses.length }})</option>
+                            <option v-for="c in filteredUploadCourses" :key="c.id" :value="c.id">
+                                {{ c.shortname ? '[' + c.shortname + '] ' : '' }}{{ c.fullname }}
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Crs ID</label>
+                        <input v-model="uploadCourse" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
                 </div>
 
                 <!-- Upload Method File Picker -->
@@ -368,12 +475,18 @@
                     </h3>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Source Category</label>
-                    <select v-model="cloneFromCategory" @change="onCloneFromCategoryChange" class="text-xs">
-                        <option value="">All Categories ({{ categories.length }})</option>
-                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                    </select>
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Source Category</label>
+                        <select v-model="cloneFromCategory" @change="onCloneFromCategoryChange" class="text-xs">
+                            <option value="">All Categories ({{ categories.length }})</option>
+                            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cat ID</label>
+                        <input v-model="cloneFromCategory" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
                 </div>
 
                 <div>
@@ -384,24 +497,36 @@
                     </datalist>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Source Course</label>
-                    <select v-model="cloneFromCourse" @change="onCloneFromCourseChange" class="text-xs">
-                        <option value="">Select Course ({{ filteredCloneFromCourses.length }})</option>
-                        <option v-for="c in filteredCloneFromCourses" :key="c.id" :value="c.id">
-                            {{ c.shortname ? '[' + c.shortname + '] ' : '' }}{{ c.fullname }}
-                        </option>
-                    </select>
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Source Course</label>
+                        <select v-model="cloneFromCourse" @change="onCloneFromCourseChange" class="text-xs">
+                            <option value="">Select Course ({{ filteredCloneFromCourses.length }})</option>
+                            <option v-for="c in filteredCloneFromCourses" :key="c.id" :value="c.id">
+                                {{ c.shortname ? '[' + c.shortname + '] ' : '' }}{{ c.fullname }}
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Crs ID</label>
+                        <input v-model="cloneFromCourse" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Source Quiz</label>
-                    <select v-model="cloneFromQuiz" class="text-xs">
-                        <option value="">Select Quiz ({{ filteredCloneFromQuizzes.length }})</option>
-                        <option v-for="q in filteredCloneFromQuizzes" :key="q.id" :value="q.id">
-                            {{ q.name }} (Quiz ID: {{ q.id }})
-                        </option>
-                    </select>
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Source Quiz</label>
+                        <select v-model="cloneFromQuiz" class="text-xs">
+                            <option value="">Select Quiz ({{ filteredCloneFromQuizzes.length }})</option>
+                            <option v-for="q in filteredCloneFromQuizzes" :key="q.id" :value="q.id">
+                                {{ q.name }} (Quiz ID: {{ q.id }})
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Qz ID</label>
+                        <input v-model="cloneFromQuiz" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
                 </div>
             </div>
 
@@ -414,12 +539,18 @@
                     </h3>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Target Category</label>
-                    <select v-model="cloneToCategory" class="text-xs">
-                        <option value="">All Categories ({{ categories.length }})</option>
-                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                    </select>
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Target Category</label>
+                        <select v-model="cloneToCategory" class="text-xs">
+                            <option value="">All Categories ({{ categories.length }})</option>
+                            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cat ID</label>
+                        <input v-model="cloneToCategory" type="text" placeholder="ID" class="text-xs text-center font-mono">
+                    </div>
                 </div>
 
                 <div>
@@ -558,7 +689,9 @@ createApp({
             quizzes: [],
             loadedCourseQuizIds: new Set(),
 
-            // Tab 1: Fetch QP
+            // Tab 1: Fetch QP & Filter System (identical to Grade_Fetcher_Dashboard)
+            quickKeyword: '',
+            selectedShift: 'all', // 'all', 'shift1', 'shift2'
             fetchCategory: '',
             fetchShortname: '',
             fetchCourse: '',
@@ -566,6 +699,9 @@ createApp({
             isFetchingQuizzes: false,
             isFetchingQP: false,
             fetchedQuestions: [],
+            fetchNotice: null,
+            fetchProgressText: '',
+            searchDebounceTimer: null,
 
             // Tab 2: Upload QP
             uploadCategory: '',
@@ -603,19 +739,72 @@ createApp({
             const sns = this.courses.map(c => c.shortname).filter(Boolean);
             return [...new Set(sns)].sort();
         },
-        // Fetch tab filtered courses
+        // Fetch tab filtered courses (matching Grade_Fetcher_Dashboard logic)
         filteredFetchCourses() {
-            let list = this.courses;
-            if (this.fetchCategory) list = list.filter(c => c.categoryid == this.fetchCategory);
+            let list = this.courses.length > 0 ? this.courses : [...new Set(this.quizzes.map(q => q.course))].map(id => ({
+                id: id, fullname: `Course ID: ${id}`, shortname: `CRS_${id}`, categoryid: -1
+            }));
+            
+            // Filter by Category
+            if (this.fetchCategory) {
+                list = list.filter(c => c.categoryid == this.fetchCategory);
+            }
+            
+            // Filter by Shift
+            if (this.selectedShift === 'shift1') {
+                list = list.filter(c => {
+                    const text = `${c.fullname} ${c.shortname || ''}`.toLowerCase();
+                    return text.includes('shift 1') || text.includes('shift-1') || text.includes('shift1') || text.includes('s1') || text.includes('shift-i') || text.includes('shift i');
+                });
+            } else if (this.selectedShift === 'shift2') {
+                list = list.filter(c => {
+                    const text = `${c.fullname} ${c.shortname || ''}`.toLowerCase();
+                    return text.includes('shift 2') || text.includes('shift-2') || text.includes('shift2') || text.includes('s2') || text.includes('shift-ii') || text.includes('shift ii');
+                });
+            }
+            
+            // Filter by Course Short Name
             if (this.fetchShortname) {
                 const term = this.fetchShortname.trim().toLowerCase();
                 list = list.filter(c => c.shortname && c.shortname.toLowerCase().includes(term));
             }
+            
+            // Filter by Quick Keyword
+            if (this.quickKeyword) {
+                const term = this.quickKeyword.trim().toLowerCase();
+                list = list.filter(c => 
+                    (c.fullname && c.fullname.toLowerCase().includes(term)) ||
+                    (c.shortname && c.shortname.toLowerCase().includes(term)) ||
+                    String(c.id).includes(term)
+                );
+            }
+            
             return list;
         },
+        // Fetch tab filtered quizzes (matching Grade_Fetcher_Dashboard logic)
         filteredFetchQuizzes() {
-            if (!this.fetchCourse) return [];
-            return this.quizzes.filter(q => q.course == this.fetchCourse);
+            let qs = this.quizzes;
+            
+            if (this.fetchCourse) {
+                qs = qs.filter(q => q.course == this.fetchCourse);
+            } else {
+                const validCourseIds = new Set(this.filteredFetchCourses.map(c => c.id));
+                if (validCourseIds.size > 0 && this.courses.length > 0) {
+                    qs = qs.filter(q => validCourseIds.has(q.course));
+                }
+            }
+            
+            if (this.quickKeyword) {
+                const term = this.quickKeyword.trim().toLowerCase();
+                qs = qs.filter(q => {
+                    const cShort = this.getCourseShortname(q.course).toLowerCase();
+                    const cFull = this.getCourseFullname(q.course).toLowerCase();
+                    const qName = (q.name || '').toLowerCase();
+                    return qName.includes(term) || cShort.includes(term) || cFull.includes(term) || String(q.id).includes(term);
+                });
+            }
+            
+            return qs;
         },
         // Upload tab filtered courses
         filteredUploadCourses() {
@@ -655,6 +844,34 @@ createApp({
             return list;
         }
     },
+    watch: {
+        async fetchCategory(newVal) {
+            this.fetchCourse = '';
+            this.fetchQuiz = '';
+            if (newVal) {
+                await this.$nextTick();
+                this.triggerFetchForFilteredCourses();
+            }
+        },
+        async fetchCourse(newVal) {
+            this.fetchQuiz = '';
+            if (newVal) {
+                const c = this.courses.find(item => item.id == newVal);
+                if (c && c.shortname) {
+                    this.fetchShortname = c.shortname;
+                }
+                await this.fetchQuizzesForCourses([newVal]);
+            }
+        },
+        async fetchQuiz(newVal) {
+            if (newVal) {
+                const q = this.quizzes.find(item => item.id == newVal);
+                if (q && !this.fetchCourse) {
+                    this.fetchCourse = q.course;
+                }
+            }
+        }
+    },
     mounted() {
         if (this.apiToken && this.moodleUrl) {
             this.connect();
@@ -686,6 +903,7 @@ createApp({
 
                 this.isConnected = true;
                 this.status = '';
+                this.triggerFetchForFilteredCourses();
             } catch(e) {
                 this.status = `Connection error: ${e.message}`;
             } finally {
@@ -719,6 +937,71 @@ createApp({
             }
             this.isFetchingQuizzes = false;
         },
+        triggerFetchForFilteredCourses() {
+            const courseIds = this.filteredFetchCourses.map(c => c.id);
+            if (courseIds.length > 0 && courseIds.length <= 150) {
+                this.fetchQuizzesForCourses(courseIds);
+            }
+        },
+        getCourseShortname(courseId) {
+            const c = this.courses.find(c => c.id == courseId);
+            return c ? (c.shortname || '') : '';
+        },
+        getCourseFullname(courseId) {
+            const c = this.courses.find(c => c.id == courseId);
+            return c ? (c.fullname || `Course ID: ${courseId}`) : `Course ID: ${courseId}`;
+        },
+        setShift(shift) {
+            this.selectedShift = shift;
+            this.$nextTick(() => {
+                this.triggerFetchForFilteredCourses();
+            });
+        },
+        onQuickKeywordChange() {
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = setTimeout(() => {
+                this.triggerFetchForFilteredCourses();
+            }, 300);
+        },
+        onCourseShortnameInput() {
+            const term = this.fetchShortname.trim().toLowerCase();
+            if (!term) {
+                this.fetchCourse = '';
+                return;
+            }
+            const exact = this.courses.find(c => c.shortname && c.shortname.toLowerCase() === term);
+            if (exact) {
+                this.fetchCourse = exact.id;
+            }
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = setTimeout(() => {
+                this.triggerFetchForFilteredCourses();
+            }, 300);
+        },
+        clearCourseShortname() {
+            this.fetchShortname = '';
+            this.fetchCourse = '';
+            this.triggerFetchForFilteredCourses();
+        },
+        onCourseSelectChange() {
+            if (this.fetchCourse) {
+                const c = this.courses.find(item => item.id == this.fetchCourse);
+                if (c && c.shortname) {
+                    this.fetchShortname = c.shortname;
+                }
+            }
+        },
+        resetFetchFilters() {
+            this.quickKeyword = '';
+            this.selectedShift = 'all';
+            this.fetchShortname = '';
+            this.fetchCategory = '';
+            this.fetchCourse = '';
+            this.fetchQuiz = '';
+            this.fetchedQuestions = [];
+            this.fetchNotice = null;
+            this.triggerFetchForFilteredCourses();
+        },
         async onFetchCategoryChange() {
             this.fetchCourse = '';
             this.fetchQuiz = '';
@@ -726,103 +1009,270 @@ createApp({
             const cids = this.filteredFetchCourses.map(c => c.id);
             this.fetchQuizzesForCourses(cids);
         },
-        onFetchShortnameInput() {
-            const term = this.fetchShortname.trim().toLowerCase();
-            const exact = this.courses.find(c => c.shortname && c.shortname.toLowerCase() === term);
-            if (exact) {
-                this.fetchCourse = exact.id;
-                this.onFetchCourseChange();
-            }
-        },
         async onFetchCourseChange() {
             this.fetchQuiz = '';
             if (this.fetchCourse) {
                 await this.fetchQuizzesForCourses([this.fetchCourse]);
             }
         },
+        parseMoodleQuestionHtml(html, slot, maxmark) {
+            const div = document.createElement('div');
+            div.innerHTML = html || '';
+
+            // 1. Question Text
+            const qTextEl = div.querySelector('.qtext');
+            const qText = qTextEl ? qTextEl.innerHTML.trim() : `Question ${slot}`;
+
+            // 2. Right Answer text from review
+            let rightAnswerText = '';
+            const rightAnswerEl = div.querySelector('.rightanswer');
+            if (rightAnswerEl) {
+                rightAnswerText = rightAnswerEl.innerText.replace(/^(The\s+)?correct\s+answer\s+is\s*:?\s*/i, '').trim();
+            }
+
+            // 3. Options
+            let optionRows = div.querySelectorAll('.answer .r0, .answer .r1');
+            if (optionRows.length === 0) {
+                optionRows = div.querySelectorAll('.answer > div');
+            }
+
+            const options = {};
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            let correctLetter = '';
+
+            optionRows.forEach((row, oIdx) => {
+                if (oIdx >= letters.length) return;
+                const letter = letters[oIdx];
+
+                let labelEl = row.querySelector('[data-region="answer-label"]') || 
+                              row.querySelector('.flex-fill') || 
+                              row.querySelector('label') || 
+                              row;
+
+                const clone = labelEl.cloneNode(true);
+                clone.querySelectorAll('.icon, .fa, .feedback, .answernumber, .sr-only, input').forEach(el => el.remove());
+
+                let optText = clone.innerText.trim();
+                // Strip redundant "a. " or "1. " label prefix from older Moodle themes without affecting names like "T. S. Eliot"
+                optText = optText.replace(/^[a-z]\s*[\.\)]\s+/i, (match, offset, str) => {
+                    if (/^[A-Z]\.\s+[A-Z]\./.test(str)) return match;
+                    if (/^[a-z][\.\)]\s+/i.test(match)) return '';
+                    return match;
+                }).trim();
+
+                options[letter] = optText;
+
+                // Check if row has class 'correct' (and not 'incorrect')
+                if (row.classList.contains('correct') && !row.classList.contains('incorrect')) {
+                    correctLetter = letter;
+                }
+            });
+
+            // If correctLetter wasn't found from class, match against rightAnswerText
+            if (!correctLetter && rightAnswerText) {
+                for (const [ltr, text] of Object.entries(options)) {
+                    if (text && text.toLowerCase() === rightAnswerText.toLowerCase()) {
+                        correctLetter = ltr;
+                        break;
+                    }
+                }
+                if (!correctLetter && options[rightAnswerText.toUpperCase()]) {
+                    correctLetter = rightAnswerText.toUpperCase();
+                }
+                if (!correctLetter) {
+                    const normRA = rightAnswerText.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    for (const [ltr, text] of Object.entries(options)) {
+                        const normOpt = (text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                        if (normRA && normOpt && (normRA === normOpt || normOpt.includes(normRA) || normRA.includes(normOpt))) {
+                            correctLetter = ltr;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return {
+                id: slot,
+                text: qText,
+                options: Object.keys(options).length > 0 ? options : { 'A': 'True', 'B': 'False' },
+                answer: correctLetter || 'A',
+                rightAnswerText,
+                marks: maxmark || 1
+            };
+        },
         async fetchQuestionPaper() {
+            if (!this.fetchQuiz) return;
             this.isFetchingQP = true;
             this.fetchedQuestions = [];
+            this.fetchNotice = null;
+            this.fetchProgressText = 'Resolving course and quiz configuration...';
+
             try {
-                // Try fetching through attempt review or question structure
-                // Fallback / standard: query attempts for this quiz to extract full question text & choices
-                let enrolledUsers = [];
+                // If fetchCourse is not set, resolve from quiz object in quizzes list
+                if (!this.fetchCourse) {
+                    const qObj = this.quizzes.find(item => item.id == this.fetchQuiz);
+                    if (qObj && qObj.course) {
+                        this.fetchCourse = qObj.course;
+                    }
+                }
+
+                const quizId = parseInt(this.fetchQuiz);
+                let targetCourseId = this.fetchCourse ? parseInt(this.fetchCourse) : null;
+
+                if (!targetCourseId) {
+                    const foundQuiz = this.quizzes.find(q => q.id == quizId);
+                    if (foundQuiz) targetCourseId = foundQuiz.course;
+                }
+
+                if (!targetCourseId) {
+                    throw new Error(`Target Course ID could not be identified for Quiz #${quizId}. Please select or specify the Course.`);
+                }
+
+                this.fetchProgressText = 'Locating student attempts and submissions...';
+                const candidateAttemptIds = [];
+
+                // METHOD 1: Instant lookup via gradereport_user_get_grade_items (1 fast API call)
                 try {
-                    enrolledUsers = await this.request('core_enrol_get_enrolled_users', `&courseid=${this.fetchCourse}`);
-                } catch(e) { }
-
-                let qList = [];
-                if (enrolledUsers.length > 0) {
-                    for (let u of enrolledUsers.slice(0, 5)) {
-                        try {
-                            const att = await this.request('mod_quiz_get_user_attempts', `&quizid=${this.fetchQuiz}&status=all&userid=${u.id}`);
-                            if (att.attempts && att.attempts.length > 0) {
-                                const rev = await this.request('mod_quiz_get_attempt_review', `&attemptid=${att.attempts[0].id}`);
-                                if (rev.questions) {
-                                    rev.questions.forEach((qItem, idx) => {
-                                        // Parse question HTML
-                                        const div = document.createElement('div');
-                                        div.innerHTML = qItem.html || '';
-                                        const qTextEl = div.querySelector('.qtext');
-                                        const qText = qTextEl ? qTextEl.innerText.trim() : `Question ${idx + 1}`;
-                                        
-                                        // Extract options
-                                        const options = {};
-                                        const optEls = div.querySelectorAll('.answer > div, .answer > label, .answer input[type=radio]');
-                                        const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-                                        let optIdx = 0;
-                                        optEls.forEach(el => {
-                                            const txt = el.innerText ? el.innerText.replace(/^[a-z0-9]\.\s*/i, '').trim() : '';
-                                            if (txt && optIdx < letters.length) {
-                                                options[letters[optIdx]] = txt;
-                                                optIdx++;
-                                            }
-                                        });
-
-                                        qList.push({
-                                            id: qItem.slot || idx + 1,
-                                            text: qText,
-                                            options: Object.keys(options).length > 0 ? options : { 'A': 'Option A', 'B': 'Option B', 'C': 'Option C', 'D': 'Option D' },
-                                            answer: 'A',
-                                            marks: qItem.maxmark || 1
-                                        });
-                                    });
-                                    break;
+                    const res = await this.request('gradereport_user_get_grade_items', `&courseid=${targetCourseId}`);
+                    if (res && res.usergrades && res.usergrades.length > 0) {
+                        const studentUserIds = [];
+                        for (const ug of res.usergrades) {
+                            for (const gi of (ug.gradeitems || [])) {
+                                if (gi.itemmodule === 'quiz' && gi.iteminstance == quizId) {
+                                    if (gi.graderaw !== null && gi.graderaw !== undefined || gi.gradedatesubmitted || gi.gradeformatted) {
+                                        studentUserIds.push(ug.userid);
+                                        break;
+                                    }
                                 }
                             }
-                        } catch(e) { }
+                        }
+
+                        // Query attempts for identified students in parallel batches
+                        if (studentUserIds.length > 0) {
+                            this.fetchProgressText = `Found ${studentUserIds.length} students with submissions. Retrieving attempt data...`;
+                            const sampleUsers = studentUserIds.slice(0, 10);
+                            const attResponses = await Promise.all(sampleUsers.map(uid => 
+                                this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=${uid}`).catch(() => null)
+                            ));
+                            for (const attData of attResponses) {
+                                if (attData && attData.attempts && attData.attempts.length > 0) {
+                                    const finished = attData.attempts.filter(a => a.state === 'finished');
+                                    const chosen = finished.length > 0 ? finished[finished.length - 1] : attData.attempts[attData.attempts.length - 1];
+                                    if (chosen && !candidateAttemptIds.includes(chosen.id)) {
+                                        candidateAttemptIds.push(chosen.id);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.warn("gradereport lookup error", e);
+                }
+
+                // METHOD 2: If gradereport didn't find attempts, scan enrolled course users in parallel batches
+                if (candidateAttemptIds.length === 0) {
+                    this.fetchProgressText = 'Scanning enrolled course participants for quiz attempts...';
+                    let enrolledUsers = [];
+                    try {
+                        enrolledUsers = await this.request('core_enrol_get_enrolled_users', `&courseid=${targetCourseId}`);
+                    } catch(e) { }
+
+                    if (Array.isArray(enrolledUsers) && enrolledUsers.length > 0) {
+                        // Prioritize users with student role
+                        const students = enrolledUsers.filter(u => (u.roles || []).some(r => r.shortname === 'student'));
+                        const candidates = students.length > 0 ? [...students, ...enrolledUsers.filter(u => !students.includes(u))] : enrolledUsers;
+                        
+                        const batchSize = 10;
+                        for (let i = 0; i < Math.min(candidates.length, 60) && candidateAttemptIds.length < 3; i += batchSize) {
+                            const chunk = candidates.slice(i, i + batchSize);
+                            const results = await Promise.all(chunk.map(u => 
+                                this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=${u.id}`).catch(() => null)
+                            ));
+                            for (const attData of results) {
+                                if (attData && attData.attempts && attData.attempts.length > 0) {
+                                    const finished = attData.attempts.filter(a => a.state === 'finished');
+                                    const chosen = finished.length > 0 ? finished[finished.length - 1] : attData.attempts[attData.attempts.length - 1];
+                                    if (chosen && !candidateAttemptIds.includes(chosen.id)) {
+                                        candidateAttemptIds.push(chosen.id);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
-                // If no student attempt existed yet, construct standard questions payload
-                if (qList.length === 0) {
-                    const qObj = this.quizzes.find(item => item.id == this.fetchQuiz);
-                    const totalMarks = qObj ? (parseFloat(qObj.sumgrades) || 25) : 25;
-                    const count = Math.max(1, Math.min(totalMarks, 25));
-                    for (let i = 1; i <= count; i++) {
-                        qList.push({
-                            id: i,
-                            text: `Assessment Question ${i}: [Generated from Quiz ${qObj ? qObj.name : this.fetchQuiz}]`,
-                            options: { 'A': 'Option Alpha', 'B': 'Option Beta', 'C': 'Option Gamma', 'D': 'Option Delta' },
-                            answer: 'A',
-                            marks: 1
-                        });
+                // METHOD 3: Check admin or current user attempts
+                if (candidateAttemptIds.length === 0) {
+                    try {
+                        const adminAtt = await this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=2`);
+                        if (adminAtt && adminAtt.attempts && adminAtt.attempts.length > 0) {
+                            candidateAttemptIds.push(adminAtt.attempts[adminAtt.attempts.length - 1].id);
+                        }
+                    } catch(e) {}
+                }
+
+                // If no attempts found anywhere, display informative alert
+                if (candidateAttemptIds.length === 0) {
+                    const qObj = this.quizzes.find(item => item.id == quizId);
+                    this.fetchNotice = {
+                        title: 'No Student Attempts Found for this Quiz',
+                        message: `No student submissions or attempts were found in Moodle for "${qObj ? qObj.name : 'Quiz #' + quizId}". In Moodle Web Services, full question content is accessed through quiz attempt reviews. Please preview or take the quiz once in Moodle to enable question paper extraction.`,
+                        quizUrl: `${this.moodleUrl.replace(/\/$/, '')}/mod/quiz/view.php?id=${qObj && qObj.coursemodule ? qObj.coursemodule : ''}`
+                    };
+                    return;
+                }
+
+                // Step 3: Fetch attempt reviews and pool unique questions
+                this.fetchProgressText = 'Extracting question structure and answer keys...';
+                const poolQuestionsMap = new Map();
+                let questionCounter = 1;
+
+                const targetAttempts = candidateAttemptIds.slice(0, 3);
+                for (const attId of targetAttempts) {
+                    try {
+                        const rev = await this.request('mod_quiz_get_attempt_review', `&attemptid=${attId}&page=-1`);
+                        if (rev && rev.questions && rev.questions.length > 0) {
+                            for (const qItem of rev.questions) {
+                                const parsed = this.parseMoodleQuestionHtml(qItem.html || '', qItem.slot || questionCounter, qItem.maxmark);
+                                if (!parsed.text) continue;
+                                const textKey = parsed.text.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 80);
+                                if (!poolQuestionsMap.has(textKey)) {
+                                    parsed.id = questionCounter++;
+                                    poolQuestionsMap.set(textKey, parsed);
+                                }
+                            }
+                        }
+                    } catch(err) {
+                        console.warn(`Attempt review fetch error for ${attId}:`, err);
                     }
                 }
 
-                this.fetchedQuestions = qList;
+                this.fetchedQuestions = Array.from(poolQuestionsMap.values());
+                if (this.fetchedQuestions.length === 0) {
+                    this.fetchNotice = {
+                        title: 'Questions Could Not Be Extracted',
+                        message: 'An attempt was found, but question content could not be parsed from the review HTML.'
+                    };
+                }
+
             } catch(e) {
                 alert(`Fetch error: ${e.message}`);
             } finally {
                 this.isFetchingQP = false;
+                this.fetchProgressText = '';
             }
         },
         exportAiken() {
             let txt = '';
+            const stripHtml = (html) => {
+                const tmp = document.createElement('div');
+                tmp.innerHTML = html || '';
+                return tmp.innerText.trim();
+            };
             this.fetchedQuestions.forEach(q => {
-                txt += `${q.text}\n`;
+                txt += `${stripHtml(q.text)}\n`;
                 for (let k in q.options) {
-                    txt += `${k}. ${q.options[k]}\n`;
+                    txt += `${k}. ${stripHtml(q.options[k])}\n`;
                 }
                 txt += `ANSWER: ${q.answer || 'A'}\n\n`;
             });
@@ -833,14 +1283,14 @@ createApp({
             this.fetchedQuestions.forEach(q => {
                 xml += `  <question type="multichoice">\n`;
                 xml += `    <name><text>Q${q.id}</text></name>\n`;
-                xml += `    <questiontext format="html"><text><![CDATA[<p>${q.text}</p>]]></text></questiontext>\n`;
+                xml += `    <questiontext format="html"><text><![CDATA[${q.text.startsWith('<p') ? q.text : '<p>' + q.text + '</p>'}]]></text></questiontext>\n`;
                 xml += `    <defaultgrade>${q.marks || 1}</defaultgrade>\n`;
                 xml += `    <single>true</single>\n`;
                 xml += `    <shuffleanswers>true</shuffleanswers>\n`;
                 for (let k in q.options) {
                     const fraction = (q.answer === k) ? '100' : '0';
                     xml += `    <answer fraction="${fraction}" format="html">\n`;
-                    xml += `      <text><![CDATA[<p>${q.options[k]}</p>]]></text>\n`;
+                    xml += `      <text><![CDATA[${q.options[k].startsWith('<p') ? q.options[k] : '<p>' + q.options[k] + '</p>'}]]></text>\n`;
                     xml += `    </answer>\n`;
                 }
                 xml += `  </question>\n`;
