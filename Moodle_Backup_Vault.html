@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JosTEL Moodle Backup Vault & Date-Wise Archival Engine</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Vue 3, SheetJS & JSZip Libraries -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        primary: '#1e3a8a',
+                        primaryHover: '#172554',
+                        secondary: '#2563eb',
+                        accent: '#0284c7',
+                        bglight: '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f1f5f9; color: #1e293b; font-family: 'Outfit', sans-serif; }
+        .glass-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.06);
+            border-radius: 16px;
+        }
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        input, select {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 12px;
+            outline: none;
+            width: 100%;
+            font-size: 0.813rem;
+            background: #ffffff;
+        }
+        input:focus, select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .log-console {
+            background: #0f172a;
+            color: #38bdf8;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.75rem;
+            line-height: 1.45;
+        }
+        [v-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="p-3 sm:p-6 min-h-screen">
+
+<div id="app" v-cloak class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Top Navigation & Brand Header -->
+    <header class="glass-panel p-5 sm:p-6 border-t-4 border-t-primary flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="p-3 bg-gradient-to-tr from-blue-700 to-indigo-900 text-white rounded-2xl shadow-md">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-2xl sm:text-3xl font-black text-primary tracking-tight">JosTEL Moodle Backup Vault</h1>
+                    <span class="badge-pill bg-emerald-100 text-emerald-800 text-[11px]">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                        Date-Wise Archival Engine v1.0
+                    </span>
+                </div>
+                <p class="text-xs sm:text-sm text-gray-500 font-medium mt-0.5">
+                    Automated System-Wide Course Dumps, Question Paper Banks (Aiken/XML), Student Gradebooks & Enrolment Rosters
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="./index.html" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Master Center
+            </a>
+            <a href="./QP_Management_Hub.html" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                QP Hub
+            </a>
+            <a href="./Grade_Fetcher_Dashboard.html" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Grade Fetcher
+            </a>
+        </div>
+    </header>
+
+    <!-- System Stats & Connection Status Banner -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="glass-panel p-4 flex items-center gap-3">
+            <div class="p-2.5 bg-blue-100 text-blue-700 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-gray-500 uppercase">Categories</p>
+                <p class="text-xl font-black text-gray-900">{{ categories.length }} Loaded</p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 flex items-center gap-3">
+            <div class="p-2.5 bg-indigo-100 text-indigo-700 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-gray-500 uppercase">Total Courses</p>
+                <p class="text-xl font-black text-gray-900">{{ courses.length }} Registered</p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 flex items-center gap-3">
+            <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-gray-500 uppercase">Selected Scope</p>
+                <p class="text-xl font-black text-emerald-700">{{ targetCourses.length }} Courses</p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 flex items-center gap-3">
+            <div class="p-2.5 bg-amber-100 text-amber-700 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-gray-500 uppercase">Archived Files</p>
+                <p class="text-xl font-black text-amber-700">{{ stats.totalFiles }} Items</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONFIGURATION AND BACKUP DASHBOARD -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Controls: Scope & Date Selection -->
+        <div class="glass-panel p-5 space-y-5 self-start">
+            <h3 class="font-bold text-base text-gray-800 border-b pb-2 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                1. Archival Scope & Date Filter
+            </h3>
+
+            <!-- Scope Mode Radios -->
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-gray-700 uppercase">Archival Target Scope</label>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button type="button" @click="scopeMode = 'category'" :class="scopeMode === 'category' ? 'bg-primary text-white font-bold' : 'bg-slate-100 text-slate-700'" class="p-2.5 rounded-lg text-center transition-all">
+                        By Category / Shift
+                    </button>
+                    <button type="button" @click="scopeMode = 'all'" :class="scopeMode === 'all' ? 'bg-primary text-white font-bold' : 'bg-slate-100 text-slate-700'" class="p-2.5 rounded-lg text-center transition-all">
+                        All Courses (Site Dump)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Selector (when in category mode) -->
+            <div v-if="scopeMode === 'category'" class="space-y-1">
+                <label class="block text-xs font-bold text-gray-700 uppercase">Target Category</label>
+                <select v-model="selectedCategory" @change="onCategoryChange">
+                    <option value="">Select Category ({{ categories.length }})</option>
+                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                        {{ cat.name }} (#{{ cat.id }})
+                    </option>
+                </select>
+            </div>
+
+            <!-- Date-Wise Organization Scheme -->
+            <div class="space-y-2 pt-2 border-t border-gray-100">
+                <label class="block text-xs font-bold text-gray-700 uppercase flex items-center justify-between">
+                    <span>Folder Organization Structure</span>
+                    <span class="text-[10px] text-blue-600 font-semibold">Date-Wise</span>
+                </label>
+                <select v-model="dateOrganizationMode" class="text-xs">
+                    <option value="examDate">📅 By Exam Date / Shortname Date (e.g. 2026-10-15)</option>
+                    <option value="backupDate">🕒 By Current Backup Timestamp (e.g. 2026-10-15_1530)</option>
+                    <option value="categoryOnly">📁 By Category / Shift Subfolders</option>
+                </select>
+                <p class="text-[11px] text-gray-400">
+                    Files inside the zip will be neatly compartmentalized into dated folders according to course schedule codes.
+                </p>
+            </div>
+
+            <!-- Specific Date Filter (Optional) -->
+            <div class="space-y-1 pt-2 border-t border-gray-100">
+                <label class="block text-xs font-bold text-gray-700 uppercase flex items-center justify-between">
+                    <span>Filter By Specific Date (Optional)</span>
+                    <span v-if="filterDate" @click="filterDate = ''" class="text-[10px] text-red-500 cursor-pointer font-bold">Clear</span>
+                </label>
+                <input v-model="filterDate" type="text" placeholder="e.g. 15102026 or 16102026 or 2026-10-15" class="text-xs font-mono">
+                <p class="text-[10px] text-gray-400">Only courses matching this date code in their shortname or start date will be archived.</p>
+            </div>
+
+            <!-- Backup Package Contents Checkboxes -->
+            <div class="space-y-2.5 pt-2 border-t border-gray-100">
+                <label class="block text-xs font-bold text-gray-700 uppercase">2. Package Contents to Include</label>
+                <div class="space-y-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-gray-800">
+                        <input type="checkbox" v-model="backupOptions.questionPapers" class="w-4 h-4 rounded text-blue-600">
+                        <span>📥 Question Papers (Aiken .txt & Moodle XML)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-gray-800">
+                        <input type="checkbox" v-model="backupOptions.grades" class="w-4 h-4 rounded text-blue-600">
+                        <span>📊 Student Grades & Scores (.xlsx & .csv)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-gray-800">
+                        <input type="checkbox" v-model="backupOptions.roster" class="w-4 h-4 rounded text-blue-600">
+                        <span>👥 Enrolled Student Rosters (.xlsx)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-gray-800">
+                        <input type="checkbox" v-model="backupOptions.courseStructure" class="w-4 h-4 rounded text-blue-600">
+                        <span>📑 Course Hierarchy & Topics (.json)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer font-bold text-primary">
+                        <input type="checkbox" v-model="backupOptions.manifest" class="w-4 h-4 rounded text-blue-600">
+                        <span>⭐ Master Manifest Summary Sheet (.xlsx)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="pt-2">
+                <button 
+                    @click="executeComprehensiveBackup" 
+                    :disabled="isBackingUp || targetCourses.length === 0" 
+                    class="w-full bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-800 hover:to-indigo-900 text-white font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                    <svg v-if="isBackingUp" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <svg v-else class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>{{ isBackingUp ? 'GENERATING ARCHIVE (' + progressPercent + '%)...' : 'START COMPLETE SYSTEM BACKUP' }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Center & Right: Live Progress, KPI Monitor & File Explorer -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Live Backup Progress Card -->
+            <div class="glass-panel p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-3">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-900">Archival Execution Status</h3>
+                        <p class="text-xs text-gray-500 font-medium">Real-time asynchronous Moodle extraction and packaging stream</p>
+                    </div>
+                    <div class="flex items-center gap-2" v-if="downloadBlobUrl">
+                        <button @click="downloadArchiveZip" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 animate-bounce">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <span>DOWNLOAD ZIP ARCHIVE ({{ formatBytes(archiveZipSize) }})</span>
+                        </button>
+                        <button @click="downloadManifestOnly" v-if="manifestData.length > 0" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors">
+                            📊 Manifest Only
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs font-bold text-gray-700">
+                        <span>{{ currentActionStatus || 'Ready to start backup' }}</span>
+                        <span>{{ progressPercent }}% ({{ stats.coursesDone }} / {{ targetCourses.length }} Courses)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 h-3 rounded-full transition-all duration-300 shadow-sm" :style="{ width: progressPercent + '%' }"></div>
+                    </div>
+                </div>
+
+                <!-- Real-time Counters -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                        <p class="text-[10px] uppercase font-bold text-gray-500">Quizzes Backed Up</p>
+                        <p class="text-lg font-black text-blue-700">{{ stats.totalQuizzes }}</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                        <p class="text-[10px] uppercase font-bold text-gray-500">Questions Dumped</p>
+                        <p class="text-lg font-black text-indigo-700">{{ stats.totalQuestions }}</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                        <p class="text-[10px] uppercase font-bold text-gray-500">Grades Recorded</p>
+                        <p class="text-lg font-black text-emerald-700">{{ stats.totalGrades }}</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                        <p class="text-[10px] uppercase font-bold text-gray-500">Archive Size</p>
+                        <p class="text-lg font-black text-amber-700">{{ formatBytes(archiveZipSize) }}</p>
+                    </div>
+                </div>
+
+                <!-- Streaming Live Log Console -->
+                <div class="space-y-1 pt-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-gray-500">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full" :class="isBackingUp ? 'bg-emerald-500 animate-ping' : 'bg-gray-400'"></span>
+                            Archival Execution Terminal
+                        </span>
+                        <span class="text-[11px] font-mono">{{ logs.length }} Events</span>
+                    </div>
+                    <div ref="logContainer" class="log-console p-3.5 rounded-xl h-48 overflow-y-auto space-y-1 border border-slate-800">
+                        <div v-for="(log, idx) in logs" :key="idx" :class="log.color || 'text-slate-300'">
+                            <span class="text-slate-500 mr-2 font-mono">[{{ log.time }}]</span>
+                            <span class="font-bold mr-1" v-if="log.tag">[{{ log.tag }}]</span>
+                            <span>{{ log.msg }}</span>
+                        </div>
+                        <div v-if="logs.length === 0" class="text-slate-600 italic">
+                            Select courses on the left and click "Start Complete System Backup" to begin archival stream...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Courses Table Review -->
+            <div class="glass-panel p-5 space-y-3">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-2">
+                    <div>
+                        <h4 class="font-bold text-base text-gray-900">Queued Courses ({{ targetCourses.length }})</h4>
+                        <p class="text-xs text-gray-500">Review all courses included in this backup snapshot</p>
+                    </div>
+                    <span class="badge-pill bg-slate-100 text-slate-700 text-xs">
+                        Scope: {{ scopeMode === 'all' ? 'All Moodle Courses' : 'Category #' + selectedCategory }}
+                    </span>
+                </div>
+
+                <div class="max-h-72 overflow-y-auto text-xs">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b text-[11px] text-gray-500 uppercase">
+                                <th class="p-2">#</th>
+                                <th class="p-2">Course Code</th>
+                                <th class="p-2">Course Full Name</th>
+                                <th class="p-2 text-center">Category</th>
+                                <th class="p-2 text-center">Exam Date Code</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(c, cIdx) in targetCourses" :key="c.id" class="border-b hover:bg-slate-50 transition-colors">
+                                <td class="p-2 font-mono text-gray-400">{{ cIdx + 1 }}</td>
+                                <td class="p-2 font-mono font-bold text-blue-900">{{ c.shortname }}</td>
+                                <td class="p-2 font-medium text-gray-800">{{ c.fullname }}</td>
+                                <td class="p-2 text-center font-mono text-gray-500">#{{ c.category }}</td>
+                                <td class="p-2 text-center">
+                                    <span class="px-2 py-0.5 bg-blue-50 text-blue-700 font-mono rounded font-bold text-[10px]">
+                                        {{ extractDateFromCourse(c) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr v-if="targetCourses.length === 0">
+                                <td colspan="5" class="p-6 text-center text-gray-400 italic">
+                                    No courses found matching selected scope and date filter.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+    data() {
+        return {
+            moodleUrl: 'https://service.sjctni.edu/jostel/moodle',
+            apiToken: '20346d2c25c71285ffc0f147a3f9eab8',
+
+            categories: [],
+            courses: [],
+            quizzes: [],
+            
+            // Scope & Filters
+            scopeMode: 'category', // 'category', 'all'
+            selectedCategory: '962',
+            filterDate: '',
+            dateOrganizationMode: 'examDate', // 'examDate', 'backupDate', 'categoryOnly'
+
+            backupOptions: {
+                questionPapers: true,
+                grades: true,
+                roster: true,
+                courseStructure: true,
+                manifest: true
+            },
+
+            // Archival Execution Live State
+            isBackingUp: false,
+            currentActionStatus: '',
+            progressPercent: 0,
+            logs: [],
+            
+            stats: {
+                coursesDone: 0,
+                totalQuizzes: 0,
+                totalQuestions: 0,
+                totalGrades: 0,
+                totalFiles: 0
+            },
+
+            archiveZipSize: 0,
+            downloadBlobUrl: null,
+            downloadFilename: '',
+            manifestData: []
+        };
+    },
+    computed: {
+        apiUrl() {
+            return `${this.moodleUrl.replace(/\/$/, '')}/webservice/rest/server.php`;
+        },
+        targetCourses() {
+            let list = this.courses;
+            if (this.scopeMode === 'category' && this.selectedCategory) {
+                list = list.filter(c => String(c.category) === String(this.selectedCategory));
+            }
+            if (this.filterDate) {
+                const term = this.filterDate.trim().toLowerCase();
+                list = list.filter(c => {
+                    const sn = (c.shortname || '').toLowerCase();
+                    const fn = (c.fullname || '').toLowerCase();
+                    const d = this.extractDateFromCourse(c).toLowerCase();
+                    return sn.includes(term) || fn.includes(term) || d.includes(term);
+                });
+            }
+            return list;
+        }
+    },
+    async mounted() {
+        this.addLog('SYSTEM', 'Initializing JosTEL Backup Vault engine...', 'text-blue-400');
+        await this.loadInitialMetadata();
+    },
+    methods: {
+        addLog(tag, msg, color = 'text-slate-300') {
+            const time = new Date().toLocaleTimeString();
+            this.logs.push({ time, tag, msg, color });
+            this.$nextTick(() => {
+                if (this.$refs.logContainer) {
+                    this.$refs.logContainer.scrollTop = this.$refs.logContainer.scrollHeight;
+                }
+            });
+        },
+        async request(wsfunction, params = '') {
+            const url = `${this.apiUrl}?wstoken=${this.apiToken}&wsfunction=${wsfunction}&moodlewsrestformat=json${params}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            const data = await res.json();
+            if (data && data.exception) {
+                throw new Error(`${data.exception}: ${data.message}`);
+            }
+            return data;
+        },
+        async loadInitialMetadata() {
+            try {
+                this.addLog('SYNC', 'Querying categories and course repositories from Moodle...', 'text-slate-300');
+                const [cats, crs] = await Promise.all([
+                    this.request('core_course_get_categories'),
+                    this.request('core_course_get_courses')
+                ]);
+                this.categories = cats || [];
+                // Filter out site home (id: 1)
+                this.courses = (crs || []).filter(c => c.id !== 1);
+                this.addLog('READY', `Loaded ${this.categories.length} categories and ${this.courses.length} courses successfully.`, 'text-emerald-400 font-bold');
+            } catch(e) {
+                this.addLog('ERROR', `Failed loading Moodle metadata: ${e.message}`, 'text-red-400 font-bold');
+            }
+        },
+        onCategoryChange() {
+            this.addLog('FILTER', `Active scope shifted to Category #${this.selectedCategory} (${this.targetCourses.length} courses identified).`);
+        },
+        extractDateFromCourse(c) {
+            // Check for date pattern in shortname like _15102026 or 16.10.2026
+            if (c.shortname) {
+                const m = c.shortname.match(/_(\d{8})/);
+                if (m) {
+                    const raw = m[1];
+                    return `${raw.slice(4,8)}-${raw.slice(2,4)}-${raw.slice(0,2)}`;
+                }
+                const m2 = c.shortname.match(/_(\d{2}\.\d{2}\.\d{4})/);
+                if (m2) return m2[1];
+            }
+            if (c.startdate && c.startdate > 10000000) {
+                return new Date(c.startdate * 1000).toISOString().split('T')[0];
+            }
+            return 'Undated_Schedule';
+        },
+        cleanFolderName(str) {
+            return (str || 'Item').replace(/[\/\\:*?"<>|]/g, '_').trim().slice(0, 60);
+        },
+        formatBytes(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+        // Core Comprehensive Archival Routine
+        async executeComprehensiveBackup() {
+            if (this.targetCourses.length === 0) return;
+            this.isBackingUp = true;
+            this.progressPercent = 0;
+            this.downloadBlobUrl = null;
+            this.manifestData = [];
+            this.stats = { coursesDone: 0, totalQuizzes: 0, totalQuestions: 0, totalGrades: 0, totalFiles: 0 };
+            
+            const zip = new JSZip();
+            const now = new Date();
+            const backupDateStamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const total = this.targetCourses.length;
+
+            this.addLog('ARCHIVE', `Starting comprehensive backup for ${total} courses...`, 'text-yellow-400 font-bold');
+
+            try {
+                for (let i = 0; i < total; i++) {
+                    const course = this.targetCourses[i];
+                    this.currentActionStatus = `Backing up Course [${i + 1}/${total}]: ${course.shortname}`;
+                    this.progressPercent = Math.round(((i) / total) * 100);
+
+                    // Determine folder path
+                    const dateFolder = this.dateOrganizationMode === 'examDate' 
+                        ? this.extractDateFromCourse(course)
+                        : (this.dateOrganizationMode === 'backupDate' ? backupDateStamp : `Category_${course.category}`);
+
+                    const courseFolderClean = `${this.cleanFolderName(course.shortname)}_${course.id}`;
+                    const targetDir = zip.folder(dateFolder).folder(courseFolderClean);
+
+                    const courseManifest = {
+                        CourseID: course.id,
+                        ShortName: course.shortname,
+                        FullName: course.fullname,
+                        Category: course.category,
+                        DateTag: this.extractDateFromCourse(course),
+                        QuizzesFound: 0,
+                        QuestionsExtracted: 0,
+                        StudentsEnrolled: 0,
+                        StudentsGraded: 0,
+                        AverageGrade: 0,
+                        ArchivedAt: new Date().toLocaleString()
+                    };
+
+                    this.addLog('COURSE', `[${i + 1}/${total}] Processing ${course.shortname} (#${course.id})...`);
+
+                    // 1. Course Metadata & Syllabus JSON
+                    if (this.backupOptions.courseStructure) {
+                        try {
+                            const contents = await this.request('core_course_get_contents', `&courseid=${course.id}`);
+                            targetDir.file('Course_Structure_Hierarchy.json', JSON.stringify({
+                                course_info: course,
+                                sections: contents
+                            }, null, 2));
+                            this.stats.totalFiles++;
+                        } catch(ce) {}
+                    }
+
+                    // 2. Enrolled Students Roster
+                    let enrolledUsers = [];
+                    if (this.backupOptions.roster || this.backupOptions.grades) {
+                        try {
+                            enrolledUsers = await this.request('core_enrol_get_enrolled_users', `&courseid=${course.id}`);
+                            courseManifest.StudentsEnrolled = (enrolledUsers || []).length;
+                            
+                            if (this.backupOptions.roster && enrolledUsers && enrolledUsers.length > 0) {
+                                const rosterRows = enrolledUsers.map((u, uIdx) => ({
+                                    'S.No': uIdx + 1,
+                                    'Moodle User ID': u.id,
+                                    'Register Number': u.username,
+                                    'Full Name': u.fullname,
+                                    'Email': u.email,
+                                    'Roles': (u.roles || []).map(r => r.shortname).join(', ')
+                                }));
+                                const ws = XLSX.utils.json_to_sheet(rosterRows);
+                                const wb = XLSX.utils.book_new();
+                                XLSX.utils.book_append_sheet(wb, ws, 'Student_Roster');
+                                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                                targetDir.file('Enrolled_Student_Roster.xlsx', wbout);
+                                this.stats.totalFiles++;
+                            }
+                        } catch(re) {}
+                    }
+
+                    // 3. Quizzes & Question Papers
+                    let courseQuizzes = [];
+                    try {
+                        const qRes = await this.request('mod_quiz_get_quizzes_by_courses', `&courseids[0]=${course.id}`);
+                        courseQuizzes = qRes.quizzes || [];
+                    } catch(qe) {}
+
+                    courseManifest.QuizzesFound = courseQuizzes.length;
+                    this.stats.totalQuizzes += courseQuizzes.length;
+
+                    if (this.backupOptions.questionPapers && courseQuizzes.length > 0) {
+                        for (const qz of courseQuizzes) {
+                            try {
+                                const qpRes = await this.extractQuizQuestions(qz.id, course.id);
+                                if (qpRes && qpRes.length > 0) {
+                                    courseManifest.QuestionsExtracted += qpRes.length;
+                                    this.stats.totalQuestions += qpRes.length;
+
+                                    // Build Aiken format
+                                    let aikenText = '';
+                                    qpRes.forEach(q => {
+                                        aikenText += `${q.plainText}\n`;
+                                        for (const [k, v] of Object.entries(q.options)) {
+                                            aikenText += `${k}. ${v}\n`;
+                                        }
+                                        aikenText += `ANSWER: ${q.answer || 'A'}\n\n`;
+                                    });
+                                    targetDir.file(`QP_Quiz_${qz.id}_${this.cleanFolderName(qz.name)}_Aiken.txt`, aikenText);
+                                    
+                                    // Build Moodle XML format
+                                    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<quiz>\n`;
+                                    qpRes.forEach(q => {
+                                        xml += `  <question type="multichoice">\n    <name><text>Q${q.id}</text></name>\n`;
+                                        xml += `    <questiontext format="html"><text><![CDATA[${q.text}]]></text></questiontext>\n`;
+                                        xml += `    <defaultgrade>${q.marks || 1}</defaultgrade>\n    <single>true</single>\n    <shuffleanswers>true</shuffleanswers>\n`;
+                                        for (const [k, v] of Object.entries(q.options)) {
+                                            const frac = (q.answer === k) ? '100' : '0';
+                                            xml += `    <answer fraction="${frac}" format="html"><text><![CDATA[<p>${v}</p>]]></text></answer>\n`;
+                                        }
+                                        xml += `  </question>\n`;
+                                    });
+                                    xml += `</quiz>`;
+                                    targetDir.file(`QP_Quiz_${qz.id}_${this.cleanFolderName(qz.name)}_Moodle.xml`, xml);
+                                    this.stats.totalFiles += 2;
+                                }
+                            } catch(qpe) {}
+                        }
+                    }
+
+                    // 4. Student Grades
+                    if (this.backupOptions.grades) {
+                        try {
+                            const grRes = await this.request('gradereport_user_get_grade_items', `&courseid=${course.id}`);
+                            if (grRes && grRes.usergrades && grRes.usergrades.length > 0) {
+                                const gradeRows = [];
+                                let totalScore = 0;
+                                let scoredCount = 0;
+
+                                grRes.usergrades.forEach((ug, idx) => {
+                                    // Find user object
+                                    const uObj = (enrolledUsers || []).find(u => u.id === ug.userid);
+                                    let score = null;
+                                    let maxGrade = 100;
+                                    let dateSubmitted = '';
+                                    let feedback = '';
+
+                                    (ug.gradeitems || []).forEach(gi => {
+                                        if (gi.itemtype === 'course' || gi.itemmodule === 'quiz') {
+                                            if (gi.graderaw !== null && gi.graderaw !== undefined) {
+                                                score = parseFloat(gi.graderaw);
+                                                maxGrade = parseFloat(gi.grademax || 100);
+                                                if (gi.gradedatesubmitted) {
+                                                    dateSubmitted = new Date(gi.gradedatesubmitted * 1000).toLocaleString();
+                                                }
+                                                feedback = gi.feedback || '';
+                                            }
+                                        }
+                                    });
+
+                                    if (score !== null) {
+                                        scoredCount++;
+                                        totalScore += score;
+                                    }
+
+                                    gradeRows.push({
+                                        'S.No': idx + 1,
+                                        'Moodle User ID': ug.userid,
+                                        'Register Number': uObj ? uObj.username : `User_${ug.userid}`,
+                                        'Student Name': ug.userfullname,
+                                        'Email': uObj ? uObj.email : '',
+                                        'Score': score !== null ? score : 'Absent / Not Attempted',
+                                        'Max Grade': maxGrade,
+                                        'Submission Date': dateSubmitted,
+                                        'Feedback': feedback
+                                    });
+                                });
+
+                                courseManifest.StudentsGraded = scoredCount;
+                                courseManifest.AverageGrade = scoredCount > 0 ? (totalScore / scoredCount).toFixed(2) : 0;
+                                this.stats.totalGrades += scoredCount;
+
+                                // Generate Excel Gradebook
+                                const ws = XLSX.utils.json_to_sheet(gradeRows);
+                                const wb = XLSX.utils.book_new();
+                                XLSX.utils.book_append_sheet(wb, ws, 'Grade_Report');
+                                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                                targetDir.file(`Grades_Course_${course.id}_${this.cleanFolderName(course.shortname)}.xlsx`, wbout);
+                                this.stats.totalFiles++;
+                            }
+                        } catch(ge) {}
+                    }
+
+                    this.manifestData.push(courseManifest);
+                    this.stats.coursesDone = i + 1;
+                    this.addLog('SUCCESS', `Completed [${i + 1}/${total}] ${course.shortname}: ${courseManifest.QuestionsExtracted} questions, ${courseManifest.StudentsGraded} grades.`, 'text-emerald-400');
+                }
+
+                // 5. Build Master Manifest Excel in Root of Zip
+                if (this.backupOptions.manifest && this.manifestData.length > 0) {
+                    this.currentActionStatus = 'Compiling Master Backup Manifest Index spreadsheet...';
+                    const ws = XLSX.utils.json_to_sheet(this.manifestData);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Master_Backup_Index');
+                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    zip.file(`Backup_Manifest_Master_Index_${backupDateStamp}.xlsx`, wbout);
+                    this.stats.totalFiles++;
+                }
+
+                // Generate Zip Blob
+                this.currentActionStatus = 'Compressing and sealing Master Zip Archive...';
+                this.addLog('ZIP', 'Generating compressed Zip archive payload...', 'text-yellow-400 font-bold');
+                
+                const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+                this.archiveZipSize = blob.size;
+                this.downloadBlobUrl = window.URL.createObjectURL(blob);
+                this.downloadFilename = `JosTEL_Moodle_Vault_Backup_${backupDateStamp}.zip`;
+                this.progressPercent = 100;
+                this.currentActionStatus = 'Backup Archive Package Ready for Download!';
+
+                this.addLog('COMPLETE', `✅ Master Backup Vault finished! Archive size: ${this.formatBytes(blob.size)}. Click Download to save.`, 'text-emerald-300 font-bold text-sm');
+
+            } catch(e) {
+                this.addLog('FATAL', `Archival interrupted by error: ${e.message}`, 'text-red-400 font-bold');
+                alert(`Backup process error: ${e.message}`);
+            } finally {
+                this.isBackingUp = false;
+            }
+        },
+        async extractQuizQuestions(quizId, courseId) {
+            const attemptIds = [];
+            // Try admin / preview attempt
+            try {
+                const adminAtt = await this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=2`);
+                if (adminAtt && adminAtt.attempts && adminAtt.attempts.length > 0) {
+                    attemptIds.push(adminAtt.attempts[adminAtt.attempts.length - 1].id);
+                }
+            } catch(e) {}
+
+            // Try on-demand preview attempt via mod_quiz_start_attempt
+            if (attemptIds.length === 0) {
+                try {
+                    const startRes = await this.request('mod_quiz_start_attempt', `&quizid=${quizId}`);
+                    if (startRes && startRes.attempt && startRes.attempt.id) {
+                        const newAttId = startRes.attempt.id;
+                        try {
+                            await this.request('mod_quiz_process_attempt', `&attemptid=${newAttId}&finishattempt=1`);
+                        } catch(pe) {}
+                        attemptIds.push(newAttId);
+                    }
+                } catch(se) {}
+            }
+
+            if (attemptIds.length === 0) return [];
+
+            const questions = [];
+            for (const attId of attemptIds.slice(0, 2)) {
+                try {
+                    try {
+                        await this.request('mod_quiz_process_attempt', `&attemptid=${attId}&finishattempt=1`);
+                    } catch(e) {}
+
+                    const rev = await this.request('mod_quiz_get_attempt_review', `&attemptid=${attId}&page=-1`);
+                    if (rev && rev.questions && rev.questions.length > 0) {
+                        rev.questions.forEach((qItem, qIdx) => {
+                            const parsed = this.parseMoodleQuestionHtml(qItem.html || '', qItem.slot || qIdx + 1, qItem.maxmark);
+                            if (parsed.plainText) questions.push(parsed);
+                        });
+                    }
+                } catch(e) {}
+            }
+            return questions;
+        },
+        parseMoodleQuestionHtml(html, slot, maxmark) {
+            const div = document.createElement('div');
+            div.innerHTML = html || '';
+
+            const qTextEl = div.querySelector('.qtext');
+            const qText = qTextEl ? qTextEl.innerHTML.trim() : `Question ${slot}`;
+            const plainText = qTextEl ? qTextEl.innerText.trim() : `Question ${slot}`;
+
+            let rightAnswerText = '';
+            const rightAnswerEl = div.querySelector('.rightanswer');
+            if (rightAnswerEl) {
+                rightAnswerText = rightAnswerEl.innerText.replace(/^(The\s+)?correct\s+answer\s+is\s*:?\s*/i, '').trim();
+            }
+
+            let optionRows = div.querySelectorAll('.answer .r0, .answer .r1');
+            if (optionRows.length === 0) optionRows = div.querySelectorAll('.answer > div');
+
+            const options = {};
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            let correctLetter = '';
+
+            optionRows.forEach((row, oIdx) => {
+                if (oIdx >= letters.length) return;
+                const letter = letters[oIdx];
+                const labelEl = row.querySelector('[data-region="answer-label"]') || row.querySelector('.flex-fill') || row.querySelector('label') || row;
+                const clone = labelEl.cloneNode(true);
+                clone.querySelectorAll('.icon, .fa, .feedback, .answernumber, .sr-only, input').forEach(el => el.remove());
+                options[letter] = clone.innerText.trim();
+
+                if (row.classList.contains('correct') && !row.classList.contains('incorrect')) {
+                    correctLetter = letter;
+                }
+            });
+
+            if (!correctLetter && rightAnswerText) {
+                for (const [ltr, text] of Object.entries(options)) {
+                    if (text && text.toLowerCase() === rightAnswerText.toLowerCase()) {
+                        correctLetter = ltr;
+                        break;
+                    }
+                }
+            }
+
+            return {
+                id: slot,
+                text: qText,
+                plainText: plainText,
+                options: options,
+                answer: correctLetter || 'A',
+                marks: maxmark || 1
+            };
+        },
+        downloadArchiveZip() {
+            if (!this.downloadBlobUrl) return;
+            const a = document.createElement('a');
+            a.href = this.downloadBlobUrl;
+            a.download = this.downloadFilename || 'JosTEL_Moodle_Backup.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        },
+        downloadManifestOnly() {
+            if (this.manifestData.length === 0) return;
+            const ws = XLSX.utils.json_to_sheet(this.manifestData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Master_Backup_Index');
+            XLSX.writeFile(wb, `JosTEL_Backup_Manifest_Index_${new Date().toISOString().slice(0, 10)}.xlsx`);
+        }
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
