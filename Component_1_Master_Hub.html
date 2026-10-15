@@ -76,6 +76,29 @@
                 <span class="sm:hidden">JosTEL Timetable</span>
             </h1>
             <span class="bg-blue-100 text-blue-800 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest border border-blue-200 shrink-0">Admin</span>
+
+            <!-- Active Exam Profile Switcher Pill -->
+            <div class="hidden lg:flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-xl px-3 py-1 shadow-2xs ml-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Active:</span>
+                <select 
+                    v-model="activeExamId" 
+                    @change="switchExamProfile(activeExamId)" 
+                    class="bg-transparent text-xs font-bold text-primary border-none outline-none cursor-pointer max-w-[210px] truncate"
+                    title="Switch Active Exam Workspace"
+                >
+                    <option v-for="ex in examProfilesList" :key="ex.id" :value="ex.id">
+                        {{ ex.name }} ({{ ex.date || 'Undated' }})
+                    </option>
+                </select>
+                <button 
+                    @click="activeTab = 'examManager'" 
+                    class="ml-1 p-1 hover:bg-blue-100/70 text-blue-700 rounded-lg transition" 
+                    title="Manage & Create Exam Workspaces"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </button>
+            </div>
         </div>
         <div class="flex items-center gap-4 text-xs md:text-sm font-medium shrink-0 ml-auto">
             <a href="faculty_hub.html" target="_blank" class="hidden md:flex items-center gap-2 bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded-full border border-blue-200 transition font-bold shadow-sm whitespace-nowrap">
@@ -97,6 +120,12 @@
             <div class="sidebar-item" :class="{'active': activeTab === 'overview'}" @click="activeTab = 'overview'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                 Platform Overview
+            </div>
+            
+            <div class="sidebar-item" :class="{'active': activeTab === 'examManager'}" @click="activeTab = 'examManager'">
+                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>Exam Workspaces</span>
+                <span class="ml-auto bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ examProfilesList.length }}</span>
             </div>
             
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-4 px-2">Pre-Flight Config</div>
@@ -148,6 +177,201 @@
         <!-- Dynamic Content Pane -->
         <div class="flex-1 bg-slate-50 p-6 overflow-y-auto w-full relative">
             
+            <!-- ========================================================= -->
+            <!-- EXAM WORKSPACE MANAGER & MULTI-SESSION SCHEDULER TAB      -->
+            <!-- ========================================================= -->
+            <div v-show="activeTab === 'examManager'" class="space-y-6 max-w-6xl mx-auto pb-20">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 pb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">Multi-Exam Engine</span>
+                            <span class="text-xs text-gray-400 font-mono">{{ examProfilesList.length }} Workspaces Registered</span>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-800 mt-1 tracking-tight">Exam Workspaces & Multi-Session Manager</h2>
+                        <p class="text-slate-500 text-sm mt-0.5">Prepare, sandbox, and toggle between multiple examinations with isolated rosters, lab matrices, and timetable rules.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button 
+                            @click="openNewExamModal" 
+                            class="px-4 py-2 bg-primary hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            <span>Create New Exam Workspace</span>
+                        </button>
+
+                        <button 
+                            @click="triggerImportExam" 
+                            class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+                            title="Import an exam package (.json)"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                            <span>Import Package (.json)</span>
+                        </button>
+                        <input type="file" ref="examImportFileInput" @change="handleExamFileImport" accept=".json" class="hidden">
+
+                        <button 
+                            @click="exportExamProfile(activeExamId)" 
+                            class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+                            title="Export active exam as JSON backup"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <span>Export Active (.json)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Active Exam Highlight Banner -->
+                <div class="glass-panel p-5 bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-2xl shadow-md border-none flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-300">Currently Active Workspace</span>
+                        </div>
+                        <h3 class="text-xl font-black tracking-tight text-white">{{ currentActiveExamProfile?.name || 'Active Exam' }}</h3>
+                        <p class="text-xs text-blue-200 font-mono">
+                            Exam Date: <strong class="text-white">{{ currentActiveExamProfile?.date || 'Undated' }}</strong> 
+                            • Category: <span class="text-white">{{ currentActiveExamProfile?.category || 'General' }}</span>
+                            • ID: <span class="text-blue-300">{{ activeExamId }}</span>
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-center">
+                            <div class="text-[10px] text-blue-200 uppercase font-bold">Students</div>
+                            <div class="text-lg font-black text-white">{{ rosterStats.students || 0 }}</div>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-center">
+                            <div class="text-[10px] text-blue-200 uppercase font-bold">Batches/Classes</div>
+                            <div class="text-lg font-black text-white">{{ rosterStats.classes || 0 }}</div>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 text-center">
+                            <div class="text-[10px] text-blue-200 uppercase font-bold">Allocated</div>
+                            <div class="text-lg font-black text-emerald-300">{{ allocatedStudents.length }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workspace Cards Grid -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-sm text-gray-700 uppercase tracking-wider flex items-center justify-between">
+                        <span>All Exam Workspaces ({{ examProfilesList.length }})</span>
+                        <span class="text-xs font-normal text-gray-400">Click any card to switch or manage</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div 
+                            v-for="profile in examProfilesList" 
+                            :key="profile.id" 
+                            :class="profile.id === activeExamId ? 'border-2 border-blue-600 bg-blue-50/20 shadow-md ring-2 ring-blue-500/10' : 'border border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'"
+                            class="glass-panel p-5 rounded-2xl flex flex-col justify-between transition-all space-y-4"
+                        >
+                            <!-- Top Info -->
+                            <div class="space-y-2">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-2">
+                                            <span 
+                                                v-if="profile.id === activeExamId" 
+                                                class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 flex items-center gap-1"
+                                            >
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                ACTIVE NOW
+                                            </span>
+                                            <span 
+                                                v-else 
+                                                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600"
+                                            >
+                                                STANDBY
+                                            </span>
+                                            <span class="text-[10px] text-gray-400 font-mono">{{ profile.category || 'Exam' }}</span>
+                                        </div>
+                                        <h4 class="text-base font-bold text-slate-900 leading-snug">{{ profile.name }}</h4>
+                                    </div>
+
+                                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-mono font-bold shrink-0">
+                                        📅 {{ profile.date || 'Undated' }}
+                                    </span>
+                                </div>
+
+                                <!-- Mini Metrics Grid -->
+                                <div class="grid grid-cols-3 gap-2 pt-2 text-center text-xs">
+                                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                        <div class="text-[10px] text-gray-400 uppercase font-bold">Students</div>
+                                        <div class="font-bold text-slate-800">{{ profile.studentsCount || 0 }}</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                        <div class="text-[10px] text-gray-400 uppercase font-bold">Classes</div>
+                                        <div class="font-bold text-slate-800">{{ profile.classesCount || 0 }}</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                        <div class="text-[10px] text-gray-400 uppercase font-bold">Allocated</div>
+                                        <div class="font-bold text-emerald-700">{{ profile.allocatedCount || 0 }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Action Buttons -->
+                            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+                                <div class="flex items-center gap-1.5">
+                                    <button 
+                                        v-if="profile.id !== activeExamId" 
+                                        @click="switchExamProfile(profile.id)" 
+                                        class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                        <span>Switch to this Exam</span>
+                                    </button>
+                                    <span v-else class="text-xs font-bold text-emerald-600 flex items-center gap-1 py-1">
+                                        <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                        Active Workspace
+                                    </span>
+                                </div>
+
+                                <div class="flex items-center gap-1 text-xs">
+                                    <button 
+                                        @click="duplicateExamProfile(profile.id)" 
+                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition" 
+                                        title="Clone / Duplicate Exam"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+                                    </button>
+                                    <button 
+                                        @click="exportExamProfile(profile.id)" 
+                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition" 
+                                        title="Export JSON Package"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    </button>
+                                    <button 
+                                        v-if="examProfilesList.length > 1" 
+                                        @click="deleteExamProfile(profile.id)" 
+                                        class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition" 
+                                        title="Delete Exam Workspace"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guidance Walkthrough Box -->
+                <div class="p-4 bg-indigo-50/70 border border-indigo-200/80 rounded-2xl text-xs space-y-2 text-indigo-950">
+                    <p class="font-bold flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>How Multi-Exam Sandboxing Works:</span>
+                    </p>
+                    <ul class="list-disc pl-5 space-y-1 text-slate-600">
+                        <li>Each exam workspace completely isolates its student roster, class hierarchy, physical lab editor, and seating charts.</li>
+                        <li>Switching exams instantly updates all dashboards, attendance sheets, PDF generator, and student lookup queries.</li>
+                        <li>When you choose <strong>"Clone Labs from Current Exam"</strong>, your 7 computer labs (ECC 1, ECC 2, ECC 3, SCC, Math Lab, JCICT 1, JCICT 2) are automatically preserved for the new exam without needing re-entry.</li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- OVERVIEW TAB -->
             <div v-show="activeTab === 'overview'" class="space-y-6 max-w-6xl mx-auto pb-20">
                 <div class="flex justify-between items-end">
@@ -1611,6 +1835,95 @@
         </div>
 
     </div>
+
+    <!-- CREATE NEW EXAM MODAL DIALOG -->
+    <div v-if="showNewExamModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="glass-panel p-6 max-w-lg w-full rounded-2xl shadow-2xl space-y-4 animate-fade-in border-t-4 border-t-primary">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Create New Exam Workspace
+                </h3>
+                <button @click="showNewExamModal = false" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+
+            <form @submit.prevent="submitCreateNewExam" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Exam Title / Full Name</label>
+                    <input 
+                        v-model="newExamForm.name" 
+                        type="text" 
+                        placeholder="e.g. AI Literacy Examination - II UG" 
+                        required 
+                        class="futuristic-input"
+                    >
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-gray-700 uppercase mb-1">Exam Date</label>
+                        <input 
+                            v-model="newExamForm.date" 
+                            type="date" 
+                            required 
+                            class="futuristic-input"
+                        >
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 uppercase mb-1">Exam Category</label>
+                        <select v-model="newExamForm.category" class="futuristic-input">
+                            <option value="General Foundation Course">AI Literacy / Foundation</option>
+                            <option value="Self Learning Courses">Self Learning Courses (SLC)</option>
+                            <option value="Component 1">Component 1 Exam</option>
+                            <option value="Component 2">Component 2 Exam</option>
+                            <option value="End Semester Examinations">End Semester Examinations</option>
+                            <option value="Arrear / Supplementary">Arrear / Supplementary</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Initialization Setup Template</label>
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition" :class="newExamForm.setupMode === 'clone_labs' ? 'bg-blue-50 border-blue-300 text-blue-900 font-semibold' : 'bg-slate-50 border-slate-200 text-slate-700'">
+                            <input type="radio" v-model="newExamForm.setupMode" value="clone_labs" class="mt-0.5">
+                            <div>
+                                <div class="font-bold">⭐ Clone Labs & Configuration from Current Exam (Recommended)</div>
+                                <div class="text-[11px] text-gray-500 font-normal">Preserves all 7 computer labs and row/col capacities, but starts with a fresh empty student roster.</div>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition" :class="newExamForm.setupMode === 'ai_preset' ? 'bg-indigo-50 border-indigo-300 text-indigo-900 font-semibold' : 'bg-slate-50 border-slate-200 text-slate-700'">
+                            <input type="radio" v-model="newExamForm.setupMode" value="ai_preset" class="mt-0.5">
+                            <div>
+                                <div class="font-bold">🤖 Pre-fill AI Literacy 16.10.2026 Batch Schedule</div>
+                                <div class="text-[11px] text-gray-500 font-normal">Pre-loads the 4 afternoon batches (2:30 PM - 4:30 PM) for 1,005 students with course codes ai_b1 to ai_b4.</div>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition" :class="newExamForm.setupMode === 'blank' ? 'bg-slate-100 border-slate-400 text-slate-900 font-semibold' : 'bg-slate-50 border-slate-200 text-slate-700'">
+                            <input type="radio" v-model="newExamForm.setupMode" value="blank" class="mt-0.5">
+                            <div>
+                                <div class="font-bold">📄 Clean Blank Workspace</div>
+                                <div class="text-[11px] text-gray-500 font-normal">Start completely from scratch with default settings.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3 border-t">
+                    <button type="button" @click="showNewExamModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-primary hover:bg-blue-800 text-white rounded-xl font-bold transition shadow-md">Initialize & Open Workspace</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification for Exam Switching -->
+    <div v-if="examSwitchNotification" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-700 animate-bounce">
+        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+        <span class="text-xs font-bold">{{ examSwitchNotification }}</span>
+    </div>
 </div>
 
 <script>
@@ -1738,6 +2051,20 @@ createApp({
                 breakTime: '13:20 to 13:45',
                 extra: ''
             },
+
+            // =================================================================
+            // MULTI-EXAM WORKSPACE MANAGEMENT ENGINE
+            // =================================================================
+            examProfilesList: [],
+            activeExamId: 'exam_comp1_live',
+            showNewExamModal: false,
+            examSwitchNotification: '',
+            newExamForm: {
+                name: '',
+                date: new Date().toISOString().split('T')[0],
+                category: 'General Foundation Course',
+                setupMode: 'clone_labs' // 'clone_labs', 'ai_preset', 'blank'
+            },
             
             validationErrors: [ { type: 'warning', msg: 'Awaiting raw student list ingestion.' } ]
         }
@@ -1786,21 +2113,27 @@ createApp({
             if(this.allocatedStudents.length > 0) {
                 this.validationErrors = [{ type: 'success', msg: 'Previous exam seating state recovered flawlessly from browser cache.' }];
             }
+
+            // Initialize Multi-Exam Workspace System
+            this.initMultiExamSystem();
         } catch(e) {
             console.error('State Hydration Failed', e);
         }
     },
     watch: {
-        rawExtractedClasses: { deep: true, handler(val) { localStorage.setItem('jostel_classes', JSON.stringify(val)); } },
-        allocatedStudents: { deep: true, handler(val) { localStorage.setItem('jostel_alloc', JSON.stringify(val)); if(this.activeTab==='overview') setTimeout(() => this.renderCharts(), 100); } },
-        customLabs: { deep: true, handler(val) { localStorage.setItem('jostel_labs', JSON.stringify(val)); if(this.activeTab==='overview') setTimeout(() => this.renderCharts(), 100); } },
-        settings: { deep: true, handler(val) { localStorage.setItem('jostel_settings', JSON.stringify(val)); } },
-        rosterStats: { deep: true, handler(val) { localStorage.setItem('jostel_stats', JSON.stringify(val)); } },
-        invigilatorList: { deep: true, handler(val) { localStorage.setItem('jostel_invig_list', JSON.stringify(val)); } },
-        invigilatorAssignments: { deep: true, handler(val) { localStorage.setItem('jostel_invig_assignments', JSON.stringify(val)); } },
+        rawExtractedClasses: { deep: true, handler(val) { localStorage.setItem('jostel_classes', JSON.stringify(val)); this.saveCurrentExamState(); } },
+        allocatedStudents: { deep: true, handler(val) { localStorage.setItem('jostel_alloc', JSON.stringify(val)); this.saveCurrentExamState(); if(this.activeTab==='overview') setTimeout(() => this.renderCharts(), 100); } },
+        customLabs: { deep: true, handler(val) { localStorage.setItem('jostel_labs', JSON.stringify(val)); this.saveCurrentExamState(); if(this.activeTab==='overview') setTimeout(() => this.renderCharts(), 100); } },
+        settings: { deep: true, handler(val) { localStorage.setItem('jostel_settings', JSON.stringify(val)); this.saveCurrentExamState(); } },
+        rosterStats: { deep: true, handler(val) { localStorage.setItem('jostel_stats', JSON.stringify(val)); this.saveCurrentExamState(); } },
+        invigilatorList: { deep: true, handler(val) { localStorage.setItem('jostel_invig_list', JSON.stringify(val)); this.saveCurrentExamState(); } },
+        invigilatorAssignments: { deep: true, handler(val) { localStorage.setItem('jostel_invig_assignments', JSON.stringify(val)); this.saveCurrentExamState(); } },
         activeTab(val) { if(val === 'overview') setTimeout(() => this.renderCharts(), 100); }
     },
     computed: {
+        currentActiveExamProfile() {
+            return this.examProfilesList.find(e => e.id === this.activeExamId) || null;
+        },
         syncableState() {
             return {
                 customLabs: this.customLabs,
@@ -2038,6 +2371,472 @@ createApp({
         }
     },
     methods: {
+        // =================================================================
+        // MULTI-EXAM WORKSPACE MANAGEMENT ENGINE
+        // =================================================================
+        initMultiExamSystem() {
+            try {
+                const storedIndex = localStorage.getItem('jostel_exam_profiles_index');
+                if (storedIndex) {
+                    this.examProfilesList = JSON.parse(storedIndex);
+                    const activeId = localStorage.getItem('jostel_active_exam_id');
+                    if (activeId && this.examProfilesList.some(e => e.id === activeId)) {
+                        this.activeExamId = activeId;
+                        this.loadExamProfileData(activeId, false);
+                    } else if (this.examProfilesList.length > 0) {
+                        this.activeExamId = this.examProfilesList[0].id;
+                        this.loadExamProfileData(this.activeExamId, false);
+                    }
+                } else {
+                    // First time initialization: Migrate legacy exam into Profile 1
+                    const defaultDate = (this.settings.examDates && this.settings.examDates[0]) || '2026-10-15';
+                    const defaultName = (this.websiteTimetable && this.websiteTimetable.examType) 
+                        ? (this.websiteTimetable.customExamName || this.websiteTimetable.examType)
+                        : 'Component 1: Self Learning Courses (15.10.2026)';
+
+                    const profile1 = {
+                        id: 'exam_comp1_live',
+                        name: defaultName,
+                        code: 'COMP1_SLC_2026',
+                        date: defaultDate,
+                        category: 'Self Learning Courses',
+                        studentsCount: this.rosterStats.students || 0,
+                        classesCount: this.rosterStats.classes || 0,
+                        allocatedCount: this.allocatedStudents.length || 0,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    // Pre-seed an upcoming profile for tomorrow: AI Literacy Examination
+                    const profile2 = {
+                        id: 'exam_ai_literacy_live',
+                        name: 'AI Literacy Examination - II UG (16.10.2026)',
+                        code: 'AI_LIT_16102026',
+                        date: '2026-10-16',
+                        category: 'General Foundation Course',
+                        studentsCount: 1005,
+                        classesCount: 4,
+                        allocatedCount: 0,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    this.examProfilesList = [profile1, profile2];
+                    this.activeExamId = profile1.id;
+
+                    localStorage.setItem('jostel_exam_profiles_index', JSON.stringify(this.examProfilesList));
+                    localStorage.setItem('jostel_active_exam_id', profile1.id);
+
+                    // Save profile 1 data
+                    this.saveCurrentExamState();
+
+                    // Save pre-configured AI Literacy profile data
+                    const aiLabs = JSON.parse(JSON.stringify(this.customLabs));
+                    aiLabs.forEach(l => {
+                        l.activeSessions = ['2026-10-16::Shift 1', '2026-10-16::Shift 2'];
+                    });
+                    const aiSettings = JSON.parse(JSON.stringify(this.settings));
+                    aiSettings.examDates = ['2026-10-16'];
+                    aiSettings.s1Start = '14:30';
+                    aiSettings.s1End = '16:30';
+                    aiSettings.sessionLen = 30;
+                    aiSettings.breakTime = 0;
+
+                    const aiClasses = [
+                        {
+                            name: 'Batch 1 - Artificial Intelligence, BCA, Botany',
+                            timing: '2.30 p.m. to 3.00 p.m.',
+                            courseCode: 'ai_b1',
+                            students: Array.from({ length: 220 }, (_, i) => ({ regNo: `24UAI${String(i+101).padStart(3, '0')}`, name: `Student B1_${i+1}`, course: 'AI Literacy Batch 1' }))
+                        },
+                        {
+                            name: 'Batch 2 - Biotechnology, BBA, B Com Business Analytics',
+                            timing: '3.00 p.m. to 3.30 p.m.',
+                            courseCode: 'ai_b2',
+                            students: Array.from({ length: 212 }, (_, i) => ({ regNo: `24UBT${String(i+101).padStart(3, '0')}`, name: `Student B2_${i+1}`, course: 'AI Literacy Batch 2' }))
+                        },
+                        {
+                            name: 'Batch 3 - B Com CA, Strategic Finance, Chemistry',
+                            timing: '3.30 p.m. to 4.00 p.m.',
+                            courseCode: 'ai_b3',
+                            students: Array.from({ length: 268 }, (_, i) => ({ regNo: `24UCA${String(i+101).padStart(3, '0')}`, name: `Student B3_${i+1}`, course: 'AI Literacy Batch 3' }))
+                        },
+                        {
+                            name: 'Batch 4 - B Com Regular',
+                            timing: '4.00 p.m. to 4.30 p.m.',
+                            courseCode: 'ai_b4',
+                            students: Array.from({ length: 305 }, (_, i) => ({ regNo: `24UCO${String(i+101).padStart(3, '0')}`, name: `Student B4_${i+1}`, course: 'AI Literacy Batch 4' }))
+                        }
+                    ];
+
+                    const aiPayload = {
+                        id: profile2.id,
+                        name: profile2.name,
+                        date: profile2.date,
+                        category: profile2.category,
+                        updatedAt: new Date().toISOString(),
+                        data: {
+                            rawExtractedClasses: aiClasses,
+                            allocatedStudents: [],
+                            customLabs: aiLabs,
+                            settings: aiSettings,
+                            rosterStats: { students: 1005, classes: 4, courses: 4, subjects: 4 },
+                            invigilatorList: JSON.parse(JSON.stringify(this.invigilatorList)),
+                            invigilatorAssignments: {},
+                            websiteTimetable: {
+                                examType: 'AI Literacy Examination (II UG)',
+                                customExamName: 'AI Literacy Course - End Semester',
+                                startDate: '2026-10-16',
+                                endDate: '2026-10-16',
+                                shift1: '14:30',
+                                shift2: '16:30',
+                                breakTime: 'None (Batch Sessions)',
+                                extra: '4 Half-Hour Batches (2.30 PM - 4.30 PM)'
+                            }
+                        }
+                    };
+                    localStorage.setItem(`jostel_exam_profile_${profile2.id}`, JSON.stringify(aiPayload));
+                }
+            } catch(e) {
+                console.error('Multi-Exam Init Failed:', e);
+            }
+        },
+        saveCurrentExamState() {
+            if (!this.activeExamId) return;
+            const profile = this.currentActiveExamProfile;
+            const examPayload = {
+                id: this.activeExamId,
+                name: profile?.name || 'Scheduled Exam',
+                date: (this.settings?.examDates && this.settings.examDates[0]) || '',
+                category: profile?.category || 'General',
+                updatedAt: new Date().toISOString(),
+                data: {
+                    rawExtractedClasses: this.rawExtractedClasses,
+                    allocatedStudents: this.allocatedStudents,
+                    customLabs: this.customLabs,
+                    settings: this.settings,
+                    rosterStats: this.rosterStats,
+                    invigilatorList: this.invigilatorList,
+                    invigilatorAssignments: this.invigilatorAssignments,
+                    websiteTimetable: this.websiteTimetable || {}
+                }
+            };
+            try {
+                localStorage.setItem(`jostel_exam_profile_${this.activeExamId}`, JSON.stringify(examPayload));
+                // Update index entry
+                const idx = this.examProfilesList.findIndex(e => e.id === this.activeExamId);
+                if (idx !== -1) {
+                    this.examProfilesList[idx].studentsCount = this.rosterStats.students || 0;
+                    this.examProfilesList[idx].classesCount = this.rosterStats.classes || 0;
+                    this.examProfilesList[idx].allocatedCount = this.allocatedStudents.length || 0;
+                    this.examProfilesList[idx].date = (this.settings?.examDates && this.settings.examDates[0]) || this.examProfilesList[idx].date;
+                    this.examProfilesList[idx].updatedAt = new Date().toISOString();
+                    localStorage.setItem('jostel_exam_profiles_index', JSON.stringify(this.examProfilesList));
+                }
+            } catch(e) {
+                console.warn('Exam state save exception:', e);
+            }
+        },
+        switchExamProfile(targetExamId) {
+            if (!targetExamId) return;
+            // 1. Save currently active state first
+            this.saveCurrentExamState();
+
+            // 2. Load target exam state
+            this.loadExamProfileData(targetExamId, true);
+
+            // 3. Render charts if on overview
+            if (this.activeTab === 'overview') {
+                setTimeout(() => this.renderCharts(), 150);
+            }
+        },
+        loadExamProfileData(examId, showToast = true) {
+            try {
+                const raw = localStorage.getItem(`jostel_exam_profile_${examId}`);
+                if (!raw) return;
+                const payload = JSON.parse(raw);
+                if (!payload || !payload.data) return;
+
+                const d = payload.data;
+                this.rawExtractedClasses = d.rawExtractedClasses || [];
+                this.allocatedStudents = d.allocatedStudents || [];
+                this.customLabs = d.customLabs || [];
+                this.settings = d.settings || { examDates: [payload.date || '2026-10-15'] };
+                this.rosterStats = d.rosterStats || { students: 0, classes: 0, courses: 0, subjects: 0 };
+                this.invigilatorList = d.invigilatorList || [];
+                this.invigilatorAssignments = d.invigilatorAssignments || {};
+                this.websiteTimetable = d.websiteTimetable || { examType: payload.name };
+
+                this.activeExamId = examId;
+                localStorage.setItem('jostel_active_exam_id', examId);
+
+                // Mirror into legacy keys for backwards compatibility with any external tool
+                localStorage.setItem('jostel_classes', JSON.stringify(this.rawExtractedClasses));
+                localStorage.setItem('jostel_alloc', JSON.stringify(this.allocatedStudents));
+                localStorage.setItem('jostel_labs', JSON.stringify(this.customLabs));
+                localStorage.setItem('jostel_settings', JSON.stringify(this.settings));
+                localStorage.setItem('jostel_stats', JSON.stringify(this.rosterStats));
+                localStorage.setItem('jostel_invig_list', JSON.stringify(this.invigilatorList));
+                localStorage.setItem('jostel_invig_assignments', JSON.stringify(this.invigilatorAssignments));
+
+                if (showToast) {
+                    this.showExamToast(`✅ Switched to Workspace: ${payload.name}`);
+                }
+            } catch(e) {
+                console.error('Failed loading exam profile data:', e);
+            }
+        },
+        openNewExamModal() {
+            this.newExamForm = {
+                name: '',
+                date: new Date().toISOString().split('T')[0],
+                category: 'End Semester Examinations',
+                setupMode: 'clone_labs'
+            };
+            this.showNewExamModal = true;
+        },
+        submitCreateNewExam() {
+            if (!this.newExamForm.name) return;
+            this.saveCurrentExamState();
+
+            const newId = 'exam_' + Date.now();
+            const examName = this.newExamForm.name.trim();
+            const examDate = this.newExamForm.date || new Date().toISOString().split('T')[0];
+            const examCategory = this.newExamForm.category || 'General';
+
+            let newLabs = [];
+            let newClasses = [];
+            let newSettings = JSON.parse(JSON.stringify(this.settings));
+            newSettings.examDates = [examDate];
+
+            if (this.newExamForm.setupMode === 'clone_labs') {
+                // Clone physical lab dimensions & capacities
+                newLabs = JSON.parse(JSON.stringify(this.customLabs));
+                newLabs.forEach(l => {
+                    l.activeSessions = [`${examDate}::Shift 1`, `${examDate}::Shift 2`];
+                });
+            } else if (this.newExamForm.setupMode === 'ai_preset') {
+                // Pre-configure AI Literacy schedule
+                newLabs = JSON.parse(JSON.stringify(this.customLabs));
+                newLabs.forEach(l => {
+                    l.activeSessions = [`${examDate}::Shift 1`, `${examDate}::Shift 2`];
+                });
+                newSettings.s1Start = '14:30';
+                newSettings.s1End = '16:30';
+                newSettings.sessionLen = 30;
+                newSettings.breakTime = 0;
+                newClasses = [
+                    { name: 'Batch 1 - Artificial Intelligence, BCA, Botany', timing: '2.30 p.m. to 3.00 p.m.', courseCode: 'ai_b1', students: Array.from({ length: 220 }, (_, i) => ({ regNo: `24UAI${String(i+101).padStart(3, '0')}`, name: `Student B1_${i+1}`, course: 'AI Literacy Batch 1' })) },
+                    { name: 'Batch 2 - Biotechnology, BBA, B Com Business Analytics', timing: '3.00 p.m. to 3.30 p.m.', courseCode: 'ai_b2', students: Array.from({ length: 212 }, (_, i) => ({ regNo: `24UBT${String(i+101).padStart(3, '0')}`, name: `Student B2_${i+1}`, course: 'AI Literacy Batch 2' })) },
+                    { name: 'Batch 3 - B Com CA, Strategic Finance, Chemistry', timing: '3.30 p.m. to 4.00 p.m.', courseCode: 'ai_b3', students: Array.from({ length: 268 }, (_, i) => ({ regNo: `24UCA${String(i+101).padStart(3, '0')}`, name: `Student B3_${i+1}`, course: 'AI Literacy Batch 3' })) },
+                    { name: 'Batch 4 - B Com Regular', timing: '4.00 p.m. to 4.30 p.m.', courseCode: 'ai_b4', students: Array.from({ length: 305 }, (_, i) => ({ regNo: `24UCO${String(i+101).padStart(3, '0')}`, name: `Student B4_${i+1}`, course: 'AI Literacy Batch 4' })) }
+                ];
+            } else {
+                // Blank default labs
+                newLabs = [
+                    { name: 'ECC Lab 1', building: 'Comp', room: '1', rows: 10, cols: 6, cap: 60, active: true, activeSessions: [`${examDate}::Shift 1`, `${examDate}::Shift 2`] },
+                    { name: 'ECC Lab 2', building: 'Comp', room: '2', rows: 9, cols: 5, cap: 45, active: true, activeSessions: [`${examDate}::Shift 1`, `${examDate}::Shift 2`] },
+                    { name: 'ECC Lab 3', building: 'Comp', room: '3', rows: 10, cols: 5, cap: 50, active: true, activeSessions: [`${examDate}::Shift 1`, `${examDate}::Shift 2`] },
+                    { name: 'SCC Lab', building: 'Main', room: '4', rows: 10, cols: 6, cap: 60, active: true, activeSessions: [`${examDate}::Shift 1`, `${examDate}::Shift 2`] },
+                    { name: 'Math Lab', building: 'Math', room: '5', rows: 10, cols: 5, cap: 50, active: true, activeSessions: [`${examDate}::Shift 1`, `${examDate}::Shift 2`] },
+                    { name: 'JCICT Lab 1', building: 'Tech', room: '10', rows: 10, cols: 6, cap: 60, active: true, activeSessions: [`${examDate}::Shift 1`, `${examDate}::Shift 2`] },
+                    { name: 'JCICT Lab 2', building: 'Tech', room: '11', rows: 10, cols: 6, cap: 60, active: true, activeSessions: [`${examDate}::Shift 1`, `${examDate}::Shift 2`] }
+                ];
+            }
+
+            const totalStudents = newClasses.reduce((sum, c) => sum + (c.students ? c.students.length : 0), 0);
+
+            const newProfile = {
+                id: newId,
+                name: examName,
+                code: examName.replace(/[^A-Za-z0-9]/g, '_').slice(0, 15).toUpperCase(),
+                date: examDate,
+                category: examCategory,
+                studentsCount: totalStudents,
+                classesCount: newClasses.length,
+                allocatedCount: 0,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            const newPayload = {
+                id: newId,
+                name: examName,
+                date: examDate,
+                category: examCategory,
+                updatedAt: new Date().toISOString(),
+                data: {
+                    rawExtractedClasses: newClasses,
+                    allocatedStudents: [],
+                    customLabs: newLabs,
+                    settings: newSettings,
+                    rosterStats: { students: totalStudents, classes: newClasses.length, courses: newClasses.length, subjects: newClasses.length },
+                    invigilatorList: JSON.parse(JSON.stringify(this.invigilatorList)),
+                    invigilatorAssignments: {},
+                    websiteTimetable: {
+                        examType: examName,
+                        customExamName: examName,
+                        startDate: examDate,
+                        endDate: examDate,
+                        shift1: newSettings.s1Start || '08:30',
+                        shift2: newSettings.s2Start || '13:45',
+                        breakTime: '13:20 to 13:45',
+                        extra: ''
+                    }
+                }
+            };
+
+            this.examProfilesList.push(newProfile);
+            localStorage.setItem('jostel_exam_profiles_index', JSON.stringify(this.examProfilesList));
+            localStorage.setItem(`jostel_exam_profile_${newId}`, JSON.stringify(newPayload));
+
+            this.showNewExamModal = false;
+            this.switchExamProfile(newId);
+            this.showExamToast(`✨ New Workspace Initialized: ${examName}`);
+        },
+        duplicateExamProfile(sourceExamId) {
+            this.saveCurrentExamState();
+            const sourceProfile = this.examProfilesList.find(e => e.id === sourceExamId);
+            if (!sourceProfile) return;
+
+            const raw = localStorage.getItem(`jostel_exam_profile_${sourceExamId}`);
+            if (!raw) return;
+            const sourcePayload = JSON.parse(raw);
+
+            const newId = 'exam_copy_' + Date.now();
+            const newName = `${sourceProfile.name} (Copy)`;
+
+            const clonedProfile = {
+                ...sourceProfile,
+                id: newId,
+                name: newName,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            const clonedPayload = {
+                ...sourcePayload,
+                id: newId,
+                name: newName,
+                updatedAt: new Date().toISOString()
+            };
+
+            this.examProfilesList.push(clonedProfile);
+            localStorage.setItem('jostel_exam_profiles_index', JSON.stringify(this.examProfilesList));
+            localStorage.setItem(`jostel_exam_profile_${newId}`, JSON.stringify(clonedPayload));
+
+            this.showExamToast(`📋 Duplicated workspace: ${newName}`);
+        },
+        exportExamProfile(examId) {
+            this.saveCurrentExamState();
+            const profile = this.examProfilesList.find(e => e.id === examId);
+            const raw = localStorage.getItem(`jostel_exam_profile_${examId}`);
+            if (!profile || !raw) {
+                alert('Exam profile data not found.');
+                return;
+            }
+
+            const exportPackage = {
+                format: 'JosTEL_Exam_Workspace_Package_v1',
+                exportedAt: new Date().toISOString(),
+                profile: profile,
+                data: JSON.parse(raw).data
+            };
+
+            const blob = new Blob([JSON.stringify(exportPackage, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const cleanName = (profile.name || 'Exam').replace(/[\/\\:*?"<>|]/g, '_');
+            a.href = url;
+            a.download = `JosTEL_Exam_${cleanName}_${profile.date || 'date'}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            this.showExamToast(`💾 Exported: ${a.download}`);
+        },
+        triggerImportExam() {
+            if (this.$refs.examImportFileInput) {
+                this.$refs.examImportFileInput.click();
+            }
+        },
+        handleExamFileImport(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (!parsed.profile || !parsed.data) {
+                        alert('Invalid exam package format. Expected a JosTEL exam workspace package.');
+                        return;
+                    }
+
+                    this.saveCurrentExamState();
+
+                    const newId = 'exam_import_' + Date.now();
+                    const newProfile = {
+                        ...parsed.profile,
+                        id: newId,
+                        name: `${parsed.profile.name} (Imported)`,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    const newPayload = {
+                        id: newId,
+                        name: newProfile.name,
+                        date: newProfile.date,
+                        category: newProfile.category || 'General',
+                        updatedAt: new Date().toISOString(),
+                        data: parsed.data
+                    };
+
+                    this.examProfilesList.push(newProfile);
+                    localStorage.setItem('jostel_exam_profiles_index', JSON.stringify(this.examProfilesList));
+                    localStorage.setItem(`jostel_exam_profile_${newId}`, JSON.stringify(newPayload));
+
+                    this.switchExamProfile(newId);
+                    this.showExamToast(`📥 Imported workspace: ${newProfile.name}`);
+                } catch(err) {
+                    alert('Error reading exam file: ' + err.message);
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        },
+        deleteExamProfile(examId) {
+            if (this.examProfilesList.length <= 1) {
+                alert('Cannot delete the only remaining exam workspace.');
+                return;
+            }
+
+            const profile = this.examProfilesList.find(e => e.id === examId);
+            if (!confirm(`Are you sure you want to permanently delete workspace: "${profile?.name}"?\nAll associated seating charts and rosters will be removed.`)) {
+                return;
+            }
+
+            localStorage.removeItem(`jostel_exam_profile_${examId}`);
+            this.examProfilesList = this.examProfilesList.filter(e => e.id !== examId);
+            localStorage.setItem('jostel_exam_profiles_index', JSON.stringify(this.examProfilesList));
+
+            if (this.activeExamId === examId) {
+                const nextId = this.examProfilesList[0].id;
+                this.loadExamProfileData(nextId, true);
+            }
+            this.showExamToast(`🗑️ Workspace deleted.`);
+        },
+        showExamToast(msg) {
+            this.examSwitchNotification = msg;
+            setTimeout(() => {
+                if (this.examSwitchNotification === msg) {
+                    this.examSwitchNotification = '';
+                }
+            }, 3500);
+        },
+
         renderCharts() {
             if (this.activeTab !== 'overview' || this.allocatedStudents.length === 0) return;
             // Destory existing
