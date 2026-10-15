@@ -258,6 +258,9 @@
                         </label>
                         <select v-model="fetchQuiz" class="text-xs">
                             <option value="">Select Quiz ({{ filteredFetchQuizzes.length }})</option>
+                            <option v-if="filteredFetchQuizzes.length > 0" value="ALL_QUIZZES" class="font-bold text-blue-700 bg-blue-50">
+                                ⭐ [ALL QUIZZES] Fetch All Course Quizzes ({{ filteredFetchQuizzes.length }})
+                            </option>
                             <option v-for="q in filteredFetchQuizzes" :key="q.id" :value="q.id">
                                 {{ getCourseShortname(q.course) ? '[' + getCourseShortname(q.course) + '] ' : '' }}{{ q.name }} ({{ q.sumgrades || 0 }} Marks)
                             </option>
@@ -1134,6 +1137,98 @@ createApp({
                 marks: maxmark || 1
             };
         },
+        async extractQuestionsFromQuiz(quizId, courseId) {
+            const candidateAttemptIds = [];
+
+            // 1. Instant check for student attempts via gradereport_user_get_grade_items
+            try {
+                const res = await this.request('gradereport_user_get_grade_items', `&courseid=${courseId}`);
+                if (res && res.usergrades && res.usergrades.length > 0) {
+                    const studentUserIds = [];
+                    for (const ug of res.usergrades) {
+                        for (const gi of (ug.gradeitems || [])) {
+                            if (gi.itemmodule === 'quiz' && gi.iteminstance == quizId) {
+                                if ((gi.graderaw !== null && gi.graderaw !== undefined) || gi.gradedatesubmitted || gi.gradeformatted) {
+                                    studentUserIds.push(ug.userid);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (studentUserIds.length > 0) {
+                        const sampleUsers = studentUserIds.slice(0, 5);
+                        const attResponses = await Promise.all(sampleUsers.map(uid => 
+                            this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=${uid}`).catch(() => null)
+                        ));
+                        for (const attData of attResponses) {
+                            if (attData && attData.attempts && attData.attempts.length > 0) {
+                                const finished = attData.attempts.filter(a => a.state === 'finished');
+                                const chosen = finished.length > 0 ? finished[finished.length - 1] : attData.attempts[attData.attempts.length - 1];
+                                if (chosen && !candidateAttemptIds.includes(chosen.id)) {
+                                    candidateAttemptIds.push(chosen.id);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch(e) {}
+
+            // 2. Check admin user attempts
+            try {
+                const adminAtt = await this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=2`);
+                if (adminAtt && adminAtt.attempts && adminAtt.attempts.length > 0) {
+                    for (const at of adminAtt.attempts.slice(-2)) {
+                        if (!candidateAttemptIds.includes(at.id)) candidateAttemptIds.push(at.id);
+                    }
+                }
+            } catch(e) {}
+
+            // 3. ON-DEMAND AUTO PREVIEW ATTEMPT via mod_quiz_start_attempt (Instant API Generation)
+            if (candidateAttemptIds.length === 0) {
+                try {
+                    const startRes = await this.request('mod_quiz_start_attempt', `&quizid=${quizId}`);
+                    if (startRes && startRes.attempt && startRes.attempt.id) {
+                        const newAttId = startRes.attempt.id;
+                        try {
+                            await this.request('mod_quiz_process_attempt', `&attemptid=${newAttId}&finishattempt=1`);
+                        } catch(procErr) {}
+                        candidateAttemptIds.push(newAttId);
+                    } else if (startRes && startRes.errorcode === 'noquestionsfound') {
+                        return { questions: [], error: 'noquestionsfound' };
+                    }
+                } catch(startErr) {
+                    if (startErr.message && startErr.message.includes('noquestionsfound')) {
+                        return { questions: [], error: 'noquestionsfound' };
+                    }
+                    console.warn(`start_attempt fallback note for quiz ${quizId}:`, startErr);
+                }
+            }
+
+            // 4. Retrieve attempt review with page=-1 to get all questions
+            const foundQuestions = [];
+            const targetAttempts = candidateAttemptIds.slice(0, 3);
+            for (const attId of targetAttempts) {
+                try {
+                    // Finalize in case it was left in-progress
+                    try {
+                        await this.request('mod_quiz_process_attempt', `&attemptid=${attId}&finishattempt=1`);
+                    } catch(fe) {}
+
+                    const rev = await this.request('mod_quiz_get_attempt_review', `&attemptid=${attId}&page=-1`);
+                    if (rev && rev.questions && rev.questions.length > 0) {
+                        for (const qItem of rev.questions) {
+                            const parsed = this.parseMoodleQuestionHtml(qItem.html || '', qItem.slot || (foundQuestions.length + 1), qItem.maxmark);
+                            if (parsed && parsed.text) {
+                                foundQuestions.push(parsed);
+                            }
+                        }
+                    }
+                } catch(err) {
+                    console.warn(`Review fetch note for attempt ${attId}:`, err);
+                }
+            }
+            return { questions: foundQuestions };
+        },
         async fetchQuestionPaper() {
             if (!this.fetchQuiz) return;
             this.isFetchingQP = true;
@@ -1143,152 +1238,65 @@ createApp({
 
             try {
                 // If fetchCourse is not set, resolve from quiz object in quizzes list
-                if (!this.fetchCourse) {
+                if (!this.fetchCourse && this.fetchQuiz !== 'ALL_QUIZZES') {
                     const qObj = this.quizzes.find(item => item.id == this.fetchQuiz);
                     if (qObj && qObj.course) {
                         this.fetchCourse = qObj.course;
                     }
                 }
 
-                const quizId = parseInt(this.fetchQuiz);
-                let targetCourseId = this.fetchCourse ? parseInt(this.fetchCourse) : null;
-
-                if (!targetCourseId) {
-                    const foundQuiz = this.quizzes.find(q => q.id == quizId);
-                    if (foundQuiz) targetCourseId = foundQuiz.course;
+                // Determine target quizzes to extract
+                let quizzesToFetch = [];
+                if (this.fetchQuiz === 'ALL_QUIZZES') {
+                    quizzesToFetch = [...this.filteredFetchQuizzes];
+                } else {
+                    const singleId = parseInt(this.fetchQuiz);
+                    const qObj = this.quizzes.find(q => q.id == singleId) || { id: singleId, course: this.fetchCourse ? parseInt(this.fetchCourse) : null };
+                    quizzesToFetch = [qObj];
                 }
 
-                if (!targetCourseId) {
-                    throw new Error(`Target Course ID could not be identified for Quiz #${quizId}. Please select or specify the Course.`);
+                if (quizzesToFetch.length === 0) {
+                    throw new Error('No quiz selected or found to fetch.');
                 }
 
-                this.fetchProgressText = 'Locating student attempts and submissions...';
-                const candidateAttemptIds = [];
-
-                // METHOD 1: Instant lookup via gradereport_user_get_grade_items (1 fast API call)
-                try {
-                    const res = await this.request('gradereport_user_get_grade_items', `&courseid=${targetCourseId}`);
-                    if (res && res.usergrades && res.usergrades.length > 0) {
-                        const studentUserIds = [];
-                        for (const ug of res.usergrades) {
-                            for (const gi of (ug.gradeitems || [])) {
-                                if (gi.itemmodule === 'quiz' && gi.iteminstance == quizId) {
-                                    if (gi.graderaw !== null && gi.graderaw !== undefined || gi.gradedatesubmitted || gi.gradeformatted) {
-                                        studentUserIds.push(ug.userid);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        // Query attempts for identified students in parallel batches
-                        if (studentUserIds.length > 0) {
-                            this.fetchProgressText = `Found ${studentUserIds.length} students with submissions. Retrieving attempt data...`;
-                            const sampleUsers = studentUserIds.slice(0, 10);
-                            const attResponses = await Promise.all(sampleUsers.map(uid => 
-                                this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=${uid}`).catch(() => null)
-                            ));
-                            for (const attData of attResponses) {
-                                if (attData && attData.attempts && attData.attempts.length > 0) {
-                                    const finished = attData.attempts.filter(a => a.state === 'finished');
-                                    const chosen = finished.length > 0 ? finished[finished.length - 1] : attData.attempts[attData.attempts.length - 1];
-                                    if (chosen && !candidateAttemptIds.includes(chosen.id)) {
-                                        candidateAttemptIds.push(chosen.id);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch(e) {
-                    console.warn("gradereport lookup error", e);
-                }
-
-                // METHOD 2: If gradereport didn't find attempts, scan enrolled course users in parallel batches
-                if (candidateAttemptIds.length === 0) {
-                    this.fetchProgressText = 'Scanning enrolled course participants for quiz attempts...';
-                    let enrolledUsers = [];
-                    try {
-                        enrolledUsers = await this.request('core_enrol_get_enrolled_users', `&courseid=${targetCourseId}`);
-                    } catch(e) { }
-
-                    if (Array.isArray(enrolledUsers) && enrolledUsers.length > 0) {
-                        // Prioritize users with student role
-                        const students = enrolledUsers.filter(u => (u.roles || []).some(r => r.shortname === 'student'));
-                        const candidates = students.length > 0 ? [...students, ...enrolledUsers.filter(u => !students.includes(u))] : enrolledUsers;
-                        
-                        const batchSize = 10;
-                        for (let i = 0; i < Math.min(candidates.length, 60) && candidateAttemptIds.length < 3; i += batchSize) {
-                            const chunk = candidates.slice(i, i + batchSize);
-                            const results = await Promise.all(chunk.map(u => 
-                                this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=${u.id}`).catch(() => null)
-                            ));
-                            for (const attData of results) {
-                                if (attData && attData.attempts && attData.attempts.length > 0) {
-                                    const finished = attData.attempts.filter(a => a.state === 'finished');
-                                    const chosen = finished.length > 0 ? finished[finished.length - 1] : attData.attempts[attData.attempts.length - 1];
-                                    if (chosen && !candidateAttemptIds.includes(chosen.id)) {
-                                        candidateAttemptIds.push(chosen.id);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // METHOD 3: Check admin or current user attempts
-                if (candidateAttemptIds.length === 0) {
-                    try {
-                        const adminAtt = await this.request('mod_quiz_get_user_attempts', `&quizid=${quizId}&status=all&userid=2`);
-                        if (adminAtt && adminAtt.attempts && adminAtt.attempts.length > 0) {
-                            candidateAttemptIds.push(adminAtt.attempts[adminAtt.attempts.length - 1].id);
-                        }
-                    } catch(e) {}
-                }
-
-                // If no attempts found anywhere, display informative alert
-                if (candidateAttemptIds.length === 0) {
-                    const qObj = this.quizzes.find(item => item.id == quizId);
-                    this.fetchNotice = {
-                        title: 'No Student Attempts Found for this Quiz',
-                        message: `No student submissions or attempts were found in Moodle for "${qObj ? qObj.name : 'Quiz #' + quizId}". In Moodle Web Services, full question content is accessed through quiz attempt reviews. Please preview or take the quiz once in Moodle to enable question paper extraction.`,
-                        quizUrl: `${this.moodleUrl.replace(/\/$/, '')}/mod/quiz/view.php?id=${qObj && qObj.coursemodule ? qObj.coursemodule : ''}`
-                    };
-                    return;
-                }
-
-                // Step 3: Fetch attempt reviews and pool unique questions
-                this.fetchProgressText = 'Extracting question structure and answer keys...';
                 const poolQuestionsMap = new Map();
                 let questionCounter = 1;
+                let emptyQuizCount = 0;
 
-                const targetAttempts = candidateAttemptIds.slice(0, 3);
-                for (const attId of targetAttempts) {
-                    try {
-                        const rev = await this.request('mod_quiz_get_attempt_review', `&attemptid=${attId}&page=-1`);
-                        if (rev && rev.questions && rev.questions.length > 0) {
-                            for (const qItem of rev.questions) {
-                                const parsed = this.parseMoodleQuestionHtml(qItem.html || '', qItem.slot || questionCounter, qItem.maxmark);
-                                if (!parsed.text) continue;
-                                const textKey = parsed.text.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 80);
-                                if (!poolQuestionsMap.has(textKey)) {
-                                    parsed.id = questionCounter++;
-                                    poolQuestionsMap.set(textKey, parsed);
-                                }
-                            }
+                for (let i = 0; i < quizzesToFetch.length; i++) {
+                    const q = quizzesToFetch[i];
+                    const qCourseId = q.course || (this.fetchCourse ? parseInt(this.fetchCourse) : null);
+                    this.fetchProgressText = `Extracting questions via API (${i + 1}/${quizzesToFetch.length}): ${q.name || 'Quiz #' + q.id}...`;
+
+                    const res = await this.extractQuestionsFromQuiz(q.id, qCourseId);
+                    if (res.error === 'noquestionsfound' || res.questions.length === 0) {
+                        emptyQuizCount++;
+                    }
+                    for (const parsed of res.questions) {
+                        const textKey = parsed.text.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 80);
+                        if (!poolQuestionsMap.has(textKey)) {
+                            parsed.id = questionCounter++;
+                            poolQuestionsMap.set(textKey, parsed);
                         }
-                    } catch(err) {
-                        console.warn(`Attempt review fetch error for ${attId}:`, err);
                     }
                 }
 
                 this.fetchedQuestions = Array.from(poolQuestionsMap.values());
-                if (this.fetchedQuestions.length === 0) {
-                    this.fetchNotice = {
-                        title: 'Questions Could Not Be Extracted',
-                        message: 'An attempt was found, but question content could not be parsed from the review HTML.'
-                    };
-                }
 
+                if (this.fetchedQuestions.length === 0) {
+                    const qObj = quizzesToFetch[0];
+                    if (emptyQuizCount > 0) {
+                        this.fetchNotice = {
+                            title: 'Quiz Contains No Questions in Moodle',
+                            message: `Moodle returned that "${qObj ? (qObj.name || 'Quiz #' + qObj.id) : 'this quiz'}" currently has 0 questions added to it in Moodle. Please add questions to the quiz in Moodle or select a course with an active quiz.`
+                        };
+                    } else {
+                        this.fetchNotice = {
+                            title: 'Questions Could Not Be Extracted',
+                            message: 'Could not extract question content from Moodle for the selected quiz.'
+                        };
+                    }
+                }
             } catch(e) {
                 alert(`Fetch error: ${e.message}`);
             } finally {
